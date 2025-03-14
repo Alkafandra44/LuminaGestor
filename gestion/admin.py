@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Expediente, Registro;
+from .models import *;
 
 
 class ExpedienteAdmin(admin.ModelAdmin):
@@ -8,3 +8,5 @@ class ExpedienteAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Expediente, ExpedienteAdmin)
+
+admin.site.register(Procedencia)

@@ -16,7 +16,9 @@ from SystemDjango import db
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR =  os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  #Path(__file__).resolve().parent.parent
-
+#===========================Rura de mi proyecto
+# print(BASE_DIR) = C:\xampp2\htdocs\SystemDjango
+# print(os.path.join(BASE_DIR, 'gestion', 'templates'))==== Ruta de una carpeta dentro de otra carpeta
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #App gestion
     'gestion'
 ]
 
@@ -57,7 +60,8 @@ ROOT_URLCONF = 'SystemDjango.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'gestion', 'templates')],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -114,6 +118,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

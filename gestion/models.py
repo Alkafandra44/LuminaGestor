@@ -97,7 +97,11 @@ class Archivo(models.Model):
 
     #PROCEDENCIA
 class Procedencia(models.Model):
-    id_procedencia = models.AutoField(primary_key=True)    
+    id_procedencia = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50,unique=True)
+    
+    def __str__(self):
+        return self.nombre
     
     #RESUESTA    
 class Respuesta(models.Model):
@@ -111,15 +115,21 @@ class Resultado(models.Model):
     
     #UEB OBETs
 class Obets(models.Model):
-    id_obet = models.AutoField(primary_key=True)    
+    id_obet = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50,unique=True)
+        
     
     #CLASIFICACION
 class Clasificacion(models.Model):
-    id_clasificacion = models.AutoField(primary_key=True)    
+    id_clasificacion = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50,unique=True)
+        
     
     #ESTADO_EXPEDIENTE
 class EstadoExpediente(models.Model):
     id_archivo = models.AutoField(primary_key=True)
+    estado = models.CharField(max_length=50,unique=True)
+    
     
     
     #1. ESTABLECER SUS RELACIONES
