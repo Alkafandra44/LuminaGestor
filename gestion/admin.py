@@ -10,3 +10,5 @@ class ExpedienteAdmin(admin.ModelAdmin):
 admin.site.register(Expediente, ExpedienteAdmin)
 
 admin.site.register(Procedencia)
+admin.site.register(Municipio)
+admin.site.register(Cliente)

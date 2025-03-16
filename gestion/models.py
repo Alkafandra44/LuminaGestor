@@ -10,6 +10,10 @@ class Expediente(models.Model):
     fecha_complete = models.DateTimeField(null=True)
     importan = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    clientes = models.ManyToManyField(
+        'Cliente', 
+        related_name='expedientes'
+        )
     registro = models.ForeignKey(
         'Registro', 
         on_delete=models.CASCADE, #no borrar registro si tiene expedientes con menos de 5 years.
@@ -48,6 +52,9 @@ class Cliente(models.Model):
         blank=True, 
         related_name='clientes' #Permite acceder a todos los clientes de un municipio usando municipio.clientes.all()
     )
+    def __str__(self):
+        return self.nombre
+    
     
     #MUNICIPIO
 class Municipio(models.Model):

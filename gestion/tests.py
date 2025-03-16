@@ -1,36 +1,35 @@
 from django.test import TestCase
-from .models import Municipio
+from .models import Municipio, Cliente
 
-# Create your tests here.
+class ClienteTestCase(TestCase):
+    def setUp(self):
+        # Crear un municipio para asignar a los clientes
+        self.municipio = Municipio.objects.create(nombre="Municipio de Prueba")
 
+    def test_crear_clientes(self):
+        # Crear instancias de Cliente
+        cliente1 = Cliente(
+            carnet="123456789",
+            nombre="Juan",
+            apellido="Pérez",
+            telefono="123456789",
+            direccion="Calle Falsa 123",
+            municipio=self.municipio
+        )
+        cliente2 = Cliente(
+            carnet="987654321",
+            nombre="Ana",
+            apellido="Gómez",
+            telefono="987654321",
+            direccion="Avenida Siempre Viva 742",
+            municipio=self.municipio
+        )
 
-#LISTAR MUNICIPIOS==============
-# query = Municipio.objects.all()
-# print(query)
+        # Guardar los clientes
+        cliente1.save()
+        cliente2.save()
 
-#INSERTAR SIMPLE===============
-#mun = Municipio(nombre='Matanzas').save()
-
-#INSERTAR MULTIPLE==========
-
-# municipios = [
-#     #Municipio(nombre="Limonar"),
-#    # Municipio(nombre="Cárdenas"),
-#     #Municipio(nombre="Colón"),
-#     Municipio(nombre="Jovellanos"),
-#     Municipio(nombre="Cienaga de Zapata"),
-#     Municipio(nombre="Unión de Reyes"),
-#     Municipio(nombre="Perico"),
-#     Municipio(nombre="Los Arabos"),
-#     Municipio(nombre="Jaguey Grande"),
-#     Municipio(nombre="Martí"),
-#     Municipio(nombre="Calimete"),
-#     Municipio(nombre="Pedro Betancourt"),
- 
-#     # Agrega todos los municipios necesarios
-#]
-#Municipio.objects.bulk_create(municipios)
-
-#MOSTRAR REGISTRO EN LA TABLA
-m = Municipio.objects.get(id_municipio=1)
-print(m.nombre)
+        # Verificar que los clientes se han guardado correctamente
+        self.assertEqual(Cliente.objects.count(), 2)
+        self.assertEqual(Cliente.objects.get(carnet="123456789").nombre, "Juan")
+        self.assertEqual(Cliente.objects.get(carnet="987654321").nombre, "Ana")

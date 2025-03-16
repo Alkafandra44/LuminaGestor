@@ -25,7 +25,7 @@ urlpatterns = [
     path('gestion/', views.gestion, name="gestion"),
     path('expediente/create/', views.create_expediente, name="create_expediente"),
     path('usuarios/', views.usuarios, name="usuarios"),
-    path('clientes/', views.clientes, name="clientes"),
+    path('clientes/', views.ClienteListar.as_view(), name="clientes"),
     path('logout/', views.signout, name="logout"),
     path('signin/', views.signin, name="signin")
 

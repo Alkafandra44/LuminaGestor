@@ -1,14 +1,20 @@
 from django.shortcuts import render, redirect
+#PARA VISTAS BASADAS EN CLASES
+from django.views.generic import ListView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from .forms import ExpedienteForm
+from .models import *
 
 
 # Create your views here.
 def home(request):
-    return render(request, 'home.html')
+    data ={
+        'title': 'Bienvenido'
+    }
+    return render(request, 'home.html', data)
 
 
 def signup(request):
@@ -63,7 +69,23 @@ def usuarios(request):
 
 
 def clientes(request):
-    return render(request, 'clientes.html')
+    data = {
+        'title': 'Listado de Clientes',
+        'clientes': Cliente.objects.all()
+    }
+    return render(request, 'clientes/clientes.html', data)
+
+##=====EJEMPLO DE VISTA BASADAS EN CLASES====####
+class ClienteListar(ListView):
+    model = Cliente
+    template_name = 'clientes/clientes.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Listado de Clientes'
+        
+        return context
+
 
 
 def signout(request):
