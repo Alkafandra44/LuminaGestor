@@ -1,12 +1,16 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
+
 #PARA VISTAS BASADAS EN CLASES
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
-from .forms import ExpedienteForm
+from .forms import ExpedienteForm, ClienteForm
 from .models import *
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -80,12 +84,33 @@ class ClienteListar(ListView):
     model = Cliente
     template_name = 'clientes/clientes.html'
     
+    ##=====QUITAR DECORATOR MAS ADELANTE====####
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kward):
+        data ={}
+        try:
+            data = Cliente.objects.get(pk=request.POST['id']).toJSON()
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data)
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de Clientes'
-        
         return context
 
+class ClienteCreateViews(CreateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'clientes/crear.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Crear Cliente'
+        return context
 
 
 def signout(request):

@@ -1,185 +1,33 @@
-{% extends "base.html" %}
+{% extends "list.html" %}
 
-{% block head %}
-<link rel="stylesheet" href="{% static %}"
 
-{% endblock head %} 
+{% block column %}
+    <tr>
+        <th></th>
+        <th>Ci</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Dirección</th>
+        <!--<th>No. Expediente</th>-->
+    </tr>
+{% endblock column %}
 
-{% block contenido %}
-<div class="app-content-header">
-    <div class="app-container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <h2 calss="mb-0">{{ title }}</h2>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-       <div class="col-md-12">
-           <button class="btn btn-outline-primary mb-3" type="button" id="btnNuevoCl">
-            <i class="fas fa-plus"> </i> Nuevo
-            </button>
-           <div class="card card-default">
-                <div class="card-header">
-                    <h4 class="card-title">
-                        <i class="fas fa-search"></i>
-                        {{ title }}
-                    </h4>
-                </div>
-                <div class="card-body">                    
-                    <div class="table-responsive">
-                        <table class="table table-hover display nowrap" style="width:100%" id="tblClientes">
-                            <thead class="table-light">
-                                <tr>
-                                    <th></th>
-                                    <th>Ci</th>
-                                    <th>Nombre</th>
-                                    <th>Teléfono</th>
-                                    <th>Dirección</th>
-                                    <!--<th>No. Expediente</th>-->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for c in object_list %}
-                                <tr>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary btn-xs" type="button">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger btn-xs" type="button">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </td>
-                                    <td>{{ c.carnet }}</td>
-                                    <td>{{ c.nombre }} {{ c.apellido }}</td>
-                                    <td>{{ c.telefono }}</td>
-                                    <td>{{ c.direccion }}. {{ c.municipio }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-           </div>
-       </div>
-   </div>
-</div>
+{% block rows %}
+    {% for c in object_list %}
+        <tr>
+            <td>
+                <button class="btn btn-sm btn-primary btn-xs" type="button">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger btn-xs" type="button">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+            <td>{{ c.carnet }}</td>
+            <td>{{ c.nombre }} {{ c.apellido }}</td>
+            <td>{{ c.telefono }}</td>
+            <td>{{ c.direccion }}. {{ c.municipio }}</td>
+        </tr>
+    {% endfor %}
+{% endblock rows %}
 
-<div id="modalRegistroCl" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-title" aria-hidden="true">
-   <div class="modal-dialog" role="document">
-       <div class="modal-content">
-           <div class="modal-header">
-               <h5 class="modal-title" id="titlecl"></h5>
-               <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-               </button>
-           </div>
-           <form id="formulariocl" autocomplete="off">
-               <input type="hidden" id="id_cliente" name="id_cliente">
-               <div class="modal-body">
-                   <div class="row">
-                       <div class="col-md-6">
-                           <label for="ci">CI</label>
-                           <div class="input-group">
-                               <span class="input-group-text">
-                                   <i class="material-icons">
-                                       badge
-                                   </i>
-                               </span>
-                               <input class="form-control" type="text" id="ci" name="ci" placeholder="CI" required>
-                           </div>
-                       </div>
-                       <div class="col-md-6">
-                           <label for="nombre">Nombre</label>
-                           <div class="input-group">
-                               <span class="input-group-text">
-                                   <i class="material-icons">
-                                       list
-                                   </i>
-                               </span>
-                               <input class="form-control" type="text" id="nombre" name="nombre" placeholder="Nombre" required>
-                           </div>
-                       </div>
-                       <div class="col-md-12">
-                           <label for="apellidos">Apellidos</label>
-                           <div class="input-group">
-                               <span class="input-group-text">
-                                   <i class="material-icons">
-                                       list
-                                   </i>
-                               </span>
-                               <input class="form-control" type="text" id="apellidos" name="apellidos" placeholder="Apellidos" required>
-                           </div>
-                       </div>
-                       <div class="col-md-6">
-                           <label for="correo">Correo</label>
-                           <div class="input-group">
-                               <span class="input-group-text">
-                                   <i class="material-icons">
-                                       email
-                                   </i>
-                               </span>
-                               <input class="form-control" type="email" id="correo" name="correo" placeholder="Correo" required>
-                           </div>
-                       </div>
-                       <div class="col-md-6">
-                           <label for="telefono">Teléfono</label>
-                           <div class="input-group">
-                               <span class="input-group-text">
-                                   <i class="material-icons">
-                                       phone
-                                   </i>
-                               </span>
-                               <input class="form-control" type="number" id="telefono" name="telefono" placeholder="Teléfono" required>
-                           </div>
-                       </div>
-                       <div class="col-md-8">
-                           <label for="calle">Calle</label>
-                           <div class="input-group">
-                               <span class="input-group-text">
-                                   <i class="material-icons">
-                                       place
-                                   </i>
-                               </span>
-                               <input class="form-control" type="text" id="calle" name="calle" placeholder="Calle" required>
-                           </div>
-                       </div>
-                       <div class="col-md-4">
-                           <label for="num">Num</label>
-                           <div class="input-group">
-                               <input class="form-control" type="number" id="num" name="num" placeholder="Num" required>
-                           </div>
-                       </div>
-                       <div class="col-md-12">
-                           <label for="entre_calles">entre calles</label>
-                           <div class="input-group">
-                               <input class="form-control" type="text" id="entre_calles" name="entre_calles" placeholder="entre calles" required>
-                           </div>
-                       </div>
-                       <div class="col-md-6">
-                           <label for="ciudad_pueblo">Ciudad o Pueblo</label>
-                           <div class="input-group">
-                               <input class="form-control" type="text" id="ciudad_pueblo" name="ciudad_pueblo" placeholder="Ciudad/Pueblo" required>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-               <div class="modal-footer">
-                   <button class="btn btn-outline-primary" type="submit">
-                       <i class="material-icons">
-                           save
-                       </i>Guardar
-                   </button>
-                   <button class="btn btn-outline-danger" type="button" data-bs-dismiss="modal">
-                       <i class="material-icons">
-                           cancel
-                       </i>Cancelar
-                   </button>
-               </div>
-           </form>
-       </div>
-   </div>
-</div>  
-
-{% endblock %}

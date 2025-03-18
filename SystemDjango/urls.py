@@ -26,6 +26,7 @@ urlpatterns = [
     path('expediente/create/', views.create_expediente, name="create_expediente"),
     path('usuarios/', views.usuarios, name="usuarios"),
     path('clientes/', views.ClienteListar.as_view(), name="clientes"),
+    path('clientes/add', views.ClienteCreateViews.as_view(), name="clientes_crear"),
     path('logout/', views.signout, name="logout"),
     path('signin/', views.signin, name="signin")
 

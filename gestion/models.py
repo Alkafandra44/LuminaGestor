@@ -55,6 +55,9 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
     
+    def toJSON(self):
+        item = {'id': self.id_cliente, 'nombre': self.nombre}
+        return item
     
     #MUNICIPIO
 class Municipio(models.Model):
