@@ -1,4 +1,6 @@
 from django.db import models
+from django.forms import model_to_dict
+from datetime import datetime
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -56,7 +58,8 @@ class Cliente(models.Model):
         return self.nombre
     
     def toJSON(self):
-        item = {'id': self.id_cliente, 'nombre': self.nombre}
+        item = model_to_dict(self)
+        # print(item)
         return item
     
     #MUNICIPIO

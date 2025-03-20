@@ -1,5 +1,7 @@
+from SystemDjango.wsgi import *
 from django.test import TestCase
 from .models import Municipio, Cliente
+
 
 class ClienteTestCase(TestCase):
     def setUp(self):
