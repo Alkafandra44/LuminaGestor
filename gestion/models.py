@@ -41,18 +41,19 @@ class Registro(models.Model):
     #CLIENTE
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
-    carnet = models.CharField(max_length=20, unique=True)#Carnet de identidad
-    nombre = models.CharField(max_length=50)
-    apellido = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=15, blank=True, null=True)
-    direccion = models.CharField(max_length=150)
+    carnet = models.CharField(max_length=20, unique=True, verbose_name='Cédula')
+    nombre = models.CharField(max_length=50, verbose_name='Nombre')
+    apellido = models.CharField(max_length=100, verbose_name='Apellidos')
+    telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name='Teléfono')
+    direccion = models.CharField(max_length=150, verbose_name='Dirección')
     municipio = models.ForeignKey(
         'Municipio', 
         on_delete=models.SET_NULL, 
         default=1, 
         null=True,
         blank=True, 
-        related_name='clientes' #Permite acceder a todos los clientes de un municipio usando municipio.clientes.all()
+        related_name='clientes', #Permite acceder a todos los clientes de un municipio usando municipio.clientes.all()
+        verbose_name='Municipio'
     )
     def __str__(self):
         return self.nombre

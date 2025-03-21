@@ -1,5 +1,8 @@
 {% extends "list.html" %}
-
+{% load static %} 
+{% block head_list %}
+    <script src="{% static 'cliente/js/list.js' %}"></script>
+{% endblock %}
 
 {% block column %}
     <tr>
@@ -12,22 +15,12 @@
     </tr>
 {% endblock column %}
 
+
 {% block rows %}
-    {% for c in object_list %}
-        <tr>
-            <td>
-                <button class="btn btn-sm btn-primary btn-xs" type="button">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-danger btn-xs" type="button">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-            <td>{{ c.carnet }}</td>
-            <td>{{ c.nombre }} {{ c.apellido }}</td>
-            <td>{{ c.telefono }}</td>
-            <td>{{ c.direccion }}. {{ c.municipio }}</td>
-        </tr>
-    {% endfor %}
+
 {% endblock rows %}
 
+
+{% block javascript %}
+
+{% endblock %} 

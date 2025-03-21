@@ -1,0 +1,71 @@
+{% extends "body.html" %}
+
+{% block contenido %}
+    <div class="app-content-header">
+        <div class="app-container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 calss="mb-0">{{ title }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                    <!--FORMULARIO A LA ESPERA DEL MODAL-->
+                    <form method="post" id="formulariocl">
+                        <div class="card card-default">
+                            <div class="card-header">
+                                <h4 class="card-title">
+                                    <!--encabezado del card e icono-->
+                                    <i class="bi bi-trash"></i>
+                                    {{ title }}
+                                </h4>
+                            </div>
+                            <div class="card-body"> 
+                                <div class="card-body">
+                                    {% csrf_token %} 
+                                    <input type="hidden" name="action" value="{{ action }}">
+                                        <div class="alert alert-danger alert-dismissible fade show">
+                                            <h5><i class="icon fas fa-ban"> </i> Alerta! </h5> 
+                                            ¿Estás seguro de eliminar al cliente?
+                                        </div>   
+                                        <div class="modal-footer">
+                                            <button class="btn btn-outline-primary" type="submit">
+                                                <i class="bi bi-floppy2-fill"></i> Eliminar
+                                            </button>
+                                            <a href="{{ list_url }}"class="btn btn-outline-danger btn-flat">
+                                                <i class="bi bi-x-square-fill"></i> Cancelar
+                                            </a>
+                                        </div> 
+                                </div>
+                            </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#formulariocl').on('submit', function(e) {
+            e.preventDefault();
+            var parameters = $(this).serializeArray();
+            $.ajax({
+                url: window.location.pathname,
+                type: 'POST',
+                data: {parameters},
+                dataType: 'json'
+            }).done(function (data) {
+                if(!data.hasOwnProperty('error')){
+                    location.href = '{{ list_url }}';
+                    return false;
+                }
+                alert_error(data.error);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus+': '+errorThrown);
+            }).always(function (data) {
+
+            });
+        });
+    </script>
+    
+{% endblock %}

@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 
 # PARA VISTAS BASADAS EN CLASES
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
@@ -62,24 +62,17 @@ def create_expediente(request):
             new_exp = form.save(commit=False)
             new_exp.user = request.user
             new_exp.save()
-            return redirect(gestion)
+            return redirect('gestion:clientes')
+
         except:
             return render(request, 'create_expediente.html', {
                 'form': ExpedienteForm,
                 'error': 'Agregue un dato valido'
             })
 
-
 def usuarios(request):
     return render(request, 'usuarios.html')
 
-
-def clientes(request):
-    data = {
-        'title': 'Listado de Clientes',
-        'clientes': Cliente.objects.all()
-    }
-    return render(request, 'clientes/clientes.html', data)
 
 ## =====EJEMPLO DE VISTA BASADAS EN CLASES====####
 
@@ -96,15 +89,23 @@ class ClienteListar(ListView):
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            data = Cliente.objects.get(pk=request.POST['id_cliente']).toJSON()
+            action = request.POST['action']
+            if action == 'searchdata':
+                data = []
+                for i in Cliente.objects.all():
+                    data.append(i.toJSON())
+            else:
+                data['error'] = 'Ha ocurrido un error'
         except Exception as e:
             data['error'] = str(e)
-        return JsonResponse(data)
+        return JsonResponse(data, safe=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Listado de Clientes'
-        #print(reverse_lazy('gestion:clientes'))
+        context['create_url'] = reverse_lazy('gestion:clientes_crear')
+        context['list_url'] = reverse_lazy('gestion:clientes')
+        context['entity'] = 'Clientes'
         return context
 
 
@@ -113,12 +114,97 @@ class ClienteCreateViews(CreateView):
     form_class = ClienteForm
     template_name = 'clientes/crear.html'
     success_url = reverse_lazy('gestion:clientes')
+    
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'add':
+                form = self.get_form() #De esta forma tambien se obtienen los datos del formulario
+                data = form.save()
+            else:
+                data['error'] = 'No ha ingresado a ninguna opcion'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data)
+    
+    #     print(request.POST)
+    #     form = ClienteForm(request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         return HttpResponseRedirect(self.success_url)
+    #     self.object = None
+    #     context = self.get_context_data(**kwargs)
+    #     context['form'] = form
+    #     return render(request,self.template_name, {'form': form})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Crear Cliente'
+        context['list_url'] = reverse_lazy('gestion:clientes')
+        context['entity'] = 'Clientes'
+        context['action'] = 'add'
         return context
 
+
+class ClienteUpdateViews(UpdateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'clientes/crear.html'
+    success_url = reverse_lazy('gestion:clientes')
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'edit':
+                form = self.get_form() #De esta forma tambien se obtienen los datos del formulario
+                data = form.save()
+            else:
+                data['error'] = 'Error al editar'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data)
+    
+    def get_context_data(self, **kwargs):
+        print(self.object)
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Editar Cliente'
+        context['list_url'] = reverse_lazy('gestion:clientes')
+        context['entity'] = 'Clientes'
+        context['action'] = 'edit'
+        return context
+    
+class ClienteDeleteViews(DeleteView):
+    model = Cliente
+    template_name = 'clientes/delete.html'
+    success_url = reverse_lazy('gestion:clientes')
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            self.object.delete()
+        except Exception as e:
+            data['error'] = str(e)
+            return JsonResponse(data)
+    
+    def get_context_data(self, **kwargs):
+        print(self.object)
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Eliminar Cliente'
+        context['list_url'] = reverse_lazy('gestion:clientes')
+        context['entity'] = 'Clientes'
+        return context
+    
+    
 
 def signout(request):
     logout(request)
