@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from gestion.views import *
+from homepage.views import IndexView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('gestion/', include('gestion.urls'))
+    path('gestion/', include('gestion.urls')),
+    path('', IndexView.as_view()),
 
 ]

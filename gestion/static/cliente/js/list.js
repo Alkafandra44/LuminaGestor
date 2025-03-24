@@ -15,9 +15,19 @@ $(function(){
         columns:[
             {"data": ""},
             {"data": "carnet"},
-            {"data": "nombre"},
+            {
+                "data": null, 
+                "render": function(data, type, row) {
+                    return row.nombre + ' ' + row.apellido;
+                }
+            },
             {"data": "telefono"},
-            {"data": "direccion"},
+            {
+                "data": null, 
+                "render": function(data, type, row) {
+                    return row.direccion + ', ' + row.municipio;
+                }
+            },
         ],
         columnDefs: [
             {

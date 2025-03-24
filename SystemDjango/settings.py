@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #App gestion
-    'gestion'
+    'gestion',
+    #App homepage
+    'homepage'
 ]
 
 MIDDLEWARE = [

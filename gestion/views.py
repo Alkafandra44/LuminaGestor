@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse
 
 # PARA VISTAS BASADAS EN CLASES
 from django.urls import reverse_lazy
@@ -8,10 +8,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from gestion.forms import ExpedienteForm, ClienteForm
 from gestion.models import *
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -91,9 +91,18 @@ class ClienteListar(ListView):
         try:
             action = request.POST['action']
             if action == 'searchdata':
+                clientes = Cliente.objects.all()
                 data = []
-                for i in Cliente.objects.all():
-                    data.append(i.toJSON())
+                for i in clientes:
+                    data.append({
+                        'id_cliente': i.id_cliente,
+                        'carnet': i.carnet,
+                        'nombre': i.nombre,
+                        'apellido': i.apellido,
+                        'direccion': i.direccion,
+                        'telefono': i.telefono,
+                        'municipio': i.municipio.nombre if i.municipio else None,  # Obtiene el nombre del municipio
+                    })
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
