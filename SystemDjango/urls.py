@@ -18,11 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from gestion.views import *
 from homepage.views import IndexView
+from login.views import LoginFormView1
 
 
 urlpatterns = [
+    path('', IndexView.as_view()),
+    path('login/', include('login.url')),
     path('admin/', admin.site.urls),
     path('gestion/', include('gestion.urls')),
-    path('', IndexView.as_view()),
-
 ]
