@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'gestion',
     'homepage',
     'login',
+
 ]
 
 MIDDLEWARE = [
