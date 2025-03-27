@@ -131,6 +131,14 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/gestion/clientes/'
 
-LOGOUT_REDIRECT_URL = '/login'
+
+LOGIN_REDIRECT_URL = '/gestion/dashboard/'
+
+LOGOUT_REDIRECT_URL = '/login/'
+
+LOGIN_URL = '/login/'
+
+#Alojamiento de arcchivos Media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'

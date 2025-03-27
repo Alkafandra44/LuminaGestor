@@ -39,14 +39,14 @@
                 data-accordion="false"
               >
                 <li class="nav-item">
-                  <a href="#" class="nav-link">
+                  <a href="{% url "gestion:dashboard" %}" class="nav-link">
                     <i class="nav-icon bi bi-speedometer"></i>
                     <p>
                       Estadística
                     </p>
                   </a>
                 </li>
-                <li class="nav-item">
+                <!--<li class="nav-item">
                   <a href="#" class="nav-link">
                     <i class="nav-icon bi bi-clipboard-fill"></i>
                     <p>
@@ -74,9 +74,9 @@
                       </a>
                     </li>
                   </ul>
-                </li>
+                </li>-->
                 <li class="nav-item">
-                  <a href="{% url "gestion:registro" %}" class="nav-link">
+                  <a href="{% url "gestion:registros" %}" class="nav-link">
                     <i class="nav-icon bi bi-box-seam-fill"></i>
                     <p>
                       Registros
@@ -129,70 +129,6 @@
                     </li>
                   </ul>
                 </li>
-                <li class="nav-header">EXAMPLES</li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <i class="nav-icon bi bi-box-arrow-in-right"></i>
-                    <p>
-                      Auth
-                      <i class="nav-arrow bi bi-chevron-right"></i>
-                    </p>
-                  </a>
-                  <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        <i class="nav-icon bi bi-box-arrow-in-right"></i>
-                        <p>
-                          Version 1
-                          <i class="nav-arrow bi bi-chevron-right"></i>
-                        </p>
-                      </a>
-                      <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                          <a href="../examples/login.html" class="nav-link">
-                            <i class="nav-icon bi bi-circle"></i>
-                            <p>Login</p>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a href="../examples/register.html" class="nav-link">
-                            <i class="nav-icon bi bi-circle"></i>
-                            <p>Register</p>
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        <i class="nav-icon bi bi-box-arrow-in-right"></i>
-                        <p>
-                          Version 2
-                          <i class="nav-arrow bi bi-chevron-right"></i>
-                        </p>
-                      </a>
-                      <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                          <a href="../examples/login-v2.html" class="nav-link">
-                            <i class="nav-icon bi bi-circle"></i>
-                            <p>Login</p>
-                          </a>
-                        </li>
-                        <li class="nav-item">
-                          <a href="../examples/register-v2.html" class="nav-link">
-                            <i class="nav-icon bi bi-circle"></i>
-                            <p>Register</p>
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li class="nav-item">
-                      <a href="../examples/lockscreen.html" class="nav-link">
-                        <i class="nav-icon bi bi-circle"></i>
-                        <p>Lockscreen</p>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
                 <li class="nav-header">DOCUMENTATIONS</li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
@@ -201,6 +137,22 @@
                       Resoluciones
                     </p>
                   </a>
+                </li>
+                <br>
+                <li class="nav-item">
+                  {% if request.user.is_authenticated %}
+                    <a href="{% url 'gestion:dashboard' %}" class="nav-link">
+                      <i class="nav-icon bi bi-person"></i>
+                      <p>
+                        Bienvenido: {{ request.user.username }}
+                      </p>
+                    </a>
+                  {% else %}
+                    <a href="{% url 'login' %}" class="nav-link">
+                      <i class="nav-icon bi bi-door-open"></i>
+                      <p>Login</p>
+                    </a>
+                  {% endif %}
                 </li>
               </ul>
               <!--end::Sidebar Menu-->

@@ -1,0 +1,82 @@
+{% extends "body.html" %} 
+{% load static %} 
+
+
+{% block contenido %}
+    <div class="app-content-header">
+      <div class="app-container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 calss="mb-0">{{ title }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <a
+            href="{{ create_url }}"
+            class="btn btn-outline-primary mb-3 btnNuevoRegistro"
+            type="button"
+            id="btnNuevoReg"
+          >
+            <i class="fas fa-plus"> </i> Nuevo
+          </a>
+          <div class="card card-default">
+            <div class="card-header">
+              <h4 class="card-title">
+                {{ title }}
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="app-content">
+                <div class="app-container-fluid">
+                  <div class="row">
+
+                    <div class="col-md-2">
+                      <div class="card file-manager-group">
+                        <div class="card-body d-flex align-items-center">
+                          <i class="bi bi-archive-fill"> 2023</i>
+                          <div class="file-manager-group-info flex-fill">
+                            <a href="#" class="file-manager-group-title"
+                              ></a>
+                            <span class="file-manager-group-about"
+                              ></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %} 
+
+
+{% block javascript %}
+  <script type="application/javascript">
+    $(function(){
+        $('.btnNuevoRegistro').on('click', function (){
+            $.ajax({
+                url: '{% url 'gestion:registros' %}',
+                type: 'POST',
+                data: {id_registro: 1},
+                dataType: 'json'
+            }).done(function (data) {
+                console.log(data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus+': '+errorThrown);
+            }).always(function (data) {
+
+            });
+        });
+    });
+  </script>
+  {% endblock %}
+

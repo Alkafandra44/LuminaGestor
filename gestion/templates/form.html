@@ -52,7 +52,7 @@
         </div>
     </div>
     <script>
-        {% if form.errors %}
+        /*{% if form.errors %}
             var errors = '';
             {% for field in form %}
                 {% for error in field.errors %}
@@ -64,28 +64,17 @@
                 text: errors,
                 icon: "error",
               });
-        {% endif %}
+        {% endif %}*/
 
         $('form').on('submit', function(e) {
             e.preventDefault();
             var parameters = $(this).serializeArray();
-            $.ajax({
-                url: window.location.pathname,
-                type: 'POST',
-                data: parameters,
-                dataType: 'json'
-            }).done(function (data) {
-                if(!data.hasOwnProperty('error')){
-                    location.href = '{{ list_url }}';
-                    return false;
-                }
-                alert_error(data.error);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus+': '+errorThrown);
-            }).always(function (data) {
-
+            submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
+                location.href = '{{ list_url }}';
             });
         });
+
     </script>
+
 
 {% endblock %}

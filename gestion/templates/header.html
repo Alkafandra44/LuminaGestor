@@ -51,7 +51,7 @@
                   class="user-image rounded-circle shadow"
                   alt="User Image"
                 /><!--LLAMAR AL NOMBRE DEL USUARIO-->
-                <span class="d-none d-md-inline">Alexander Pierce</span>
+                <span class="d-none d-md-inline">{{ request.user.username }}</span>
               </a>
               <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 <!--begin::User Image-->
@@ -62,9 +62,9 @@
                     alt="User Image"
                   />
                   <p><!--LLAMAR AL NOMBRE DEL USUARIO Y SU EMAIL-->
-                    {{auth_user.username}}
+                    {{ request.user.username }}
                   </p>
-                  <small>{{auth_user.email}}</small>
+                  <small>{{ request.user.email }}</small>
                 </li>
                 <!--end::User Image-->
                 <!--begin::Menu Body
@@ -74,7 +74,7 @@
                 <!--end::Menu Body-->
                 <!--begin::Menu Footer-->
                 <li class="user-footer">
-                  <a href="#" class="btn btn-default btn-flat float-end"
+                  <a href="{% url 'logout' %}" class="btn btn-default btn-flat float-end"
                     >Sign out</a
                   >
                 </li>

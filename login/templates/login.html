@@ -35,15 +35,14 @@
   <body class="login-page bg-body-secondary">
     <div class="login-box">
       <div class="login-logo">
-        <a href="../index2.html"><b>{{ title }}
-            <br>
-        </b>LuminaGestor</a>
+        <a href="{% url 'index' %}"><b>Lumina</b>Gestor</a>
       </div>
       <!-- /.login-logo -->
       <div class="card">
         <div class="card-body login-card-body">
           <p class="login-box-msg">Ingrese datos para iniciar sesion</p>
           <form method="post">
+            <input type="hidden" name="next" value="{{ next }}">
             {% csrf_token %} 
             <div class="input-group mb-3">
               {{ form.username |add_class:'form-control'|attr:'autocomplete:off'|attr:'placeholder:Nombre de Usuario' }}

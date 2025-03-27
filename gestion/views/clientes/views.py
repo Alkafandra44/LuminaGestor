@@ -6,13 +6,13 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, authenticate
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from gestion.forms import ExpedienteForm, ClienteForm
 from gestion.models import *
-
 
 # Create your views here.
 def home(request):
@@ -47,10 +47,6 @@ def signup(request):
         })
 
 
-def gestion(request):
-    return render(request, 'gestion.html')
-
-
 def create_expediente(request):
     if request.method == 'GET':
         return render(request, 'create_expediente.html', {
@@ -74,15 +70,14 @@ def usuarios(request):
     return render(request, 'usuarios.html')
 
 
-## =====EJEMPLO DE VISTA BASADAS EN CLASES====####
-
+## ===== USO DE VISTA BASADAS EN CLASES====##
 
 class ClienteListar(ListView):
     model = Cliente
     template_name = 'clientes/clientes.html'
 
-    ## =====QUITAR DECORATOR MAS ADELANTE====####
     @method_decorator(csrf_exempt)
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -117,12 +112,14 @@ class ClienteListar(ListView):
         context['entity'] = 'Clientes'
         return context
 
-
 class ClienteCreateViews(CreateView):
     model = Cliente
     form_class = ClienteForm
     template_name = 'clientes/crear.html'
-    success_url = reverse_lazy('gestion:clientes')
+    
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
         data = {}
@@ -136,6 +133,7 @@ class ClienteCreateViews(CreateView):
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
+    
     
     #     print(request.POST)
     #     form = ClienteForm(request.POST)
@@ -155,13 +153,13 @@ class ClienteCreateViews(CreateView):
         context['action'] = 'add'
         return context
 
-
 class ClienteUpdateViews(UpdateView):
     model = Cliente
     form_class = ClienteForm
     template_name = 'clientes/crear.html'
     success_url = reverse_lazy('gestion:clientes')
     
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -193,6 +191,7 @@ class ClienteDeleteViews(DeleteView):
     template_name = 'clientes/delete.html'
     success_url = reverse_lazy('gestion:clientes')
     
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -206,20 +205,12 @@ class ClienteDeleteViews(DeleteView):
             return JsonResponse(data)
     
     def get_context_data(self, **kwargs):
-        print(self.object)
         context = super().get_context_data(**kwargs)
         context['title'] = 'Eliminar Cliente'
         context['list_url'] = reverse_lazy('gestion:clientes')
         context['entity'] = 'Clientes'
         return context
     
-    
-
-def signout(request):
-    logout(request)
-    return redirect('home')
-
-
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {

@@ -16,14 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from gestion.views import *
+from gestion.views.clientes.views import *
 from homepage.views import IndexView
 from login.views import LoginFormView1
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
-    path('', IndexView.as_view()),
+    path('', IndexView.as_view(), name = 'index'),
     path('login/', include('login.url')),
     path('admin/', admin.site.urls),
     path('gestion/', include('gestion.urls')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

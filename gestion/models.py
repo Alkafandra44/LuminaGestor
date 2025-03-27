@@ -2,6 +2,10 @@ from django.db import models
 from django.forms import model_to_dict
 from datetime import datetime
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
+import os
+from django.conf import settings # Para acceder a MEDIA_ROOT
 
 # Create your models here.
 class Expediente(models.Model):
@@ -34,6 +38,14 @@ class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
     title = models.CharField(max_length=10)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+        
+    def save(self, *args, **kwargs):
+        self.clean()  # Llamar a la validación antes de guardar
+        super().save(*args, **kwargs)
+        # Crear una carpeta con el nombre del registro
+        registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.title)
+        if not os.path.exists(registro_folder):
+            os.makedirs(registro_folder)
     
     def __str__(self):
         return f"{self.title} {self.fecha_creacion} - by {self.user.username}"

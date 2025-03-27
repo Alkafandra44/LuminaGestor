@@ -1,5 +1,5 @@
 from django.forms import *
-from .models import Expediente, Cliente
+from .models import Expediente, Cliente, Registro
 
 
 class ExpedienteForm(ModelForm):
@@ -47,3 +47,17 @@ class ClienteForm(ModelForm):
         except Exception as e:
             data['error'] = str(e)
         return data
+
+
+class RegistroForm(ModelForm):
+    class Meta:
+        model = Registro
+        fields = ['title']
+        widgets = {
+            'title': TextInput(
+                attrs={
+                'class': 'form-control', 
+                'placeholder': 'Título del registro'
+                }
+            ),
+        }
