@@ -77,3 +77,8 @@ class RegistroListarView(ListView):
 
     def get_queryset(self):
         return Registro.objects.all().order_by('-fecha_creacion')
+    
+class RegistroDetalleView(ListView):
+    model = Registro
+    template_name = 'registros/registros_detalles.html'
+    

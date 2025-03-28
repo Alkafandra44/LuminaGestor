@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'gestion',
     'homepage',
     'login',
-
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +143,6 @@ LOGIN_URL = '/login/'
 #Alojamiento de arcchivos Media
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
+
+#Sustitucion del nuevo modelo personalizado
+AUTH_USER_MODEL = 'user.User'

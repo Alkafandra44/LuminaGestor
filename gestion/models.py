@@ -15,7 +15,7 @@ class Expediente(models.Model):
     fecha_create = models.DateTimeField(auto_now_add=True)
     fecha_complete = models.DateTimeField(null=True)
     importan = models.BooleanField(default=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    #user = models.ForeignKey(User, on_delete=models.CASCADE)
     clientes = models.ManyToManyField(
         'Cliente', 
         related_name='expedientes'
