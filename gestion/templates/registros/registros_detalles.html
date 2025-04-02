@@ -1,14 +1,21 @@
 {% extends "list.html" %} 
 {% load static %} 
 
+{% block buttons_list %}
+  <a class="btn btn-outline-primary mb-3 btnNuevoRegistro" type="button">
+    <i class="fas fa-plus"> </i> Nuevo Expediente
+  </a>
+{% endblock %}
+
 {% block column %}
     <tr>
         <th></th>
         <th>No</th>
-        <th>Titulo</th>
-        <th>Cliente</th>
-        <th>Registro</th>
-        <!--<th>No. Expediente</th>-->
+        <th>Nombre</th>
+        <th>Clasificación</th>
+        <th>Fecha R.</th>
+        <th>Fecha de E.</th>
+        <th>Estado</th>
     </tr>
 {% endblock column %}
 

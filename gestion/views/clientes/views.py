@@ -98,6 +98,27 @@ class ClienteListar(ListView):
                         'telefono': i.telefono,
                         'municipio': i.municipio.nombre if i.municipio else None,  # Obtiene el nombre del municipio
                     })
+            elif action == 'add':
+                cliente = Cliente()
+                cliente.carnet = request.POST['carnet']
+                cliente.nombre = request.POST['nombre']
+                cliente.apellido = request.POST['apellido']
+                cliente.telefono = request.POST['telefono']
+                cliente.direccion = request.POST['direccion']
+                cliente.municipio.nombre = request.POST['municipio']
+                cliente.save()
+            elif action == 'edit':
+                cliente = Cliente.objects.get(pk=request.POST['id'])
+                cliente.carnet = request.POST['carnet']
+                cliente.nombre = request.POST['nombre']
+                cliente.apellido = request.POST['apellido']
+                cliente.telefono = request.POST['telefono']
+                cliente.direccion = request.POST['direccion']
+                cliente.municipio.nombre = request.POST['municipio']
+                cliente.save()
+            elif action == 'delete':
+                cliente = Cliente.objects.get(pk=request.POST['id'])
+                cliente.delete()
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
@@ -110,6 +131,7 @@ class ClienteListar(ListView):
         context['create_url'] = reverse_lazy('gestion:clientes_crear')
         context['list_url'] = reverse_lazy('gestion:clientes')
         context['entity'] = 'Clientes'
+        context['form'] = ClienteForm()
         return context
 
 class ClienteCreateViews(CreateView):
@@ -117,9 +139,9 @@ class ClienteCreateViews(CreateView):
     form_class = ClienteForm
     template_name = 'clientes/crear.html'
     
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+    # @method_decorator(login_required)
+    # def dispatch(self, request, *args, **kwargs):
+    #     return super().dispatch(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
         data = {}

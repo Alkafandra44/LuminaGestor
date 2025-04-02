@@ -1,5 +1,6 @@
 {% extends "body.html" %} 
 {% load static %} 
+
 {% block head %}
   <link
     rel="stylesheet"
@@ -21,7 +22,6 @@
 
 {% endblock head %} 
 
-
 {% block contenido %}
   <div class="app-content-header">
     <div class="app-container-fluid">
@@ -37,10 +37,7 @@
       <div class="col-md-12">
         {% block buttons_list %}
           <a href="{{ create_url }}" 
-            class="btn btn-outline-primary mb-3 btnNuevoCliente"
-            type="button"
-            id="btnNuevoCl"
-          >
+            class="btn btn-outline-primary mb-3 btnNuevoRegistro" type="button" id="btnNuevoRegistro">
             <i class="fas fa-plus"> </i> Nuevo
           </a>
         {% endblock %}
@@ -57,7 +54,7 @@
               <table
                 class="table table-hover display nowrap"
                 style="width: 100%"
-                id="tblClientes"
+                id="tblRegistros"
               >
                 <thead class="table-light">
                   {% block column %} 
@@ -82,25 +79,24 @@
 {% block javascript %}
   <script type="application/javascript">
     $(function(){
-        $('#tblClientes').DataTable({
-            responsive: true,
-            autoWidth: false
-        });
+      $('#tblRegistros').DataTable({
+        responsive: true,
+        autoWidth: false
+      });
+      $('.btnNuevoRegistro').on('click', function (){
+          $.ajax({
+              url: '{% url 'gestion:registros' %}',
+              type: 'POST',
+              data: {id_registro: 1},
+              dataType: 'json'
+          }).done(function (data) {
+              console.log(data);
+          }).fail(function (jqXHR, textStatus, errorThrown) {
+              alert(textStatus+': '+errorThrown);
+          }).always(function (data) {
 
-        $('.btnNuevoCliente').on('click', function (){
-            $.ajax({
-                url: '{% url 'gestion:clientes' %}',
-                type: 'POST',
-                data: {id_cliente: 1},
-                dataType: 'json'
-            }).done(function (data) {
-                console.log(data);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus+': '+errorThrown);
-            }).always(function (data) {
-
-            });
-        });
+          });
+      });
     });
   </script>
   {% endblock %}

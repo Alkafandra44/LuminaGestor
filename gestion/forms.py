@@ -3,11 +3,14 @@ from .models import Expediente, Cliente, Registro
 
 
 class ExpedienteForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for form in self.visible_fields():
+            form.field.widget.attrs.update({'class': 'form-control', 'autocomplete': 'off'})
     class Meta:
         model = Expediente
-        fields = ['title', 'resumen', 'importan']
-
-# class Registro()
+        fields = '__all__'
+        template_name = 'expedientes/crear.html'
 
 #===Muestra los campos del formulario
 class ClienteForm(ModelForm):
@@ -15,12 +18,10 @@ class ClienteForm(ModelForm):
         super().__init__(*args, **kwargs)
         for form in self.visible_fields():
             form.field.widget.attrs.update({'class': 'form-control', 'autocomplete': 'off'})
-
     class Meta:
         model = Cliente
         fields = '__all__'
         template_name = 'clientes/crear.html'
-        
         widgets = {
             'carnet': TextInput(
                 attrs={
@@ -48,8 +49,11 @@ class ClienteForm(ModelForm):
             data['error'] = str(e)
         return data
 
-
 class RegistroForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for form in self.visible_fields():
+            form.field.widget.attrs.update({'class': 'form-control', 'autocomplete': 'off'})
     class Meta:
         model = Registro
         fields = ['title']

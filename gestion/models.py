@@ -4,11 +4,13 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
+from basemodel import BaseModel
+
 import os
 from django.conf import settings # Para acceder a MEDIA_ROOT
 
 # Create your models here.
-class Expediente(models.Model):
+class Expediente(BaseModel):
     id_expediente = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100, default='')
     resumen = models.TextField(blank=True)
@@ -40,12 +42,40 @@ class Registro(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
         
     def save(self, *args, **kwargs):
-        self.clean()  # Llamar a la validación antes de guardar
+        # Obtener el nombre anterior del registro si existe
+        if self.pk:
+            old_instance = Registro.objects.get(pk=self.pk)
+            old_folder = os.path.join(settings.MEDIA_ROOT, 'registros', old_instance.title)
+            new_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.title)
+            # Renombrar la carpeta si el título ha cambiado
+            if old_instance.title != self.title and os.path.exists(old_folder):
+                os.rename(old_folder, new_folder)
+        else:
+            # Crear la carpeta si es un nuevo registro
+            registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.title)
+            if not os.path.exists(registro_folder):
+                os.makedirs(registro_folder)
         super().save(*args, **kwargs)
-        # Crear una carpeta con el nombre del registro
+        
+    def delete(self, *args, **kwargs):
+        # Eliminar la carpeta del registro
         registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.title)
-        if not os.path.exists(registro_folder):
-            os.makedirs(registro_folder)
+        if os.path.exists(registro_folder):
+            os.rmdir(registro_folder)  # Eliminar la carpeta
+        super().delete(*args, **kwargs)
+        
+        
+        # self.clean()  # Llamar a la validación antes de guardar
+        # super().save(*args, **kwargs)
+        # # Crear una carpeta con el nombre del registro
+        # registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.title)
+        # if not os.path.exists(registro_folder):
+        #     os.makedirs(registro_folder)
+            
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['fecha_creacion'] = self.fecha_creacion.strftime('%d-%m-%Y %H:%M:%S')
+        return item
     
     def __str__(self):
         return f"{self.title} {self.fecha_creacion} - by {self.user.username}"
@@ -72,8 +102,7 @@ class Cliente(models.Model):
     
     def toJSON(self):
         item = model_to_dict(self)
-        # print(item)
-        return item
+         
     
     #MUNICIPIO
 class Municipio(models.Model):
