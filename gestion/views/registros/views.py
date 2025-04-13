@@ -5,9 +5,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from gestion.models import Registro
-from gestion.forms import RegistroForm
+from gestion.models import Registro, Expediente
+from gestion.forms import RegistroForm, ExpedienteForm
 
+
+#======VISTA DE REGISTROS=======#
 class RegistroListarView(TemplateView):
     model = Registro
     template_name = 'registros/registros.html'
@@ -55,7 +57,7 @@ class RegistroListarView(TemplateView):
     def get_queryset(self):
         return Registro.objects.all().order_by('-fecha_creacion')
   
-
+#======CREAR REGISTRO=======# 
 class RegistroCreateView(CreateView):
     model = Registro
     form_class = RegistroForm
@@ -77,8 +79,7 @@ class RegistroCreateView(CreateView):
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data)
-   
-        
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Crear Registro'
@@ -87,13 +88,50 @@ class RegistroCreateView(CreateView):
         context['action'] = 'add'
         return context
   
-class RegistroDetalleView(DetailView):
-    model = Registro
+#======CONTENIDO DE REGISTRO DETALLE=======#
+class ExpedientesListar(ListView):
+    model = Expediente
     template_name = 'registros/registros_detalles.html'
-    context_object_name = 'registro'
+    context_object_name = 'expedientes'
+    
+    @method_decorator(csrf_exempt)
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'searchdata':
+                registros = Expediente.objects.filter(registro_id=request.POST['id_expediente'])
+                data = []
+                for i in registros:
+                    data.append(i.toJSON())
+            elif action == 'add':
+                form = ExpedienteForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                    data['success'] = 'Expediente creado correctamente'
+                else:
+                    data['error'] = form.errors
+            else:
+                data['error'] = 'Ha ocurrido un error'
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
+    
+    def get_queryset(self):
+        # Obtener el registro específico basado en el ID pasado en la URL
+        registro_id = self.kwargs['pk']
+        return Expediente.objects.filter(registro_id=registro_id).order_by('-fecha_create')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = f"Detalle del Registro: {self.object.title}"
+        registro_id = self.kwargs['pk']
+        registro = Registro.objects.get(pk=registro_id)
+        # Mostrar el título del registro
+        context['title'] = f"Detalles del Registro: {registro.title}"
+        context['list_url'] = reverse_lazy('gestion:registros')
         return context
     

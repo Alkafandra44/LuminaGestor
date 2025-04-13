@@ -10,37 +10,124 @@ import os
 from django.conf import settings # Para acceder a MEDIA_ROOT
 
 # Create your models here.
+#EXPEDIENTE
 class Expediente(BaseModel):
     id_expediente = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100, default='')
     resumen = models.TextField(blank=True)
     fecha_create = models.DateTimeField(auto_now_add=True)
     fecha_complete = models.DateTimeField(null=True)
+    respuesta = models.TextField(blank=True)
     importan = models.BooleanField(default=False)
     #user = models.ForeignKey(User, on_delete=models.CASCADE)
     clientes = models.ManyToManyField(
         'Cliente', 
         related_name='expedientes'
-        )
+    )
     registro = models.ForeignKey(
         'Registro', 
-        on_delete=models.CASCADE, #no borrar registro si tiene expedientes con menos de 5 years.
+        on_delete=models.PROTECT,
         related_name='expedientes',
         verbose_name="Registro Anual"
     )
+    Clasificacion =[
+        ('solicitud', 'Solicitud'),
+        ('queja', 'Queja'),
+        ('sugerencia', 'Sugerencia'),
+        ('denuncia', 'Denuncia'),
+    ]
+    clasificacion = models.CharField(
+        max_length=50,
+        choices=Clasificacion,
+        default='queja',
+        verbose_name="Clasificación"
+    )
+    procedencia = models.ForeignKey(
+        'Procedencia', 
+        on_delete=models.PROTECT, 
+        related_name='expedientes',
+        verbose_name="Procedencia"
+    )
+    UEB_OBTs =[
+        ('UEB_Calimete', 'Unidad Empresarial de Base Calimete'),
+        ('UEB2_Cárdenas', 'Unidad Empresarial de Base Cárdenas'),
+        ('UEB3_Cienaga', 'Unidad Empresarial de Base Cienaga de Zapata'),
+        ('UEB4_Colón', 'Unidad Empresarial de Base Colón'),
+        ('UEB5_Jaguey', 'Unidad Empresarial de Base Jaguey Grande'),
+        ('UEB6_Jovellanos', 'Unidad Empresarial de Base Jovellanos'),
+        ('UEB7_Limonar', 'Unidad Empresarial de Base Limonar'),
+        ('UEB8_Arabos', 'Unidad Empresarial de Base Los Arabos'),
+        ('UEB9_Martí', 'Unidad Empresarial de Base Martí'),
+        ('UEB10_Matanzas', 'Unidad Empresarial de Base Matanzas'),
+        ('UEB11_Pedro_B', 'Unidad Empresarial de Base Pedro Betancourt'),
+        ('UEB12_Perico', 'Unidad Empresarial de Base Perico'),
+        ('UEB13_Unión', 'Unidad Empresarial de Base Unión de Reyes'),
+    ]
+    ueb_obets = models.CharField(
+        max_length=50,
+        choices=UEB_OBTs,
+        default='UEB_Matanzas',
+        verbose_name="Unidad Empresarial de Base"
+    )
+    Evaluacion_gestion = [
+        ('solucionado', 'Solucionado'),
+        ('pendiente_a_solucion', 'Pendiente a Solucion'),
+        ('sin_solucion', 'Sin Solucion'),
+        ('no_procede', 'No Procede'),
+    ]
+    evaluacion_gestion = models.CharField(
+        max_length=50,
+        choices=Evaluacion_gestion,
+        default='solucionado',
+        verbose_name="Evaluación de la Gestión"
+    )
+    Resultado_de_la_gestion = [
+        ('con_razon', 'Con Razón'),
+        ('razon_en_parte', 'Razón en Parte'),
+        ('sin_razon', 'Sin Razón'),
+    ]
+    resultado_gestion = models.CharField(
+        max_length=50,
+        choices=Resultado_de_la_gestion,
+        default='con_razon',
+        verbose_name="Resultado de la Gestión"
+    )
+    estado_expediente = models.ForeignKey(
+        'EstadoExpediente',
+        on_delete=models.PROTECT,
+        related_name='expedientes',
+        verbose_name="Estado del Expediente"
+    )
+    reclamacion = models.ForeignKey(
+    'Reclamacion',
+    on_delete=models.CASCADE,
+    related_name='expedientes',
+    verbose_name="Reclamación Asociada"
+    )
+    
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
+       
+    def save (self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Crear una carpeta con el nombre del expediente
+        registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
+        expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
+
     #AGREGAR LOS SIGUIENTES CAMPOS A LA TABLA EXPEDIENTE
-    #respuesta, FK cliente, *FK Registro*, FK detalles_archivos, FK respuesta, FK detalles_reclamacion, FK procedencia, FK ueb_obets, FK clasificacion, FK estado_expediente, 
+    #respuesta, FK cliente, FK Registro, FK archivos, FK reclamacion, FK procedencia, FK ueb_obets, FK clasificacion, FK estado_expediente, 
     
     def __str__(self):
         numero_expediente = str(self.id_expediente).zfill(3)
         return f"{numero_expediente} {self.title} - by {self.user.username}"
     
-    #REGISTRO
+#REGISTRO
 class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
     title = models.CharField(max_length=10)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-        
+         
     def save(self, *args, **kwargs):
         # Obtener el nombre anterior del registro si existe
         if self.pk:
@@ -63,14 +150,6 @@ class Registro(models.Model):
         if os.path.exists(registro_folder):
             os.rmdir(registro_folder)  # Eliminar la carpeta
         super().delete(*args, **kwargs)
-        
-        
-        # self.clean()  # Llamar a la validación antes de guardar
-        # super().save(*args, **kwargs)
-        # # Crear una carpeta con el nombre del registro
-        # registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.title)
-        # if not os.path.exists(registro_folder):
-        #     os.makedirs(registro_folder)
             
     def toJSON(self):
         item = model_to_dict(self)
@@ -78,9 +157,9 @@ class Registro(models.Model):
         return item
     
     def __str__(self):
-        return f"{self.title} {self.fecha_creacion} - by {self.user.username}"
+        return f"{self.title} {self.fecha_creacion}"
     
-    #CLIENTE
+#CLIENTE
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
     carnet = models.CharField(max_length=20, unique=True, verbose_name='Cédula')
@@ -102,24 +181,38 @@ class Cliente(models.Model):
     
     def toJSON(self):
         item = model_to_dict(self)
-         
-    
-    #MUNICIPIO
-class Municipio(models.Model):
+        return item
+  
+#MUNICIPIO
+class Municipio(models.Model): #no choice
     id_municipio = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100, unique=True)
 
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
+    
     def __str__(self):
         return self.nombre
-    
-    
-    #RECLAMACION
+      
+#RECLAMACION
 class Reclamacion(models.Model):
     id_reclamacion = models.AutoField(primary_key=True)
     descripcion = models.CharField(max_length=100, unique=True)
+    detalle_reclamacion = models.ForeignKey(
+        'DetalleReclamacion',
+        on_delete=models.CASCADE,
+        related_name='reclamaciones',
+        verbose_name="Detalle de Reclamación"
+    )
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
     
-    
-    #DETALLE_RECLAMACION
+    def __str__(self):
+        return self.descripcion
+     
+#DETALLE_RECLAMACION
 class DetalleReclamacion(models.Model):
     id_det_recl = models.AutoField(primary_key=True) 
     CODIGO = [
@@ -129,9 +222,15 @@ class DetalleReclamacion(models.Model):
         #('2101', 'Operaciones'),
         #('2104', 'Daño a la Propiedad'),
         #('2105', 'Operaciones'),
-    ]  
+    ]
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
     
-    #ARCHIVOS
+    def __str__(self):
+        return self.CODIGO
+    
+#ARCHIVOS
 class Archivo(models.Model):
     TIPO_ARCHIVO = [
         #('doc', 'Documento Word'),
@@ -141,7 +240,7 @@ class Archivo(models.Model):
         #('otro', 'Otro formato'),
     ]
     id_archivo = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=255, verbose_name = "Nombre del Archivo"),
+    nombre = models.CharField(max_length=255, verbose_name = "Nombre del Archivo")
     fecha_create = models.DateTimeField(auto_now_add=True, verbose_name ="Fecha de Creación")
     expediente = models.ForeignKey(
         'Expediente',
@@ -149,42 +248,33 @@ class Archivo(models.Model):
         related_name='archivos',
         verbose_name="Expediente Asociado"
     )
-
-    #PROCEDENCIA
-class Procedencia(models.Model):
-    id_procedencia = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=50,unique=True)
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
     
     def __str__(self):
         return self.nombre
     
-    #RESUESTA    
-class Respuesta(models.Model):
-    id_respuesta = models.AutoField(primary_key=True)   
-    
-    #RESULTADO
-class Resultado(models.Model):
-    id_resultado = models.AutoField(primary_key=True)    
-    
-    #EVALUACION_DE_LA_GESTION
-    
-    #UEB OBETs
-class Obets(models.Model):
-    id_obet = models.AutoField(primary_key=True)
+#PROCEDENCIA
+class Procedencia(models.Model): #no Choice
+    id_procedencia = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50,unique=True)
-        
     
-    #CLASIFICACION
-class Clasificacion(models.Model):
-    id_clasificacion = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=50,unique=True)
-        
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
     
-    #ESTADO_EXPEDIENTE
-class EstadoExpediente(models.Model):
-    id_archivo = models.AutoField(primary_key=True)
+    def __str__(self):
+        return self.nombre
+         
+#ESTADO_EXPEDIENTE
+class EstadoExpediente(models.Model): #no Choice
+    id_estado = models.AutoField(primary_key=True)
     estado = models.CharField(max_length=50,unique=True)
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
     
-    
-    
-    #1. ESTABLECER SUS RELACIONES
+    def __str__(self):
+        return self.estado

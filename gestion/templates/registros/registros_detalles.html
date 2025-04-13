@@ -1,10 +1,8 @@
-{% extends "list.html" %} 
+{% extends "list_expediente.html" %} 
 {% load static %} 
 
-{% block buttons_list %}
-  <a class="btn btn-outline-primary mb-3 btnNuevoRegistro" type="button">
-    <i class="fas fa-plus"> </i> Nuevo Expediente
-  </a>
+{% block head_list %}
+    <script src="{% static 'expediente/js/list.js' %}"></script>
 {% endblock %}
 
 {% block column %}
@@ -22,6 +20,12 @@
 {% block rows %}
 
 {% endblock rows %}
+
+{% block buttons_list %}
+  <a class="btn btn-outline-primary mb-3 btnNuevoExpediente" type="button">
+    <i class="fas fa-plus"> </i> Nuevo Expediente
+  </a>
+{% endblock %}
 
 {% block javascript %}
 

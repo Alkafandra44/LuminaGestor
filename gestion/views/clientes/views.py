@@ -47,25 +47,6 @@ def signup(request):
         })
 
 
-def create_expediente(request):
-    if request.method == 'GET':
-        return render(request, 'create_expediente.html', {
-            'form': ExpedienteForm
-        })
-    else:
-        try:
-            form = ExpedienteForm(request.POST)
-            new_exp = form.save(commit=False)
-            new_exp.user = request.user
-            new_exp.save()
-            return redirect('gestion:clientes')
-
-        except:
-            return render(request, 'create_expediente.html', {
-                'form': ExpedienteForm,
-                'error': 'Agregue un dato valido'
-            })
-
 def usuarios(request):
     return render(request, 'usuarios.html')
 

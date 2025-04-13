@@ -1,5 +1,8 @@
+var tblExpedientes;
+var modal_title;
+
 function getData(){
-    tblRegistros = $('#tblRegistros').DataTable({
+    tblExpedientes = $('#tblExpedientes').DataTable({
         responsive: true,
         autoWidth: false,
         destroy: true,
@@ -14,8 +17,12 @@ function getData(){
         },
         columns:[
             {"data": ""},
-            {"data": "title"},
-            {"data": "fecha_creacion"},
+            {"data": "numero_expediente"},
+            {"data": "title"},//nombre
+            {"data": "clasificacion"},
+            {"data": "fecha_create"},
+            {"data": "fecha_complete"},
+            {"data": "estado"},
         ],
         columnDefs: [
             {
@@ -30,7 +37,7 @@ function getData(){
                 }
             },
             {
-                targets: [1, 2], 
+                targets: [1, 2, 3, 4, 5, 6], 
                 class: 'text-center', 
             },
         ],
@@ -39,3 +46,19 @@ function getData(){
         }  
     });
 }
+
+$(function(){
+
+    modal_title = $('.modal-title'); 
+
+    getData();
+
+    //Add
+    $('.btnNuevoExpediente').on('click', function(){
+        $('input[name="action"]').val('add')
+        modal_title.find('span').html(' Crear Nuevo Exediente');
+        modal_title.find('i').removeClass().addClass('fas fa-plus');
+        $('form')[0].reset();
+        $('#myModalExpediente').modal('show');
+    });
+});

@@ -14,10 +14,10 @@ urlpatterns = [
     #registros
     path('registros/', RegistroListarView.as_view(), name="registros"),
     path('registros/create/', RegistroCreateView.as_view(), name="registros_crear"), 
-    path('registros/detalle/<int:pk>/', RegistroDetalleView.as_view(), name="registro_detalle"), 
+    path('registros/detalle/<int:pk>/', ExpedientesListar.as_view(), name="registro_detalle"), 
     
     #expedientes
-    path('expediente/create/', create_expediente, name="create_expediente"),
+    #path('expediente/create/', create_expediente, name="create_expediente"),
     
     #usuarios
     path('usuarios/', usuarios, name="usuarios"),
