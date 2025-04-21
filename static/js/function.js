@@ -1,9 +1,15 @@
 function alert_error(obj) {
-  var html = "<p>";
-  $.each(obj, function (key, value) {
-    html += "<h5>" + value + "</h5>";
-  });
-  html += "</p>";
+  var html = '';
+  if (typeof obj === "object") {
+    html = "<p>";
+    $.each(obj, function (key, value) {
+      html += "<h5>" + value + "</h5>";
+    });
+    html += "</p>";
+  }
+  else{
+    html = "<p>" + obj + "</p>";
+  }
   Swal.fire({
     title: "Error!",
     html: html,
@@ -39,7 +45,7 @@ function submit_with_ajax(url, title, content, parameters, callback) {
                 callback();
                 return false;
               }
-              message_error(data.error);
+              alert_error(data.error);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
               alert(textStatus + ": " + errorThrown);
@@ -55,4 +61,3 @@ function submit_with_ajax(url, title, content, parameters, callback) {
     },
   });
 }
-

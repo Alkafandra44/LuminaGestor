@@ -1,4 +1,5 @@
 var tblClientes;
+var modal_title;
 
 function getData(){
     tblClientes = $('#tblClientes').DataTable({
@@ -97,10 +98,9 @@ $(function(){
 
     $('form').on('submit', function(e) {
         e.preventDefault();
-        var parameters = new FormData(this);
+        var parameters = $(this).serialize();
         submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
             $('#myModalCliente').modal('hide');
-            
             tblClientes.ajax.reload();
         });
     });

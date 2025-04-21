@@ -37,7 +37,7 @@
       <div class="col-md-12">
         {% block buttons_list %}
           <a href="{{ create_url }}" 
-            class="btn btn-outline-primary mb-3 btnNuevoExpediente" type="button" id="btnNuevoExpediente">
+            class="btn btn-outline-primary mb-3 btnNuevoExpediente" id="btnNuevoExpediente" type="button">
             <i class="fas fa-plus"> </i> Nuevo
           </a>
         {% endblock %}
@@ -83,8 +83,8 @@
         responsive: true,
         autoWidth: false
       });
+      
       $('.btnNuevoExpediente').on('click', function (){
-        alert('Nuevo Expediente');  
         $.ajax({
               url: '{% url 'gestion:registro_detalle' %}',
               type: 'POST',

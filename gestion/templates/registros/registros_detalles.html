@@ -1,4 +1,6 @@
 {% extends "list_expediente.html" %} 
+{% load widget_tweaks %}
+
 {% load static %} 
 
 {% block head_list %}
@@ -28,5 +30,33 @@
 {% endblock %}
 
 {% block javascript %}
-
+<div class="modal fade" id="myModalExpediente" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <form method="post" id="formulariorg">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-5" id="exampleModalLabel"><i class="fas fa-search"></i><span></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <input name="action" type="hidden" value="add">
+            <input name="id" id="id" type="hidden" value="0">
+            {% for field in form.visible_fields %}
+              <div class="form-group">
+                  <label for="">{{ field.label }}: </label>
+                  {{ field }}
+              </div>
+          {% endfor %}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
 {% endblock %} 

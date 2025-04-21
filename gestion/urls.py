@@ -3,6 +3,7 @@ from django.urls import path
 from gestion.views.dashboard.views import *
 from gestion.views.clientes.views import *
 from gestion.views.registros.views import *
+from gestion.views.expedientes.views import *
 
 
 app_name = 'gestion'
@@ -17,7 +18,7 @@ urlpatterns = [
     path('registros/detalle/<int:pk>/', ExpedientesListar.as_view(), name="registro_detalle"), 
     
     #expedientes
-    #path('expediente/create/', create_expediente, name="create_expediente"),
+    path('expediente/create/', ExpedienteCreate.as_view(), name="expediente_crear"),
     
     #usuarios
     path('usuarios/', usuarios, name="usuarios"),

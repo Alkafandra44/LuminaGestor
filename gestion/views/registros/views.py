@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from gestion.models import Registro, Expediente
-from gestion.forms import RegistroForm, ExpedienteForm
+from gestion.forms import RegistroForm, ExpedienteForm1
 
 
 #======VISTA DE REGISTROS=======#
@@ -51,6 +51,8 @@ class RegistroListarView(TemplateView):
         context['list_url'] = reverse_lazy('gestion:registros')
         context['create_url'] = reverse_lazy('gestion:registros_crear')
         context['entity'] = 'Registros'
+        context['home'] = reverse_lazy('gestion:dashboard')
+        context['name'] = 'Home'
         context['form'] = RegistroForm()
         return context
 
@@ -88,7 +90,7 @@ class RegistroCreateView(CreateView):
         context['action'] = 'add'
         return context
   
-#======CONTENIDO DE REGISTRO DETALLE=======#
+#======CONTENIDO DE REGISTRO DETALLE (LISTAR EXPEDIENTES)=======#
 class ExpedientesListar(ListView):
     model = Expediente
     template_name = 'registros/registros_detalles.html'
@@ -104,17 +106,28 @@ class ExpedientesListar(ListView):
         try:
             action = request.POST['action']
             if action == 'searchdata':
-                registros = Expediente.objects.filter(registro_id=request.POST['id_expediente'])
+                expediente = Expediente.objects.all()
                 data = []
-                for i in registros:
-                    data.append(i.toJSON())
+                for i in expediente:
+                    data.append({
+                        'id_expediente': i.id_expediente,
+                        'title': i.title,
+                        'fecha_complete': i.fecha_complete,
+                        'clientes': i.clientes,
+                        'clasificacion': i.clasificacion,
+                        'procedencia': i.procedencia,
+                        'ueb_obets': i.ueb_obets,
+                        'estado_expediente': i.estado_expediente,
+                    })
             elif action == 'add':
-                form = ExpedienteForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    data['success'] = 'Expediente creado correctamente'
-                else:
-                    data['error'] = form.errors
+                expediente = Expediente()
+                expediente.title = request.POST['title']
+                expediente.fecha_complete = request.POST['fecha_complete']
+                expediente.clientes = request.POST['clientes']
+                expediente.clasificacion = request.POST['clasificacion']
+                expediente.procedencia = request.POST['procedencia']
+                expediente.ueb_obets = request.POST['ueb_obets']
+                expediente.save()
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:
@@ -131,7 +144,9 @@ class ExpedientesListar(ListView):
         registro_id = self.kwargs['pk']
         registro = Registro.objects.get(pk=registro_id)
         # Mostrar el título del registro
-        context['title'] = f"Detalles del Registro: {registro.title}"
+        context['title'] = f"Detalles del Registro: {registro.title}"        
         context['list_url'] = reverse_lazy('gestion:registros')
+        context['form'] = ExpedienteForm1()
+        
         return context
     

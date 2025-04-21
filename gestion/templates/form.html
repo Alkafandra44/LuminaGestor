@@ -1,5 +1,5 @@
 {% extends "body.html" %}
-
+{% load widget_tweaks %}
 {% block contenido %}
     <div class="app-content-header">
         <div class="app-container-fluid">
@@ -52,7 +52,7 @@
         </div>
     </div>
     <script>
-        /*{% if form.errors %}
+        {% if form.errors %}
             var errors = '';
             {% for field in form %}
                 {% for error in field.errors %}
@@ -64,7 +64,7 @@
                 text: errors,
                 icon: "error",
               });
-        {% endif %}*/
+        {% endif %}
 
         $('form').on('submit', function(e) {
             e.preventDefault();

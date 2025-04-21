@@ -3,6 +3,7 @@ from django.forms import model_to_dict
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core import validators
 
 from basemodel import BaseModel
 
@@ -49,7 +50,7 @@ class Expediente(BaseModel):
         verbose_name="Procedencia"
     )
     UEB_OBTs =[
-        ('UEB_Calimete', 'Unidad Empresarial de Base Calimete'),
+        ('UEB_Calimete', 'UEB Calimete'),
         ('UEB2_Cárdenas', 'Unidad Empresarial de Base Cárdenas'),
         ('UEB3_Cienaga', 'Unidad Empresarial de Base Cienaga de Zapata'),
         ('UEB4_Colón', 'Unidad Empresarial de Base Colón'),
@@ -96,7 +97,7 @@ class Expediente(BaseModel):
         'EstadoExpediente',
         on_delete=models.PROTECT,
         related_name='expedientes',
-        verbose_name="Estado del Expediente"
+        verbose_name="Estado Expediente"
     )
     reclamacion = models.ForeignKey(
     'Reclamacion',
@@ -216,12 +217,12 @@ class Reclamacion(models.Model):
 class DetalleReclamacion(models.Model):
     id_det_recl = models.AutoField(primary_key=True) 
     CODIGO = [
-        #('2105', 'Operaciones'),
-        #('2103', 'Operaciones'),
-        #('2106', 'Comercial'),
-        #('2101', 'Operaciones'),
-        #('2104', 'Daño a la Propiedad'),
-        #('2105', 'Operaciones'),
+        ('2105', 'Operaciones'),
+        ('2103', 'Operaciones'),
+        ('2106', 'Comercial'),
+        ('2101', 'Operaciones'),
+        ('2104', 'Daño a la Propiedad'),
+        ('2105', 'Operaciones'),
     ]
     def toJSON(self):
         item = model_to_dict(self)

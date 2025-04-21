@@ -17,12 +17,12 @@ function getData(){
         },
         columns:[
             {"data": ""},
-            {"data": "numero_expediente"},
+            {"data": "id_expediente"},
             {"data": "title"},//nombre
             {"data": "clasificacion"},
             {"data": "fecha_create"},
             {"data": "fecha_complete"},
-            {"data": "estado"},
+            {"data": "estado_expediente"},
         ],
         columnDefs: [
             {
@@ -30,7 +30,7 @@ function getData(){
                 class:'text-center',
                 orderable: false,
                 render: function(data, type, row){
-                    var button = '<a href="detalle/' + row.id_registro + '/" rel="show" class="btn btn-sm btn-info btn-xs"><i class="fas fa-eye" style="color: white;"></i></a> ';
+                    var button = '<a href="detalle/' + row.id_expediente + '/" rel="show" class="btn btn-sm btn-info btn-xs"><i class="fas fa-eye" style="color: white;"></i></a> ';
                     button += '<a href="#" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-edit"></i></a> ';
                     button += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs"><i class="fas fa-trash-alt"></i></a> '
                     return button;
@@ -52,11 +52,12 @@ $(function(){
     modal_title = $('.modal-title'); 
 
     getData();
+   
 
     //Add
     $('.btnNuevoExpediente').on('click', function(){
         $('input[name="action"]').val('add')
-        modal_title.find('span').html(' Crear Nuevo Exediente');
+        modal_title.find('span').html(' Crear Nuevo Expediente');
         modal_title.find('i').removeClass().addClass('fas fa-plus');
         $('form')[0].reset();
         $('#myModalExpediente').modal('show');

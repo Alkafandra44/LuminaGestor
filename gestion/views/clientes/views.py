@@ -11,7 +11,7 @@ from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from gestion.forms import ExpedienteForm, ClienteForm
+from gestion.forms import ClienteForm
 from gestion.models import *
 
 # Create your views here.
@@ -45,8 +45,7 @@ def signup(request):
             'form': UserCreationForm,
             "error": 'La contraseña no coincide'
         })
-
-
+        
 def usuarios(request):
     return render(request, 'usuarios.html')
 
@@ -111,6 +110,8 @@ class ClienteListar(ListView):
         context['title'] = 'Listado de Clientes'
         context['create_url'] = reverse_lazy('gestion:clientes_crear')
         context['list_url'] = reverse_lazy('gestion:clientes')
+        context['home'] = reverse_lazy('gestion:dashboard')
+        context['name'] = 'Home'
         context['entity'] = 'Clientes'
         context['form'] = ClienteForm()
         return context
