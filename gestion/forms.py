@@ -19,11 +19,11 @@ class ExpedienteForm1(ModelForm):
                 'autofocus': 'autofocus',  # Agregar autofocus aquí
                 }
             ),
-            'fecha_complete': DateInput(format='%d-%m-%Y',
+            'fecha_complete': DateInput(
+                format='%d-%m-%Y',
                 attrs={
-                    'data-placeholder': 'Seleccione fecha de entrega',
-                    'style': 'width: 100%;',
-                    'value': datetime.now().strftime('%d-%m-%Y'),
+                    'type': 'date',  # Habilitar el selector de fecha
+                    'placeholder': 'Seleccione una fecha',
                 }
             ),
             #IMPLEMENTAR MULTIPLES CLIENTES

@@ -106,18 +106,33 @@ class Expediente(BaseModel):
     verbose_name="Reclamación Asociada"
     )
     
-    def toJSON(self):
-        item = model_to_dict(self)
-        return item
-       
-    def save (self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Crear una carpeta con el nombre del expediente
+    def save(self, *args, **kwargs):
+        # Crear o renombrar la carpeta asociada al expediente
         registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
         expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
 
-    #AGREGAR LOS SIGUIENTES CAMPOS A LA TABLA EXPEDIENTE
-    #respuesta, FK cliente, FK Registro, FK archivos, FK reclamacion, FK procedencia, FK ueb_obets, FK clasificacion, FK estado_expediente, 
+        if self.pk:  # Si el expediente ya existe (es una edición)
+            old_instance = Expediente.objects.get(pk=self.pk)
+            old_folder = os.path.join(registro_folder, f"{str(old_instance.id_expediente).zfill(3)}_{old_instance.title}")
+            if old_instance.title != self.title and os.path.exists(old_folder):
+                os.rename(old_folder, expediente_folder)  # Renombrar la carpeta si el título cambió
+        else:  # Si es un nuevo expediente
+            if not os.path.exists(expediente_folder):
+                os.makedirs(expediente_folder)  # Crear la carpeta
+
+        super().save(*args, **kwargs)  # Guardar el objeto en la base de datos
+
+    def delete(self, *args, **kwargs):
+        # Eliminar la carpeta asociada al expediente
+        registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
+        expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
+        if os.path.exists(expediente_folder):
+            os.rmdir(expediente_folder)  # Eliminar la carpeta
+        super().delete(*args, **kwargs)
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
     
     def __str__(self):
         numero_expediente = str(self.id_expediente).zfill(3)
@@ -224,12 +239,18 @@ class DetalleReclamacion(models.Model):
         ('2104', 'Daño a la Propiedad'),
         ('2105', 'Operaciones'),
     ]
+    codigo = models.CharField(
+        max_length=4,
+        choices=CODIGO,
+        default='2105',
+        verbose_name="Código"
+    )
     def toJSON(self):
         item = model_to_dict(self)
         return item
     
     def __str__(self):
-        return self.CODIGO
+        return self.codigo
     
 #ARCHIVOS
 class Archivo(models.Model):

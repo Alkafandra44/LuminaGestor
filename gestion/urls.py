@@ -20,9 +20,6 @@ urlpatterns = [
     #expedientes
     path('expediente/create/', ExpedienteCreate.as_view(), name="expediente_crear"),
     
-    #usuarios
-    path('usuarios/', usuarios, name="usuarios"),
-    
     #clientes
     path('clientes/', ClienteListar.as_view(), name="clientes"),
     path('clientes/add', ClienteCreateViews.as_view(), name="clientes_crear"),

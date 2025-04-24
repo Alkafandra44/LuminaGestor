@@ -1,0 +1,63 @@
+{% extends "list_user.html" %}
+{% load widget_tweaks %}
+
+{% load static %} 
+
+{% block head_list %}
+    <script src="{% static 'user/js/list.js' %}"></script>
+{% endblock %}
+
+{% block column %}
+    <tr>
+        <th></th>
+        <th>Nombre</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Fecha de Registro</th>
+    </tr>
+{% endblock column %}
+
+
+{% block rows %}
+
+{% endblock rows %}
+
+{% block buttons_list %}
+  <a class="btn btn-outline-primary mb-3 btnNuevoUser" type="button">
+    <i class="fas fa-plus"> </i> Nuevo
+  </a>
+{% endblock %}
+
+{% block javascript %}
+<div class="modal fade" id="myModalUser" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <form method="post" id="formulariouser">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-5" id="exampleModalLabel"><i class="fas fa-search"></i><span></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+              <input name="action" type="hidden" value="add">
+              <input name="id" id="id" type="hidden" value="0">
+              {% for field in form.visible_fields %}
+                  <div class="form-group">
+                      <label for="">{{ field.label }}: </label>
+                      {{ field }}
+                  </div>
+              {% endfor %}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %} 
