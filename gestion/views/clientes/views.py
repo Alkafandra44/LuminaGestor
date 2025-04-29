@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.db import IntegrityError
@@ -15,44 +16,11 @@ from gestion.forms import ClienteForm
 from gestion.models import *
 
 # Create your views here.
-def home(request):
-    data = {
-        'title': 'Bienvenido'
-    }
-    return render(request, 'home.html', data)
-
-
-def signup(request):
-    if request.method == 'GET':
-        return render(request, 'signup.html', {
-            'form': UserCreationForm
-        })
-    else:
-        if request.POST['password1'] == request.POST['password2']:
-            # Registrar Usuario
-            try:
-                user = User.objects.create_user(
-                    username=request.POST['username'], password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('gestion')
-            except IntegrityError:
-                return render(request, 'signup.html', {
-                    'form': UserCreationForm,
-                    "error": 'El usuario ya existe'
-                })
-        return render(request, 'signup.html', {
-            'form': UserCreationForm,
-            "error": 'La contraseña no coincide'
-        })
-        
-def usuarios(request):
-    return render(request, 'usuarios.html')
 
 
 ## ===== USO DE VISTA BASADAS EN CLASES====##
 
-class ClienteListar(ListView):
+class ClienteListar(LoginRequiredMixin, ListView):
     model = Cliente
     template_name = 'clientes/clientes.html'
 
@@ -215,19 +183,3 @@ class ClienteDeleteViews(DeleteView):
         context['entity'] = 'Clientes'
         return context
     
-def signin(request):
-    if request.method == 'GET':
-        return render(request, 'signin.html', {
-            'form': AuthenticationForm
-        })
-    else:
-        user = authenticate(
-            request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'signin.html', {
-                'form': AuthenticationForm,
-                'error': 'Usuario o contraseña incorrecto'
-            })
-        else:
-            login(request, user)
-            return redirect('gestion')

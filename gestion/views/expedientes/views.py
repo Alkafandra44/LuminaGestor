@@ -2,20 +2,19 @@ from django.views.generic import CreateView, ListView, TemplateView, DetailView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from gestion.models import Expediente, Registro
 from gestion.forms import ExpedienteForm1
 
 #======LISTAR LOS EXPEDIENTES, pasar para otra carpeta llamada expediente con su views.py renombrar el RegistroCreateView por el ListView =======#
 
-class ExpedientesListar(ListView):
+class ExpedientesListar(LoginRequiredMixin, ListView):
     model = Expediente
     template_name = 'expedientes/registros_detalles.html'
     context_object_name = 'expedientes'
     
     @method_decorator(csrf_exempt)
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
     
@@ -71,7 +70,7 @@ class ExpedientesListar(ListView):
         
         return context
     
-class ExpedienteCreate(CreateView):
+class ExpedienteCreate(LoginRequiredMixin, CreateView):
     model = Expediente
     form_class = ExpedienteForm1
     template_name = 'registro/registros_detalles.html'

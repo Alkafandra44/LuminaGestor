@@ -9,12 +9,9 @@ from gestion.views.expedientes.views import *
 app_name = 'gestion'
 
 urlpatterns = [
-    path('signup/', signup, name="signup"),
-    path('signin/', signin, name="signin"),
     
     #registros
     path('registros/', RegistroListarView.as_view(), name="registros"),
-    path('registros/create/', RegistroCreateView.as_view(), name="registros_crear"), 
     path('registros/detalle/<int:pk>/', ExpedientesListar.as_view(), name="registro_detalle"), 
     
     #expedientes

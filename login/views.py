@@ -10,7 +10,7 @@ import SystemDjango.settings as setting
 class LoginFormView1(FormView):
     form_class = AuthenticationForm
     template_name = 'login.html'
-    success_url = reverse_lazy('gestion:clientes')
+    success_url = reverse_lazy('gestion:dashboard')
     
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:

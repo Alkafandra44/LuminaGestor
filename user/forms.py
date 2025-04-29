@@ -23,7 +23,7 @@ class UserForm(ModelForm):
                     'placeholder': 'Ingrese su nombre de Usuario',
                 }
             ),
-            'email': TextInput(
+            'email': EmailInput(
                 attrs={
                     'placeholder': 'Email',
                 }
@@ -33,25 +33,33 @@ class UserForm(ModelForm):
                     'placeholder': 'Rol del Usuario',
                 }
             ),
-            'password': PasswordInput(
-                render_value=True,
+            'password': PasswordInput(render_value=True,
                 attrs={
                     'placeholder': 'Ingrese su contraseña',
-                }),
+                }
+            ),
             # 'groups': forms.SelectMultiple(attrs={
             #     'class': 'form-control select2',
             #     'style': 'width: 100%',
             #     'multiple': 'multiple'
             # })
         }
-        # exclude = ['groups','user_permissions', 'last_name', 'last_login', 'date_joined', 'is_superuser', 'is_active', 'is_staff']
+        exclude = ['groups','user_permissions', 'last_name', 'last_login', 'date_joined', 'is_superuser', 'is_active', 'is_staff']
 
     def save(self, commit=True):
         data = {}
         form = super()
         try: 
             if form.is_valid():
-                form.save()
+                pwd = self.cleaned_data['password']
+                u = form.save(commit=False)
+                if u.pk is None:
+                    u.set_password(pwd)
+                else:
+                    user = User.objects.get(pk=u.pk)
+                    if user.password != pwd:
+                        u.set_password(pwd)
+                u.save()
             else:
                 data['error'] = form.errors
         except Exception as e:

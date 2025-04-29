@@ -141,7 +141,7 @@ class Expediente(BaseModel):
 #REGISTRO
 class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=10)
+    title = models.CharField(max_length=10, unique=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
          
     def save(self, *args, **kwargs):
