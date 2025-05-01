@@ -11,8 +11,10 @@ from django.contrib.auth import login, authenticate
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+
 from gestion.forms import ClienteForm
+from gestion.mixin import ValidatePermissionRequiredMixin
 from gestion.models import *
 
 # Create your views here.
@@ -20,12 +22,12 @@ from gestion.models import *
 
 ## ===== USO DE VISTA BASADAS EN CLASES====##
 
-class ClienteListar(LoginRequiredMixin, ListView):
+class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
+    permission_required = ('gestion.add_cliente')
     model = Cliente
     template_name = 'clientes/clientes.html'
 
     @method_decorator(csrf_exempt)
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -123,6 +125,7 @@ class ClienteCreateViews(CreateView):
         context['list_url'] = reverse_lazy('gestion:clientes')
         context['entity'] = 'Clientes'
         context['action'] = 'add'
+        
         return context
 
 class ClienteUpdateViews(UpdateView):

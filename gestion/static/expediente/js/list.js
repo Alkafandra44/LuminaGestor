@@ -47,19 +47,19 @@ function getData(){
     });
 }
 
-$(function(){
+// $(function(){
 
-    modal_title = $('.modal-title'); 
+//     modal_title = $('.modal-title'); 
 
-    getData();
+//     getData();
    
 
-    //Add
-    $('.btnNuevoExpediente').on('click', function(){
-        $('input[name="action"]').val('add')
-        modal_title.find('span').html(' Crear Nuevo Expediente');
-        modal_title.find('i').removeClass().addClass('fas fa-plus');
-        $('form')[0].reset();
-        $('#myModalExpediente').modal('show');
-    });
-});
+//     //Add
+//     $('.btnNuevoExpediente').on('click', function(){
+//         $('input[name="action"]').val('add')
+//         modal_title.find('span').html(' Crear Nuevo Expediente');
+//         modal_title.find('i').removeClass().addClass('fas fa-plus');
+//         $('form')[0].reset();
+//         $('#myModalExpediente').modal('show');
+//     });
+// });

@@ -7,7 +7,10 @@ class ExpedienteForm1(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for form in self.visible_fields():
-            form.field.widget.attrs.update({'class': 'form-control', 'autocomplete': 'off'})
+            form.field.widget.attrs.update({'autocomplete': 'off'})
+        # Ordenar los clientes alfabéticamente por nombre completo
+        self.fields['clientes'].queryset = Cliente.objects.all().order_by('nombre', 'apellido')
+
     class Meta:
         model = Expediente
         fields = ['title', 'fecha_complete', 'clasificacion', 'clientes', 'procedencia', 'ueb_obets', 'reclamacion']
@@ -15,49 +18,53 @@ class ExpedienteForm1(ModelForm):
         widgets = {
             'title':TextInput(
                 attrs={
+                'class': 'form-control',
                 'placeholder': 'Ingrese nombre del expediente',
-                'autofocus': 'autofocus',  # Agregar autofocus aquí
+                'autofocus': 'autofocus',  
                 }
             ),
             'fecha_complete': DateInput(
                 format='%d-%m-%Y',
                 attrs={
+                    'class': 'form-control',
                     'type': 'date',  # Habilitar el selector de fecha
                     'placeholder': 'Seleccione una fecha',
                 }
             ),
             #IMPLEMENTAR MULTIPLES CLIENTES
-            'clientes': Select(
+            'clientes': SelectMultiple(
                 attrs={
-                    #'class': 'form-control select2',
-                    'data-placeholder': 'Seleccione un cliente',
+                    'class': 'form-control select2', 
+                    'placeholder': 'Seleccione uno o mas clientes',
                     'style': 'width: 100%;'
                 }
             ),
             'clasificacion': Select(
                 attrs={
-                    #'class': 'form-control select2',
+                    'class': 'form-select',
                     'data-placeholder': 'Seleccione una clasificacion',
-                    'style': 'width: 100%;'
+                    'style': 'width: 100%;',
+                    
+                    
                 }
             ),
             'procedencia': Select(
                 attrs={
-                    #'class': 'form-control select2',
+                    'class': 'form-select',
                     'data-placeholder': 'Seleccione una procedencia',
                     'style': 'width: 100%;'
                 }
             ),
             'ueb_obets': Select(
                 attrs={
-                    #'class': 'form-control select2',
+                    'class': 'form-select',
                     'data-placeholder': 'Seleccione la Unidad Base',
                     'style': 'width: 100%;'
                 }
             ),
             'reclamacion': Select(
                 attrs={
-                    #'class': 'form-control select2',
+                    'class': 'form-select',
                     'data-placeholder': 'Seleccione el tipo de reclamacion',
                     'style': 'width: 100%;'
                 }
@@ -74,7 +81,6 @@ class ClienteForm(ModelForm):
     class Meta:
         model = Cliente
         fields = '__all__'
-        template_name = 'clientes/crear.html'
         widgets = {
             'carnet': TextInput(
                 attrs={
