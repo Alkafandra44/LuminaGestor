@@ -137,13 +137,7 @@
         });
   {% endif %}
 
-  $('form').on('submit', function(e) {
-      e.preventDefault();
-      var parameters = new FormData(this);
-      submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
-          location.href = '{{ list_url }}';
-      });
-  });
+  
   //Configuración de Select2 con checkboxes
     $(document).ready(function() {
         $("#id_clientes").select2({
@@ -169,6 +163,14 @@
             return option.text;
         }
         
+    });
+
+    $('form').on('submit', function(e) {
+      e.preventDefault();
+      var parameters = new FormData(this);
+      submit_with_ajaxexp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
+          location.href = '{{ list_url }}';
+        });
     });
 
 </script>

@@ -50,6 +50,48 @@ function getData(){
     });
 }
 
+// Función de validación general
+function validateForm() {
+    let isValid = true;
+    const nombre = $('input[name="nombre"]').val();
+    const apellido = $('input[name="apellido"]').val();
+    const carnet = $('input[name="carnet"]').val();
+    const telefono = $('input[name="telefono"]').val();
+    const direccion = $('textarea[name="direccion"]').val();
+
+    // Validar nombre (letras, empezar con mayúscula)
+    if (!/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]*$/.test(nombre)) {
+        alert('El nombre debe comenzar con mayúscula y contener solo letras');
+        isValid = false;
+    }
+
+    // Validar apellido (letras, empezar con mayúscula)
+    if (!/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]*$/.test(apellido)) {
+        alert('El apellido debe comenzar con mayúscula y contener solo letras');
+        isValid = false;
+    }
+
+    // Validar carnet (11 dígitos)
+    if (!/^[0-9]{11}$/.test(carnet)) {
+        alert('El carnet debe tener 11 dígitos numéricos');
+        isValid = false;
+    }
+
+    // Validar teléfono (8 dígitos, opcional +53 al inicio)
+    if (!/^(\+53)?[0-9]{8}$/.test(telefono)) {
+        alert('Teléfono inválido. Ejemplo válido: +5351234567 o 51234567');
+        isValid = false;
+    }
+
+    // Validar dirección (letras, números y caracteres permitidos)
+    if (!/^[A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]+$/.test(direccion)) {
+        alert('La dirección solo puede contener letras, números y los caracteres ., / #');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
 $(function(){
 
     modal_title = $('.modal-title');
@@ -80,7 +122,7 @@ $(function(){
             $('input[name="apellido"]').val(data.apellido);
             $('input[name="telefono"]').val(data.telefono);
             $('textarea[name="direccion"]').val(data.direccion);
-            $('select[name="municipio"]').val(data.municipio.nombre);
+            $('select[name="municipio"]').val(data.municipio_id);
             $('#myModalCliente').modal('show');
         })
         //Delete
@@ -98,6 +140,11 @@ $(function(){
 
     $('form').on('submit', function(e) {
         e.preventDefault();
+
+        if (!validateForm()) {
+            return false;
+        }
+        
         var parameters = $(this).serialize();
         submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
             $('#myModalCliente').modal('hide');

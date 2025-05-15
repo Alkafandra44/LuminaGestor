@@ -20,6 +20,7 @@ function getData(){
             {"data": "id_expediente"},
             {"data": "title"},//nombre
             {"data": "clasificacion"},
+            {"data": "reclamacion"},
             {"data": "fecha_create"},
             {"data": "fecha_complete"},
             {"data": "estado_expediente"},
@@ -37,7 +38,7 @@ function getData(){
                 }
             },
             {
-                targets: [1, 2, 3, 4, 5, 6], 
+                targets: [1, 2, 3, 4, 5, 6, 7], 
                 class: 'text-center', 
             },
         ],

@@ -15,7 +15,7 @@ urlpatterns = [
     path('registros/detalle/<int:pk>/', ExpedientesListar.as_view(), name="registro_detalle"), 
     
     #expedientes
-    path('expediente/create/', ExpedienteCreateView.as_view(), name="expediente_crear"),
+    path('registros/detalle/<int:pk>/expediente/add/', ExpedienteCreateView.as_view(), name="expediente_crear"),
     
     #clientes
     path('clientes/', ClienteListar.as_view(), name="clientes"),

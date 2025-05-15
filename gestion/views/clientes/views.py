@@ -46,7 +46,8 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                         'apellido': i.apellido,
                         'direccion': i.direccion,
                         'telefono': i.telefono,
-                        'municipio': i.municipio.nombre if i.municipio else None,  # Obtiene el nombre del municipio
+                        'municipio': i.municipio.nombre if i.municipio else None,
+                        'municipio_id': i.municipio.id_municipio if i.municipio else None,  # Añade esto
                     })
             elif action == 'add':
                 cliente = Cliente()
@@ -55,7 +56,7 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                 cliente.apellido = request.POST['apellido']
                 cliente.telefono = request.POST['telefono']
                 cliente.direccion = request.POST['direccion']
-                cliente.municipio.nombre = request.POST['municipio']
+                cliente.municipio_id = request.POST['municipio']
                 cliente.save()
             elif action == 'edit':
                 cliente = Cliente.objects.get(pk=request.POST['id'])
@@ -64,7 +65,7 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                 cliente.apellido = request.POST['apellido']
                 cliente.telefono = request.POST['telefono']
                 cliente.direccion = request.POST['direccion']
-                cliente.municipio.nombre = request.POST['municipio']
+                cliente.municipio_id = request.POST['municipio']
                 cliente.save()
             elif action == 'delete':
                 cliente = Cliente.objects.get(pk=request.POST['id'])

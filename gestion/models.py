@@ -4,21 +4,40 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core import validators
+from gestion.choice import * 
+from user.models import *
 
 from basemodel import BaseModel
 
 import os
 from django.conf import settings # Para acceder a MEDIA_ROOT
 
-# Create your models here.
-   
+
 #REGISTRO
 class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=10, unique=True)
+    title = models.CharField(
+        max_length=10, 
+        unique=True,
+        validators=[
+            validators.RegexValidator(
+                regex=r'^[0-9]{4}$',
+                message='El título debe ser un número de 4 dígitos.',
+                code='invalid_title'
+            )
+        ],
+    )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-         
+    
+    def clean(self):
+        super().clean()
+        # Validar que el título sea único
+        if Registro.objects.filter(title=self.title).exclude(pk=self.pk).exists():
+            raise ValidationError({'title': 'El título ya existe. Debe ser único.'})
+
     def save(self, *args, **kwargs):
+        # Llama a clean() para realizar las validaciones personalizadas
+        self.clean()    
         # Obtener el nombre anterior del registro si existe
         if self.pk:
             old_instance = Registro.objects.get(pk=self.pk)
@@ -71,8 +90,7 @@ class Cliente(models.Model):
     telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name='Teléfono')
     direccion = models.CharField(max_length=150, verbose_name='Dirección')
     municipio = models.ForeignKey(Municipio, 
-        on_delete=models.SET_NULL, 
-        default=1, 
+        on_delete=models.CASCADE, 
         null=True,
         related_name='clientes', #Permite acceder a todos los clientes de un municipio usando municipio.clientes.all()
         verbose_name='Municipio'
@@ -83,38 +101,13 @@ class Cliente(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['nombre_completo'] = f"{self.nombre} {self.apellido}"
-        item['municipio'] = self.municipio.nombre
-        return item
- 
-      
-#RECLAMACION
-class Reclamacion(models.Model):
-    id_reclamacion = models.AutoField(primary_key=True)
-    descripcion = models.CharField(max_length=100, unique=True)
-    detalle_reclamacion = models.ForeignKey(
-        'DetalleReclamacion',
-        on_delete=models.CASCADE,
-        related_name='reclamaciones',
-        verbose_name="Detalle de Reclamación"
-    )
-    def toJSON(self):
-        item = model_to_dict(self)
+        item['direccion_completa'] = '{} / {}'.format(self.direccion, self.municipio.nombre) 
+        item['municipio'] = self.municipio.toJSON()
         return item
     
-    def __str__(self):
-        return self.descripcion
-     
 #DETALLE_RECLAMACION
 class DetalleReclamacion(models.Model):
     id_det_recl = models.AutoField(primary_key=True) 
-    CODIGO = [
-        ('2105', 'Operaciones'),
-        ('2103', 'Operaciones'),
-        ('2106', 'Comercial'),
-        ('2101', 'Operaciones'),
-        ('2104', 'Daño a la Propiedad'),
-        ('2105', 'Operaciones'),
-    ]
     codigo = models.CharField(
         max_length=4,
         choices=CODIGO,
@@ -128,24 +121,36 @@ class DetalleReclamacion(models.Model):
     def __str__(self):
         return self.codigo
     
+#RECLAMACION
+class Reclamacion(models.Model):
+    id_reclamacion = models.AutoField(primary_key=True)
+    descripcion = models.CharField(
+        max_length=100, 
+        unique=True,
+        choices=RECLAMACION,
+        default='Lineas y Postes',
+        verbose_name="Reclamacion"
+    )
+    detalle_reclamacion = models.ForeignKey(
+        DetalleReclamacion,
+        on_delete=models.CASCADE,
+        related_name='reclamaciones',
+        verbose_name="Detalle de Reclamación"
+    )
+    def toJSON(self):
+        item = model_to_dict(self)
+        return item
+    
+    def __str__(self):
+        return self.descripcion
+  
+    
 #ARCHIVOS
 class Archivo(models.Model):
-    TIPO_ARCHIVO = [
-        #('doc', 'Documento Word'),
-        #('pdf', 'Documento PDF'),
-        #('img', 'Imagen'),
-        #('word', 'Documento Word'),
-        #('otro', 'Otro formato'),
-    ]
     id_archivo = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=255, verbose_name = "Nombre del Archivo")
     fecha_create = models.DateTimeField(auto_now_add=True, verbose_name ="Fecha de Creación")
-    expediente = models.ForeignKey(
-        'Expediente',
-        on_delete=models.CASCADE,
-        related_name='archivos',
-        verbose_name="Expediente Asociado"
-    )
+    
     def toJSON(self):
         item = model_to_dict(self)
         return item
@@ -172,7 +177,11 @@ class Procedencia(models.Model): #no Choice
 #ESTADO_EXPEDIENTE
 class EstadoExpediente(models.Model): #no Choice
     id_estado = models.AutoField(primary_key=True)
-    estado = models.CharField(max_length=50,unique=True)
+    estado = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Estado"
+    )
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -187,10 +196,10 @@ class Expediente(models.Model):
     title = models.CharField(max_length=100, default='')
     resumen = models.TextField(blank=True)
     fecha_create = models.DateTimeField(auto_now_add=True)
-    fecha_complete = models.DateTimeField(null=True)
+    fecha_entrega = models.DateTimeField(null=True)
     respuesta = models.TextField(blank=True)
     importan = models.BooleanField(default=False)
-    #user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     clientes = models.ManyToManyField(
         'Cliente', 
         related_name='expedientes',
@@ -201,57 +210,30 @@ class Expediente(models.Model):
         related_name='expedientes',
         verbose_name="Registro Anual"
     )
-    Clasificacion =[
-        ('solicitud', 'Solicitud'),
-        ('queja', 'Queja'),
-        ('sugerencia', 'Sugerencia'),
-        ('denuncia', 'Denuncia'),
-    ]
     clasificacion = models.CharField(
         max_length=50,
         choices=Clasificacion,
         default='queja',
         verbose_name="Clasificación"
     )
-    procedencia = models.ForeignKey(Procedencia, on_delete=models.CASCADE, related_name='expedientes', verbose_name="Procedencia")
-    UEB_OBTs =[
-        ('UEB_Calimete', 'UEB Calimete'),
-        ('UEB2_Cárdenas', 'Unidad Empresarial de Base Cárdenas'),
-        ('UEB3_Cienaga', 'Unidad Empresarial de Base Cienaga de Zapata'),
-        ('UEB4_Colón', 'Unidad Empresarial de Base Colón'),
-        ('UEB5_Jaguey', 'Unidad Empresarial de Base Jaguey Grande'),
-        ('UEB6_Jovellanos', 'Unidad Empresarial de Base Jovellanos'),
-        ('UEB7_Limonar', 'Unidad Empresarial de Base Limonar'),
-        ('UEB8_Arabos', 'Unidad Empresarial de Base Los Arabos'),
-        ('UEB9_Martí', 'Unidad Empresarial de Base Martí'),
-        ('UEB10_Matanzas', 'Unidad Empresarial de Base Matanzas'),
-        ('UEB11_Pedro_B', 'Unidad Empresarial de Base Pedro Betancourt'),
-        ('UEB12_Perico', 'Unidad Empresarial de Base Perico'),
-        ('UEB13_Unión', 'Unidad Empresarial de Base Unión de Reyes'),
-    ]
+    procedencia = models.ForeignKey(
+        Procedencia, 
+        on_delete=models.CASCADE, 
+        related_name='expedientes', 
+        verbose_name="Procedencia"
+    )
     ueb_obets = models.CharField(
         max_length=50,
         choices=UEB_OBTs,
-        default='UEB_Matanzas',
+        default='UEB_Calimete',
         verbose_name="Unidad Empresarial de Base"
     )
-    Evaluacion_gestion = [
-        ('solucionado', 'Solucionado'),
-        ('pendiente_a_solucion', 'Pendiente a Solucion'),
-        ('sin_solucion', 'Sin Solucion'),
-        ('no_procede', 'No Procede'),
-    ]
     evaluacion_gestion = models.CharField(
         max_length=50,
         choices=Evaluacion_gestion,
         default='solucionado',
         verbose_name="Evaluación de la Gestión"
     )
-    Resultado_de_la_gestion = [
-        ('con_razon', 'Con Razón'),
-        ('razon_en_parte', 'Razón en Parte'),
-        ('sin_razon', 'Sin Razón'),
-    ]
     resultado_gestion = models.CharField(
         max_length=50,
         choices=Resultado_de_la_gestion,
@@ -259,16 +241,22 @@ class Expediente(models.Model):
         verbose_name="Resultado de la Gestión"
     )
     estado_expediente = models.ForeignKey(
-        'EstadoExpediente',
+        EstadoExpediente,
         on_delete=models.PROTECT,
         related_name='expedientes',
         verbose_name="Estado Expediente"
     )
     reclamacion = models.ForeignKey(
-    'Reclamacion',
+    Reclamacion,
     on_delete=models.CASCADE,
     related_name='expedientes',
     verbose_name="Reclamación Asociada"
+    )
+    archivo = models.ForeignKey(
+        'Archivo',
+        on_delete=models.CASCADE,
+        related_name='expedientes',
+        verbose_name="Archivos"
     )
     
     def save(self, *args, **kwargs):
@@ -296,7 +284,28 @@ class Expediente(models.Model):
         super().delete(*args, **kwargs)
 
     def toJSON(self):
-        item = model_to_dict(self)
+        item = model_to_dict(self, exclude=['clientes'])
+        
+        expediente = Expediente.objects.prefetch_related('clientes').get(pk=self.pk)
+        # Convertir campos ManyToMany a una lista de diccionarios
+        item['clientes'] = [{
+            'id_cliente': c.id_cliente, 
+            'nombre_completo': f"{c.nombre} {c.apellido}",
+            'carnet': c.carnet,
+            'municipio': c.municipio.nombre if c.municipio else None
+            } for c in expediente.clientes.all()]
+        
+        # Convertir campos ForeignKey a diccionarios completos (opcional)
+        item['user'] = {'id': self.user.id, 'username': self.user.username}
+        item['registro'] = {'id': self.registro.id, 'title': self.registro.title}
+        item['procedencia'] = model_to_dict(self.procedencia)
+        item['estado_expediente'] = model_to_dict(self.estado_expediente)
+        item['reclamacion'] = model_to_dict(self.reclamacion)
+        
+        # Formatear fechas para que sean JSON-serializables
+        item['fecha_create'] = self.fecha_create.isoformat() if self.fecha_create else None
+        item['fecha_entrega'] = self.fecha_entrega.isoformat() if self.fecha_entrega else None
+        
         return item
     
     def __str__(self):

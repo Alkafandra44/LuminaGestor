@@ -1,1 +1,306 @@
-{% extends "body.html" %}
+{% extends "body.html" %} 
+{% load widget_tweaks %} 
+{% load static %} 
+
+{% block head_list %}
+<!-- Incluir ApexCharts desde un CDN -->
+<script src="{% static 'lib/apexcharts/apexcharts.js' %}"></script>
+{% endblock %} 
+
+{% block contenido %}
+<h1 class="text-center">Dashboard</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-primary shadow-sm">
+                    <i class="fas fa-inbox"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Exp. Recibidos</span>
+                    <span class="info-box-number">
+                        150
+                        <small>%</small>
+                    </span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-warning shadow-sm">
+                    <i class="fas fa-clock"></i>
+                    <style>
+                        .info-box-icon.text-bg-warning i {
+                            color: #fff; /* Cambia el color del ícono a blanco */
+                        }
+                    </style>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Exp. Pendientes</span>
+                    <span class="info-box-number">
+                        150
+                        <small>%</small>
+                    </span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-danger shadow-sm">
+                    <i class="fas fa-search"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Exp. investigándose</span>
+                    <span class="info-box-number">
+                        150
+                        <small>%</small>
+                    </span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-success shadow-sm">
+                    <i class="fas fa-check-circle"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Exp. Solucionados</span>
+                    <span class="info-box-number">
+                        150
+                        <small>%</small>
+                    </span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-mb-8">
+                                <div id="chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Reportes por Municipios</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-lte-toogle="card-collapse">
+                            <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                            <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-lte-toogle="card-remove">
+                            <i class="bi bi-x-lg" class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="chart2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item"> 
+                            <a href="#" class="nav-link">Matanzas
+                                <span class="float-end text-danger">
+                                    <i class="bi bi-arrow-down fs-7">
+                                    </i>
+                                    30%
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item"> 
+                            <a href="#" class="nav-link">Cárdenas
+                                <span class="float-end text-success">
+                                    <i class="bi bi-arrow-up fs-7">
+                                    </i>
+                                    4%
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item"> 
+                            <a href="#" class="nav-link">Limonar
+                                <span class="float-end text-info">
+                                    <i class="bi bi-arrow-left fs-7">
+                                    </i>
+                                    0%
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var options = {
+      series: [
+        {
+          name: "Net Profit",
+          data: [44, 55, 57, 56, 61, 58, 63, 60, 66, 70, 72, 75],
+        },
+      ],
+      chart: {
+        type: "bar",
+        height: 350,
+      },
+      title: {
+        text: "Reporte de Quejas",
+        align: "center",
+        style: {
+          fontFamily: "sans-serif",
+          color: "#000",
+        },
+    
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: "55%",
+          borderRadius: 5,
+          borderRadiusApplication: "end",
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ["transparent"],
+      },
+      xaxis: {
+        categories: [
+          "Ener",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dic",
+        ],
+      },
+      yaxis: {
+        title: {
+          text: "Reporte de Quejas",
+        },
+      },
+      fill: {
+        opacity: 1,
+      },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return "$ " + val + " thousands";
+          },
+        },
+      },
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+
+    // Forzar redibujado después de cargar la página
+    setTimeout(function () {
+      chart.updateOptions(options);
+    }, 100);
+  });
+
+
+  // Chart 2 Pie 
+  var options = {
+    series: [44, 55, 13, 33],
+    chart: {
+    width: 250,
+    type: 'donut',
+  },
+  dataLabels: {
+    enabled: false
+  },
+  responsive: [{
+    breakpoint: 480,
+    options: {
+      chart: {
+        width: 200
+      },
+      legend: {
+        show: false
+      }
+    }
+  }],
+  legend: {
+    position: 'right',
+    offsetY: 0,
+    height: 230,
+  }
+  };
+
+  var chart = new ApexCharts(document.querySelector("#chart2"), options);
+  chart.render();
+
+
+  function appendData() {
+  var arr = chart.w.globals.series.slice()
+  arr.push(Math.floor(Math.random() * (100 - 1 + 1)) + 1)
+  return arr;
+}
+
+function removeData() {
+  var arr = chart.w.globals.series.slice()
+  arr.pop()
+  return arr;
+}
+
+function randomize() {
+  return chart.w.globals.series.map(function() {
+      return Math.floor(Math.random() * (100 - 1 + 1)) + 1
+  })
+}
+
+function reset() {
+  return options.series
+}
+
+document.querySelector("#randomize").addEventListener("click", function() {
+  chart.updateSeries(randomize())
+})
+
+document.querySelector("#add").addEventListener("click", function() {
+  chart.updateSeries(appendData())
+})
+
+document.querySelector("#remove").addEventListener("click", function() {
+  chart.updateSeries(removeData())
+})
+
+document.querySelector("#reset").addEventListener("click", function() {
+  chart.updateSeries(reset())
+})
+
+</script>
+
+
+{% endblock %}

@@ -85,7 +85,7 @@
       });
       
       $('.btnNuevoExpediente').on('click', function (){
-        $.ajax({
+          $.ajax({
               url: '{% url 'gestion:registro_detalle' %}',
               type: 'POST',
               data: {id_expediente: 1},
