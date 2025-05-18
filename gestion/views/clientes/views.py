@@ -23,7 +23,7 @@ from gestion.models import *
 ## ===== USO DE VISTA BASADAS EN CLASES====##
 
 class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('gestion.add_cliente')
+    permission_required = ('gestion.add_cliente', 'gestion.view_cliente','gestion.change_cliente', 'gestion.delete_cliente')
     model = Cliente
     template_name = 'clientes/clientes.html'
 

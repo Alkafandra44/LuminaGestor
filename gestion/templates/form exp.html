@@ -67,9 +67,9 @@
               <div class="col-md">
                 <div class="form-group">
                     <!--Fecha complete-->
-                  <label for="fecha_complete"
-                    >{{ form.fecha_complete.label }}</label>
-                  {{ form.fecha_complete }}
+                  <label for="fecha_entrega"
+                    >{{ form.fecha_entrega.label }}</label>
+                  {{ form.fecha_entrega }}
                 </div>
               </div>
             </div>
@@ -137,7 +137,13 @@
         });
   {% endif %}
 
-  
+  $('form').on('submit', function(e) {
+      e.preventDefault();
+      var parameters = new FormData(this);
+      submit_with_ajax_exp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
+          location.href = '{{ list_url }}';
+      });
+  });
   //Configuración de Select2 con checkboxes
     $(document).ready(function() {
         $("#id_clientes").select2({
@@ -163,14 +169,6 @@
             return option.text;
         }
         
-    });
-
-    $('form').on('submit', function(e) {
-      e.preventDefault();
-      var parameters = new FormData(this);
-      submit_with_ajaxexp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
-          location.href = '{{ list_url }}';
-        });
     });
 
 </script>

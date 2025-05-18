@@ -1,5 +1,4 @@
 var tblExpedientes;
-var modal_title;
 
 function getData(){
     tblExpedientes = $('#tblExpedientes').DataTable({
@@ -43,24 +42,68 @@ function getData(){
             },
         ],
         initComplete: function(settings, json){
+            $('#btnNuevoExpediente').on('click', function(e) {
+                e.preventDefault();
+                window.location.href = $(this).attr('href');
+            });
     
         }  
     });
 }
 
-// $(function(){
 
-//     modal_title = $('.modal-title'); 
+function setupFormValidation() {
+    // Validar título
+    $('input[name="title"]').on('input', function() {
+        const value = $(this).val();
+        if (value.length > 0 && !/^[A-ZÁÉÍÓÚÑ]/.test(value)) {
+            showError($(this), "Debe comenzar con mayúscula");
+        } else {
+            clearError($(this));
+        }
+    });
+    
+    // Validar fecha
+    $('input[name="fecha_entrega"]').on('change', function() {
+        const selectedDate = new Date($(this).val());
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+            showError($(this), "La fecha no puede ser en el pasado");
+        } else {
+            clearError($(this));
+        }
+    });
+    
+    // Validar archivos
+    $('input[name="archivos"]').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const validTypes = ['application/pdf', 'application/msword', 
+                              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                              'application/vnd.ms-excel', 
+                              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                              'image/jpeg', 'image/png'];
+            
+            if (!validTypes.includes(file.type)) {
+                showError($(this), "Tipo de archivo no permitido");
+            } else if (file.size > 5 * 1024 * 1024) {
+                showError($(this), "El archivo es demasiado grande (máx 5MB)");
+            } else {
+                clearError($(this));
+            }
+        }
+    });
+}
 
-//     getData();
-   
+function showError(element, message) {
+    element.addClass('is-invalid');
+    element.next('.invalid-feedback').remove();
+    element.after(`<div class="invalid-feedback">${message}</div>`);
+}
 
-//     //Add
-//     $('.btnNuevoExpediente').on('click', function(){
-//         $('input[name="action"]').val('add')
-//         modal_title.find('span').html(' Crear Nuevo Expediente');
-//         modal_title.find('i').removeClass().addClass('fas fa-plus');
-//         $('form')[0].reset();
-//         $('#myModalExpediente').modal('show');
-//     });
-// });
+function clearError(element) {
+    element.removeClass('is-invalid');
+    element.next('.invalid-feedback').remove();
+}

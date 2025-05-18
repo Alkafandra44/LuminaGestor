@@ -1,18 +1,18 @@
 #PERTENECIENTES A EXPEDIENTE
 UEB_OBTs =[
-        ('UEB_Calimete', 'UEB Calimete'),
-        ('UEB2_Cárdenas', 'Unidad Empresarial de Base Cárdenas'),
-        ('UEB3_Cienaga', 'Unidad Empresarial de Base Cienaga de Zapata'),
-        ('UEB4_Colón', 'Unidad Empresarial de Base Colón'),
-        ('UEB5_Jaguey', 'Unidad Empresarial de Base Jaguey Grande'),
-        ('UEB6_Jovellanos', 'Unidad Empresarial de Base Jovellanos'),
-        ('UEB7_Limonar', 'Unidad Empresarial de Base Limonar'),
-        ('UEB8_Arabos', 'Unidad Empresarial de Base Los Arabos'),
-        ('UEB9_Martí', 'Unidad Empresarial de Base Martí'),
-        ('UEB10_Matanzas', 'Unidad Empresarial de Base Matanzas'),
-        ('UEB11_Pedro_B', 'Unidad Empresarial de Base Pedro Betancourt'),
-        ('UEB12_Perico', 'Unidad Empresarial de Base Perico'),
-        ('UEB13_Unión', 'Unidad Empresarial de Base Unión de Reyes'),
+        ('UEB_Calimete', 'UEB OBET Calimete'),
+        ('UEB_Cárdenas', 'UEB OBET Cárdenas'),
+        ('UEB_Cienaga', 'UEB OBET Cienaga de Zapata'),
+        ('UEB_Colón', 'UEB OBET Colón'),
+        ('UEB_Jaguey', 'UEB OBET Jaguey Grande'),
+        ('UEB_Jovellanos', 'UEB OBET Jovellanos'),
+        ('UEB_Limonar', 'UEB OBET Limonar'),
+        ('UEB_Arabos', 'UEB OBET Los Arabos'),
+        ('UEB_Martí', 'UEB OBET Martí'),
+        ('UEB_Matanzas', 'UEB OBET Matanzas'),
+        ('UEB_Pedro_B', 'UEB OBET Pedro Betancourt'),
+        ('UEB_Perico', 'UEB OBET Perico'),
+        ('UEB_Unión', 'UEB OBET Unión de Reyes'),
     ]
 Clasificacion =[
     ('solicitud', 'Solicitud'),
@@ -21,12 +21,14 @@ Clasificacion =[
     ('denuncia', 'Denuncia'),
     ]
 Evaluacion_gestion = [
+        ('-----', '-----'),
         ('solucionado', 'Solucionado'),
         ('pendiente_a_solucion', 'Pendiente a Solucion'),
         ('sin_solucion', 'Sin Solucion'),
         ('no_procede', 'No Procede'),
     ]
 Resultado_de_la_gestion = [
+        ('-----', '-----'),
         ('con_razon', 'Con Razón'),
         ('razon_en_parte', 'Razón en Parte'),
         ('sin_razon', 'Sin Razón'),
@@ -39,7 +41,7 @@ CODIGO = [
         ('2106', 'Comercial'),
         ('2101', 'Operaciones'),
         ('2104', 'Daño a la Propiedad'),
-        ('2105', 'Operaciones'),
+        ('2110', 'Otros'),
     ]
 #Reclamacion
 RECLAMACION = [

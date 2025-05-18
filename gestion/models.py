@@ -148,9 +148,15 @@ class Reclamacion(models.Model):
 #ARCHIVOS
 class Archivo(models.Model):
     id_archivo = models.AutoField(primary_key=True)
+    archivo = models.FileField(upload_to='expedientes/archivos/%Y/%m/%d/')
     nombre = models.CharField(max_length=255, verbose_name = "Nombre del Archivo")
     fecha_create = models.DateTimeField(auto_now_add=True, verbose_name ="Fecha de Creación")
-    
+    expediente = models.ForeignKey(
+        'Expediente',
+        on_delete=models.CASCADE,
+        related_name='expedientes',
+        verbose_name="Archivos"
+    )
     def toJSON(self):
         item = model_to_dict(self)
         return item
@@ -196,7 +202,14 @@ class Expediente(models.Model):
     title = models.CharField(max_length=100, default='')
     resumen = models.TextField(blank=True)
     fecha_create = models.DateTimeField(auto_now_add=True)
-    fecha_entrega = models.DateTimeField(null=True)
+    fecha_entrega = models.DateField(null=True)
+    estado_expediente = models.ForeignKey(
+        EstadoExpediente,
+        on_delete=models.PROTECT,
+        related_name='expedientes',
+        default='Pendiente',
+        verbose_name="Estado Expediente"
+    )
     respuesta = models.TextField(blank=True)
     importan = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -226,37 +239,27 @@ class Expediente(models.Model):
         max_length=50,
         choices=UEB_OBTs,
         default='UEB_Calimete',
-        verbose_name="Unidad Empresarial de Base"
+        verbose_name="Unidad Empresarial de Base",
     )
     evaluacion_gestion = models.CharField(
         max_length=50,
         choices=Evaluacion_gestion,
-        default='solucionado',
-        verbose_name="Evaluación de la Gestión"
+        default='-----',
+        verbose_name="Evaluación de la Gestión",
+        blank=True
     )
     resultado_gestion = models.CharField(
         max_length=50,
         choices=Resultado_de_la_gestion,
-        default='con_razon',
-        verbose_name="Resultado de la Gestión"
-    )
-    estado_expediente = models.ForeignKey(
-        EstadoExpediente,
-        on_delete=models.PROTECT,
-        related_name='expedientes',
-        verbose_name="Estado Expediente"
+        default='-----',
+        verbose_name="Resultado de la Gestión",
+        blank=True
     )
     reclamacion = models.ForeignKey(
     Reclamacion,
     on_delete=models.CASCADE,
     related_name='expedientes',
     verbose_name="Reclamación Asociada"
-    )
-    archivo = models.ForeignKey(
-        'Archivo',
-        on_delete=models.CASCADE,
-        related_name='expedientes',
-        verbose_name="Archivos"
     )
     
     def save(self, *args, **kwargs):
@@ -293,20 +296,21 @@ class Expediente(models.Model):
             'nombre_completo': f"{c.nombre} {c.apellido}",
             'carnet': c.carnet,
             'municipio': c.municipio.nombre if c.municipio else None
-            } for c in expediente.clientes.all()]
+            } for c in expediente.clientes.all()
+        ]
         
         # Convertir campos ForeignKey a diccionarios completos (opcional)
         item['user'] = {'id': self.user.id, 'username': self.user.username}
         item['registro'] = {'id': self.registro.id, 'title': self.registro.title}
         item['procedencia'] = model_to_dict(self.procedencia)
         item['estado_expediente'] = model_to_dict(self.estado_expediente)
-        item['reclamacion'] = model_to_dict(self.reclamacion)
+        item['reclamacion'] = self.reclamacion.toJSON()
         
         # Formatear fechas para que sean JSON-serializables
         item['fecha_create'] = self.fecha_create.isoformat() if self.fecha_create else None
-        item['fecha_entrega'] = self.fecha_entrega.isoformat() if self.fecha_entrega else None
+        item['fecha_entrega'] = self.fecha_entrega.strftime("%d/%m/%Y") if self.fecha_entrega else "No especificado"
         
-        return item
+        return {"expediente": item}
     
     def __str__(self):
         numero_expediente = str(self.id_expediente).zfill(3)

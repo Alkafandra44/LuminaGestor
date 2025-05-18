@@ -1,10 +1,25 @@
-from datetime import datetime
+from datetime import date, datetime
 from django.forms import *
 import re
-from .models import Expediente, Cliente, Registro
+from .models import Expediente, Cliente, Registro, Archivo
 
+class MultipleFileInput(ClearableFileInput):
+    allow_multiple_selected = True
 
-class ExpedienteForm1(ModelForm):
+class MultipleFileField(FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+class ExpedienteForm(ModelForm):
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for form in self.visible_fields():
@@ -12,9 +27,18 @@ class ExpedienteForm1(ModelForm):
         # Ordenar los clientes alfabéticamente por nombre completo
         self.fields['clientes'].queryset = Cliente.objects.all().order_by('nombre', 'apellido')
 
+    archivos = MultipleFileField(
+        required=False,
+        label="Subir archivos",
+        widget=MultipleFileInput(attrs={
+            'class': 'form-control',
+            'accept': '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.png',
+        })
+    )
     class Meta:
         model = Expediente
         fields = '__all__'
+        exclude = ['user']
         template_name = 'expedientes/crear.html' #Para que es la propiedad esta
         widgets = {
             'title':TextInput(
@@ -68,9 +92,48 @@ class ExpedienteForm1(ModelForm):
                     'style': 'width: 100%;'
                 }
             ),
-            #'archivo': 
-            
         }
+        
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) < 5:
+            raise ValidationError("El título debe tener al menos 5 caracteres")
+        if not re.match(r'^[A-ZÁÉÍÓÚÑ]', title):
+            raise ValidationError("El título debe comenzar con mayúscula")
+        return title
+    
+    def clean_fecha_entrega(self):
+        fecha = self.cleaned_data.get('fecha_entrega')
+        if fecha and fecha < date.today():
+            raise ValidationError("La fecha de entrega no puede ser en el pasado")
+        return fecha
+
+    def clean_resumen(self):
+        resumen = self.cleaned_data['resumen']
+        if len(resumen) > 0 and len(resumen) < 20:  # Opcional pero no vacío
+            raise ValidationError("El resumen debe tener al menos 20 caracteres")
+        return resumen
+    
+    def clean_clientes(self):
+        clientes = self.cleaned_data['clientes']
+        if not clientes.exists():
+            raise ValidationError("Debe seleccionar al menos un cliente")
+        return clientes
+    
+    def clean_archivos(self):
+        archivos = self.cleaned_data.get['archivos', []]
+        if not archivos:
+            return[]
+        
+        for archivo in archivos:
+            if archivo.size > 5 * 1024 * 1024:  # 5MB
+                raise ValidationError(f"El archivo {archivo.name} excede los 5MB")
+            
+            ext = archivo.name.split('.')[-1].lower()
+            if ext not in ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'png']:
+                raise ValidationError(f"Tipo de archivo no permitido: {ext}")
+        
+        return archivos 
 
 #===Muestra los campos del formulario
 class ClienteForm(ModelForm):

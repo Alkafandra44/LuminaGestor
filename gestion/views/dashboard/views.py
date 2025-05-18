@@ -8,7 +8,7 @@ class DashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['panel'] = 'Panel de administrador'
         context['home'] = reverse_lazy('gestion:dashboard')
-        context['name'] = 'Panel de administrador'
+        context['name'] = 'Panel de Control'
         return context
     
    
