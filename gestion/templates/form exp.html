@@ -6,6 +6,10 @@
 {% block head %} 
 <link href="{% static "lib/select2/css/select2.min.css" %}" rel="stylesheet" />
 <script src="{% static "lib/select2/js/select2.min.js" %}"></script>
+
+<script src="{% static 'lib/moment-2.25.3/moment-with-locales.js' %}"></script>
+<script src="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.js' %}"></script>
+<link href="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css' %}" rel="stylesheet"/>
 {% endblock %}
 
 {% block contenido %}
@@ -147,7 +151,6 @@
   //Configuración de Select2 con checkboxes
     $(document).ready(function() {
         $("#id_clientes").select2({
-            //theme: "bootstrap-5",
             placeholder: "Seleccione uno o más clientes",
             allowClear: true,
             closeOnSelect: false,
@@ -170,6 +173,21 @@
         }
         
     });
+  $('#fecha_entrega').datetimepicker({
+    format: 'DD-MM-YYYY',
+    locale: 'es',
+    icons: {
+        time: 'bi bi-clock',
+        date: 'bi bi-calendar',
+        up: 'bi bi-chevron-up',
+        down: 'bi bi-chevron-down',
+        previous: 'bi bi-chevron-left',
+        next: 'bi bi-chevron-right',
+        today: 'bi bi-calendar-check',
+        clear: 'bi bi-trash',
+        close: 'bi bi-x'
+    }
+  });
 
 </script>
 

@@ -24,36 +24,19 @@ class ExpedientesListar(LoginRequiredMixin, ListView):
         try:
             action = request.POST['action']
             if action == 'searchdata':
+                expediente = Expediente.objects.all()
                 data = []
-                for i in Expediente.objects.all():
-                    data.append(i.toJSON())
-            # expediente = Expediente.objects.all()
-            # data = []
-            # for i in Expediente.objects.all():
-            #     data.append(i.toJSON())
-            #     for i in expediente:
-            #         data.append({
-            #             'id_expediente': i.id_expediente,
-            #             'title': i.title,
-            #             'fecha_complete': i.fecha_complete,
-            #             'clientes': i.clientes,
-            #             'clasificacion': i.clasificacion,
-            #             'procedencia': i.procedencia,
-            #             'ueb_obets': i.ueb_obets,
-            #             'estado_expediente': i.estado_expediente,
-            #         })
-            # elif action == 'add':
-            #     expediente = Expediente()
-            #     expediente.title = request.POST['title']
-            #     expediente.fecha_complete = request.POST['fecha_complete']
-                
-            #     #=====CAMBIAR LA LOGICA DE EXPEDIENTE PARA ELEGIR MULTIPLES CLIENTES=====
-            #     #expediente.clientes = request.POST['clientes']
-                
-            #     expediente.clasificacion = request.POST['clasificacion']
-            #     expediente.procedencia = request.POST['procedencia']
-            #     expediente.ueb_obets = request.POST['ueb_obets']
-            #     expediente.save()
+                for i in expediente:
+                    data.append({
+                        'id_expediente': i.id_expediente,
+                        'title': i.title,
+                        'fecha_complete': i.fecha_entrega,
+                        'clientes': i.clientes,
+                        'clasificacion': i.clasificacion,
+                        'procedencia': i.procedencia,
+                        'ueb_obets': i.ueb_obets,
+                        'estado_expediente': i.estado_expediente,
+                    })
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:

@@ -207,7 +207,7 @@ class Expediente(models.Model):
         EstadoExpediente,
         on_delete=models.PROTECT,
         related_name='expedientes',
-        default='Pendiente',
+        default=EstadoExpediente.objects.get(estado='Pendiente').id_estado,
         verbose_name="Estado Expediente"
     )
     respuesta = models.TextField(blank=True)

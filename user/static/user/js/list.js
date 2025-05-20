@@ -15,11 +15,11 @@ function getData() {
             dataSrc: ""
         },
         columns: [
-            {"data": ""},
+            {"data": "id"},
             {"data": "first_name"},
             {"data": "username"},
             {"data": "email"},
-            {"data": "rol"},
+            {"data": "groups"},
             {"data": "date_joined"},
         ],
         columnDefs: [
@@ -35,6 +35,18 @@ function getData() {
                     return html;
                 }
             },*/
+            {
+                targets: [4], // Columna de grupos
+                class: 'text-center',
+                orderable: false,
+                render: function (data, type, row) {
+                    var html = '';
+                    $.each(data, function (key, value) {
+                        html += '<span class="badge text-bg-success">' + value + '</span> ';
+                    });
+                    return html;
+                }
+            },
             {
                 targets: [0],
                 class: 'text-center',
@@ -83,7 +95,7 @@ $(function(){
             $('input[name="first_name"]').val(data.first_name);
             $('input[name="username"]').val(data.username);
             $('input[name="email"]').val(data.email);
-            $('select[name="rol"]').val(data.rol).trigger('change');
+            $('select[name="groups"]').val(data.groups_id);
             //$('input[name="password"]').val(data.password);
             $('#myModalUser').modal('show');
         })

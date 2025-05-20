@@ -51,8 +51,11 @@ class ExpedienteForm(ModelForm):
             'fecha_entrega': DateInput(
                 format='%d-%m-%Y',
                 attrs={
-                    'class': 'form-control',
-                    'type': 'date',  # Habilitar el selector de fecha
+                    'class': 'form-control datetimepicker-input',
+                    'id': 'fecha_entrega',
+                    'data-target': '#fecha_entrega',
+                    'data-toggle': 'datetimepicker',
+                    'autocomplete': 'off',
                     'placeholder': 'Seleccione una fecha',
                 }
             ),

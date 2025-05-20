@@ -26,22 +26,33 @@ class UsersListView(LoginRequiredMixin, ListView):
             if action == 'searchdata':
                 usuario = User.objects.all()
                 data = []
-                for i in usuario:
-                    data.append(i.toJSON())
+                for usuario in usuario:
+                    user_data = {
+                        'id': usuario.id,
+                        'first_name': usuario.first_name,
+                        'username': usuario.username,
+                        'email': usuario.email,
+                        'groups': [group.name for group in usuario.groups.all()],
+                        'groups_id': [group.id for group in usuario.groups.all()],
+                        'date_joined': usuario.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    data.append(user_data)
             elif action == 'add':
                 usuario = User()
                 usuario.first_name = request.POST['first_name']
                 usuario.username = request.POST['username']
                 usuario.email = request.POST['email']
-                usuario.rol = request.POST['rol']
                 usuario.set_password (request.POST['password'])
                 usuario.save()
+                grupos = request.POST.getlist('groups')
+                if grupos:
+                    usuario.groups.set(grupos)
             elif action == 'edit':
                 usuario = User.objects.get(pk=request.POST['id'])
                 usuario.first_name = request.POST['first_name']
                 usuario.username = request.POST['username']
                 usuario.email = request.POST['email']
-                usuario.rol = request.POST['rol']
+                usuario.groups.set(request.POST.getlist('groups'))
                 
                 # Encriptar la contraseña solo si se proporciona una nueva
                 if 'password' in request.POST and request.POST['password']:
@@ -63,7 +74,7 @@ class UsersListView(LoginRequiredMixin, ListView):
         context['list_url'] = reverse_lazy('user:user_list')
         context['entity'] = 'Usuarios'
         context['home'] = reverse_lazy('gestion:dashboard')
-        context['name'] = 'Home'
+        context['name'] = 'Panel de Control'
         context['form'] = UserForm()
         return context
     
