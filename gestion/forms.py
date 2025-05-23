@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from django.forms import *
 import re
-from .models import Expediente, Cliente, Registro, Archivo
+from .models import EstadoExpediente, Expediente, Cliente, Registro, Archivo
 
 class MultipleFileInput(ClearableFileInput):
     allow_multiple_selected = True
@@ -21,12 +21,38 @@ class MultipleFileField(FileField):
 class ExpedienteForm(ModelForm):
     
     def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
         super().__init__(*args, **kwargs)
         for form in self.visible_fields():
             form.field.widget.attrs.update({'autocomplete': 'off'})
         # Ordenar los clientes alfabéticamente por nombre completo
         self.fields['clientes'].queryset = Cliente.objects.all().order_by('nombre', 'apellido')
-
+        if not self.instance.pk and not self.fields['estado_expediente'].initial:
+            try:
+                self.fields['estado_expediente'].initial = EstadoExpediente.objects.get(estado='Pendiente').pk
+            except EstadoExpediente.DoesNotExist:
+                pass
+        # Si se especifican campos, elimina los que no estén en la lista
+        if fields is not None:
+            allowed = set(fields)
+            for field_name in list(self.fields.keys()):
+                if field_name not in allowed:
+                    self.fields.pop(field_name)
+                    
+    fecha_entrega = DateField(
+        input_formats=['%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%d'],  # Formatos aceptados
+        widget=DateInput(
+            format='%d-%m-%Y',
+            attrs={
+                'class': 'form-control datetimepicker-input',
+                'id': 'fecha_entrega',
+                'data-target': '#fecha_entrega',
+                'data-toggle': 'datetimepicker',
+                'autocomplete': 'off',
+                'placeholder': 'Seleccione una fecha',
+            }
+        )
+    )
     archivos = MultipleFileField(
         required=False,
         label="Subir archivos",
@@ -48,51 +74,56 @@ class ExpedienteForm(ModelForm):
                 'autofocus': 'autofocus',  
                 }
             ),
-            'fecha_entrega': DateInput(
-                format='%d-%m-%Y',
-                attrs={
-                    'class': 'form-control datetimepicker-input',
-                    'id': 'fecha_entrega',
-                    'data-target': '#fecha_entrega',
-                    'data-toggle': 'datetimepicker',
-                    'autocomplete': 'off',
-                    'placeholder': 'Seleccione una fecha',
-                }
-            ),
             #IMPLEMENTAR MULTIPLES CLIENTES
             'clientes': SelectMultiple(
                 attrs={
                     'class': 'form-control select2', 
+                    'style': 'width: 100%;',
                     'placeholder': 'Seleccione uno o mas clientes',
-                    'style': 'width: 100%;'
                 }
             ),
             'clasificacion': Select(
                 attrs={
                     'class': 'form-select',
-                    'data-placeholder': 'Seleccione una clasificacion',
                     'style': 'width: 100%;',
+                    'placeholder': 'Seleccione una clasificacion',
                 }
             ),
             'procedencia': Select(
                 attrs={
                     'class': 'form-select',
-                    'data-placeholder': 'Seleccione una procedencia',
-                    'style': 'width: 100%;'
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione una procedencia',
                 }
             ),
             'ueb_obets': Select(
                 attrs={
                     'class': 'form-select',
-                    'data-placeholder': 'Seleccione la Unidad Base',
-                    'style': 'width: 100%;'
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione la Unidad Base',
                 }
             ),
             'reclamacion': Select(
                 attrs={
                     'class': 'form-select',
-                    'data-placeholder': 'Seleccione el tipo de reclamacion',
-                    'style': 'width: 100%;'
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione el tipo de reclamacion',
+                }
+            ),
+            'resumen': Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 3,                    
+                    'style': 'width: 100%;',
+                    'placeholder': 'Breve Resumen del caso',
+                }
+            ),
+            'respuesta': Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 3,                    
+                    'style': 'width: 100%;',
+                    'placeholder': 'Breve Resumen del caso',
                 }
             ),
         }
@@ -124,7 +155,7 @@ class ExpedienteForm(ModelForm):
         return clientes
     
     def clean_archivos(self):
-        archivos = self.cleaned_data.get['archivos', []]
+        archivos = self.cleaned_data.get('archivos', [])
         if not archivos:
             return[]
         

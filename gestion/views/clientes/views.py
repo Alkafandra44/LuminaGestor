@@ -82,7 +82,7 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
         context['create_url'] = reverse_lazy('gestion:clientes_crear')
         context['list_url'] = reverse_lazy('gestion:clientes')
         context['home'] = reverse_lazy('gestion:dashboard')
-        context['name'] = 'Home'
+        context['name'] = 'Panel de Control'
         context['entity'] = 'Clientes'
         context['form'] = ClienteForm()
         return context

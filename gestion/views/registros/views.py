@@ -50,7 +50,7 @@ class RegistroListarView(LoginRequiredMixin, TemplateView):
         context['create_url'] = reverse_lazy('gestion:registros_crear')
         context['entity'] = 'Registros'
         context['home'] = reverse_lazy('gestion:dashboard')
-        context['name'] = 'Home'
+        context['name'] = 'Panel de Control'
         context['form'] = RegistroForm()
         return context
 

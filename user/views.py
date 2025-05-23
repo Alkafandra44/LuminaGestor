@@ -34,7 +34,8 @@ class UsersListView(LoginRequiredMixin, ListView):
                         'email': usuario.email,
                         'groups': [group.name for group in usuario.groups.all()],
                         'groups_id': [group.id for group in usuario.groups.all()],
-                        'date_joined': usuario.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+                        'date_joined': usuario.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
+                        'is_superuser': usuario.is_superuser,  # <-- Agrega esta línea
                     }
                     data.append(user_data)
             elif action == 'add':

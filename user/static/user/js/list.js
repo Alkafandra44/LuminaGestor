@@ -52,6 +52,9 @@ function getData() {
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
+                    if(row.is_superuser == true){
+                        return '<span class="badge text-bg-info">ADMIN</span>';
+                    }
                     var buttons = '<a href="#" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-edit"></i></a>';
                     buttons += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs"><i class="fas fa-trash-alt"></i></a> ';
                     return buttons;

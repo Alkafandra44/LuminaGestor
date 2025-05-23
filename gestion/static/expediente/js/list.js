@@ -20,9 +20,9 @@ function getData(){
             {"data": "title"},//nombre
             {"data": "clasificacion"},
             {"data": "reclamacion"},
-            {"data": "fecha_create"},
-            {"data": "fecha_complete"},
             {"data": "estado_expediente"},
+            {"data": "fecha_create"},
+            {"data": "fecha_entrega"},
         ],
         columnDefs: [
             {
@@ -34,6 +34,21 @@ function getData(){
                     button += '<a href="#" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-edit"></i></a> ';
                     button += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs"><i class="fas fa-trash-alt"></i></a> '
                     return button;
+                }
+            },
+            {
+                targets: [5], // Columna de grupos
+                class: 'text-center',
+                orderable: false,
+                render: function (data, type, row) {
+                    //Personalizacion del color segun el estado
+                    var badgeClass = 'text-bg-secondary';
+                    if(data === 'Pendiente') badgeClass = 'text-bg-warning';
+                    else if(data === 'Investigación') badgeClass = 'text-bg-info';
+                    else if(data === 'Solucionado') badgeClass = 'text-bg-success';
+                    else if(data === 'Revisión') badgeClass = 'text-bg-danger';
+                    
+                    return '<span class="badge ' + badgeClass + '">' + data + '</span>';
                 }
             },
             {

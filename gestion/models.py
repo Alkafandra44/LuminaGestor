@@ -200,18 +200,17 @@ class EstadoExpediente(models.Model): #no Choice
 class Expediente(models.Model):
     id_expediente = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100, default='')
-    resumen = models.TextField(blank=True)
+    resumen = models.TextField(blank=True, null=True)
     fecha_create = models.DateTimeField(auto_now_add=True)
     fecha_entrega = models.DateField(null=True)
     estado_expediente = models.ForeignKey(
         EstadoExpediente,
         on_delete=models.PROTECT,
         related_name='expedientes',
-        default=EstadoExpediente.objects.get(estado='Pendiente').id_estado,
-        verbose_name="Estado Expediente"
+        verbose_name="Estado",
+        default=1 
     )
-    respuesta = models.TextField(blank=True)
-    importan = models.BooleanField(default=False)
+    respuesta = models.TextField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     clientes = models.ManyToManyField(
         'Cliente', 
@@ -226,7 +225,6 @@ class Expediente(models.Model):
     clasificacion = models.CharField(
         max_length=50,
         choices=Clasificacion,
-        default='queja',
         verbose_name="Clasificación"
     )
     procedencia = models.ForeignKey(
@@ -244,16 +242,16 @@ class Expediente(models.Model):
     evaluacion_gestion = models.CharField(
         max_length=50,
         choices=Evaluacion_gestion,
-        default='-----',
         verbose_name="Evaluación de la Gestión",
-        blank=True
+        blank=True, 
+        null=True
     )
     resultado_gestion = models.CharField(
         max_length=50,
         choices=Resultado_de_la_gestion,
-        default='-----',
         verbose_name="Resultado de la Gestión",
-        blank=True
+        blank=True, 
+        null=True
     )
     reclamacion = models.ForeignKey(
     Reclamacion,
@@ -288,7 +286,7 @@ class Expediente(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self, exclude=['clientes'])
-        
+                
         expediente = Expediente.objects.prefetch_related('clientes').get(pk=self.pk)
         # Convertir campos ManyToMany a una lista de diccionarios
         item['clientes'] = [{
@@ -299,18 +297,22 @@ class Expediente(models.Model):
             } for c in expediente.clientes.all()
         ]
         
+        item['id_expediente'] = self.id_expediente
         # Convertir campos ForeignKey a diccionarios completos (opcional)
         item['user'] = {'id': self.user.id, 'username': self.user.username}
-        item['registro'] = {'id': self.registro.id, 'title': self.registro.title}
+        item['title'] = self.title
+        item['registro'] = {'id_registro': self.registro.pk, 'title': self.registro.title}
         item['procedencia'] = model_to_dict(self.procedencia)
         item['estado_expediente'] = model_to_dict(self.estado_expediente)
-        item['reclamacion'] = self.reclamacion.toJSON()
-        
+        item['clasificacion'] = self.get_clasificacion_display() if hasattr(self, 'get_clasificacion_display') else self.clasificacion
+        item['reclamacion'] = str(self.reclamacion) if self.reclamacion else ''
+        item['estado_expediente'] = str(self.estado_expediente) if self.estado_expediente else ''
+
         # Formatear fechas para que sean JSON-serializables
-        item['fecha_create'] = self.fecha_create.isoformat() if self.fecha_create else None
+        item['fecha_create'] = self.fecha_create.strftime("%d/%m/%Y") if self.fecha_entrega else "No especificado"
         item['fecha_entrega'] = self.fecha_entrega.strftime("%d/%m/%Y") if self.fecha_entrega else "No especificado"
         
-        return {"expediente": item}
+        return item
     
     def __str__(self):
         numero_expediente = str(self.id_expediente).zfill(3)

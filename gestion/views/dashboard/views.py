@@ -45,6 +45,31 @@ class DashboardView(TemplateView):
             expediente_por_mes.append(count)
         return expediente_por_mes
     
+    # Método para gráfica de Pastel
+    # def get_graf_clasificacion(self):
+    #     # Una sola consulta para todos los contadores
+    #     return Expediente.objects.aggregate(
+    #         total=Count('id_expediente'),
+    #         lineasypostes=Count(
+    #             Case(
+    #                 When(reclamacion__reclamacion='Lineas y Postes', then=1),
+    #                 output_field=IntegerField()
+    #             )
+    #         ),
+    #         investigacion=Count(
+    #             Case(
+    #                 When(estado_expediente__estado='Investigación', then=1),
+    #                 output_field=IntegerField()
+    #             )
+    #         ),
+    #         solucionados=Count(
+    #             Case(
+    #                 When(estado_expediente__estado='Solucionado', then=1),
+    #                 output_field=IntegerField()
+    #             )
+    #         )
+    #     )
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         counts = self.get_counts_by_status() 

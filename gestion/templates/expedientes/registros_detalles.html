@@ -14,9 +14,9 @@
         <th>Nombre</th>
         <th>Clasificación</th>
         <th>Reclamación</th>
+        <th>Estado</th>
         <th>Fecha R.</th>
         <th>Fecha de E.</th>
-        <th>Estado</th>
     </tr>
 {% endblock column %}
 
@@ -33,25 +33,23 @@
 {% block javascript %}
 <script type="application/javascript">
   $(function(){
-      $('#tblExpedientes').DataTable({
-          responsive: true,
-          autoWidth: false
-      });
 
-      $('#btnNuevoExpediente').on('click', function (){
-          $.ajax({
-              url: '{% url 'gestion:clientes' %}',
-              type: 'POST',
-              data: {id_cliente: 1},
-              dataType: 'json'
-          }).done(function (data) {
-              console.log(data);
-          }).fail(function (jqXHR, textStatus, errorThrown) {
-              alert(textStatus+': '+errorThrown);
-          }).always(function (data) {
+    getData();
 
-          });
-      });
+    $('#btnNuevoExpediente').on('click', function (){
+        $.ajax({
+            url: '{% url 'gestion:clientes' %}',
+            type: 'POST',
+            data: {id_cliente: 1},
+            dataType: 'json'
+        }).done(function (data) {
+            console.log(data);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            alert(textStatus+': '+errorThrown);
+        }).always(function (data) {
+
+        });
+    });
   });
 </script>
 {% endblock %} 
