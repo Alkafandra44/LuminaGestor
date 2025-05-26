@@ -1,0 +1,46 @@
+{% extends 'form_exp.html' %} 
+{% block campos_extra %}
+<!-- Página 2 (campos_extra) -->
+<div class="form-page" id="page2" style="display:none;">
+   <div class="row">
+   <div class="col-md-12">
+         <div class="form-group">
+            <!-- Agrega aquí más campos si lo necesitas -->
+            <label for="resumen">{{ form.resumen.label }}</label>
+            {{ form.resumen }}
+         </div>
+   </div>
+   </div>
+   <div class="row">
+      <div class="col-md-12">
+         <div class="form-group">
+            <!-- Agrega aquí más campos si lo necesitas -->
+            <label for="respuesta">{{ form.respuesta.label }}</label>
+            {{ form.respuesta }}
+         </div>
+      </div>
+   </div>
+   <div class="row g-2">
+      <div class="col-md">
+         <div class="form-group">
+            <!--Procedencia-->
+         <label class="control-label" for="evaluacion_gestion">{{ form.evaluacion_gestion.label }}</label>
+         {{ form.evaluacion_gestion }}
+         </div>
+      </div>
+      <div class="col-md">
+         <div class="form-group">
+            <!--Fecha complete-->
+         <label for="resultado_gestion"
+            >{{ form.resultado_gestion.label }}</label>
+         {{ form.resultado_gestion }}
+         </div>
+      </div>
+   </div>
+</div>
+<!-- Navegación -->
+<div class="navigation-buttons mt-3">
+   <button type="button" class="btn btn-secondary" id="prevBtn">Anterior</button>
+   <button type="button" class="btn btn-primary" id="nextBtn">Siguiente</button>
+</div>
+{% endblock %}

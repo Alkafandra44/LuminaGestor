@@ -133,9 +133,14 @@ $(function(){
                 action: 'delete',
                 id: data.id_cliente
             };
-            submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de eliminar el siguiente registro?', parameters, function(){
-                tblClientes.ajax.reload();
-            });
+            submit_with_ajax(window.location.pathname, 
+                'Notificacion', 
+                '¿Estas seguro de eliminar el siguiente registro?', 
+                parameters, 
+                function(){
+                    tblClientes.ajax.reload();
+                }
+            );
         });
 
     $('form').on('submit', function(e) {

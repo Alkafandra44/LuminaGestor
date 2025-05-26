@@ -121,9 +121,23 @@ class ExpedienteForm(ModelForm):
             'respuesta': Textarea(
                 attrs={
                     'class': 'form-control',
-                    'rows': 3,                    
+                    'rows': 4,                    
                     'style': 'width: 100%;',
-                    'placeholder': 'Breve Resumen del caso',
+                    'placeholder': 'Respuesta del caso',
+                }
+            ),
+            'evaluacion_gestion': Select(
+                attrs={
+                    'class': 'form-select',
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione la evaluacion final',
+                }
+            ),
+            'resultado_gestion': Select(
+                attrs={
+                    'class': 'form-select',
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione la evaluacion final',
                 }
             ),
         }

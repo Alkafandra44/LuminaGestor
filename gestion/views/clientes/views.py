@@ -36,7 +36,7 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
         try:
             action = request.POST['action']
             if action == 'searchdata':
-                clientes = Cliente.objects.all()
+                clientes = Cliente.objects.filter(is_delete=False)
                 data = []
                 for i in clientes:
                     data.append({
@@ -69,7 +69,8 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                 cliente.save()
             elif action == 'delete':
                 cliente = Cliente.objects.get(pk=request.POST['id'])
-                cliente.delete()
+                cliente.is_delete = True
+                cliente.save()
             else:
                 data['error'] = 'Ha ocurrido un error'
         except Exception as e:

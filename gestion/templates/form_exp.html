@@ -42,7 +42,7 @@
               {% endif %} {{ title }}
             </h4>
           </div>
-          <div class="card-body">
+          <di class="card-body">
             {% csrf_token %}
             <input type="hidden" name="action" value="{{ action }}" />
             {% comment %} {% for field in form.visible_fields %}
@@ -51,67 +51,78 @@
               {{ field|add_class:'form-control'|attr:'autocomplete:off' }}
             </div>
             {% endfor %} {% endcomment %}
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                    <!--Title-->
-                  <label for="title">{{ form.title.label }}</label>
-                  {{ form.title }}
-                </div>
-              </div>
-            </div>
-            <div class="row g-2">
-              <div class="col-md">
-                <div class="form-group">
-                    <!--Procedencia-->
-                  <label class="control-label" for="procedencia">{{ form.procedencia.label }}</label>
-                  {{ form.procedencia }}
-                </div>
-              </div>
-              <div class="col-md">
-                <div class="form-group">
-                    <!--Fecha complete-->
-                  <label for="fecha_entrega"
-                    >{{ form.fecha_entrega.label }}</label>
-                  {{ form.fecha_entrega }}
-                </div>
-              </div>
-            </div>
-            <div class="row g-2">
-                <div class="col-md">
+
+            <!-- Página 1 -->
+            <div class="form-page" id="page1">
+              <div class="row">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <!--Clientes-->
-                    <label class="control-label" for="clientes">{{ form.clientes.label }}</label>
-                    {{ form.clientes|add_class:"select2-multiple" }}
-                  </div>
-                </div>
-                <div class="col-md">
-                  <div class="form-group">
-                    <!--Clasificacion-->
-                    <label for="clasificacion"
-                      >{{ form.clasificacion.label }}</label>
-                    {{ form.clasificacion }}
+                      <!--Title-->
+                    <label for="title">{{ form.title.label }}</label>
+                    {{ form.title }}
                   </div>
                 </div>
               </div>
               <div class="row g-2">
                 <div class="col-md">
                   <div class="form-group">
-                    <!--ueb_obets-->
-                    <label for="ueb_obets">{{ form.ueb_obets.label }}</label>
-                    {{ form.ueb_obets }}
+                      <!--Procedencia-->
+                    <label class="control-label" for="procedencia">{{ form.procedencia.label }}</label>
+                    {{ form.procedencia }}
                   </div>
                 </div>
                 <div class="col-md">
                   <div class="form-group">
-                    <!--reclamacion-->
-                    <label for="reclamacion"
-                      >{{ form.reclamacion.label }}</label>
-                    {{ form.reclamacion }}
+                      <!--Fecha complete-->
+                    <label for="fecha_entrega"
+                      >{{ form.fecha_entrega.label }}</label>
+                    {{ form.fecha_entrega }}
                   </div>
                 </div>
               </div>
-            <br />
+              <div class="row g-2">
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--Clientes-->
+                      <label class="control-label" for="clientes">{{ form.clientes.label }}</label>
+                      {{ form.clientes|add_class:"select2-multiple" }}
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--Clasificacion-->
+                      <label for="clasificacion"
+                        >{{ form.clasificacion.label }}</label>
+                      {{ form.clasificacion }}
+                    </div>
+                  </div>
+                </div>
+                <div class="row g-2">
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--ueb_obets-->
+                      <label for="ueb_obets">{{ form.ueb_obets.label }}</label>
+                      {{ form.ueb_obets }}
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--reclamacion-->
+                      <label for="reclamacion"
+                        >{{ form.reclamacion.label }}</label>
+                      {{ form.reclamacion }}
+                    </div>
+                  </div>
+                  
+                </div>
+              <br />
+            </div>
+            
+              {% block campos_extra %}
+
+              {% endblock %}
+            
+
             <div class="modal-footer">
               <button class="btn btn-outline-primary" type="submit">
                 <i class="bi bi-floppy2-fill"></i> Guardar
@@ -188,6 +199,37 @@
         close: 'bi bi-x'
     }
   });
+
+  document.addEventListener('DOMContentLoaded', function() {
+  let currentPage = 1;
+  const pages = document.querySelectorAll('.form-page');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function showPage(pageNumber) {
+    pages.forEach(page => page.style.display = 'none');
+    document.getElementById(`page${pageNumber}`).style.display = 'block';
+    
+    prevBtn.style.display = pageNumber === 1 ? 'none' : 'inline-block';
+    nextBtn.style.display = pageNumber === pages.length ? 'none' : 'inline-block';
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (currentPage < pages.length) {
+      currentPage++;
+      showPage(currentPage);
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      showPage(currentPage);
+    }
+  });
+
+  showPage(1); // Inicializar
+});
 
 </script>
 
