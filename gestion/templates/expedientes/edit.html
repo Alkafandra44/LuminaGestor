@@ -1,0 +1,130 @@
+{% extends 'form_exp.html' %} 
+{% block campos_extra %}
+<!-- Página 2 (campos_extra) -->
+<div class="form-page" id="page2" style="display:none;">
+   <div class="row">
+      <div class="col-md-12">
+            <div class="form-group">
+               <!-- Resumen-->
+               <label for="resumen">{{ form.resumen.label }}</label>
+               {{ form.resumen }}
+            </div>
+      </div>
+   </div>
+   {% comment %} <div class="row">
+      <div class="col-md-12">
+         <div class="form-group">
+            <!-- Respuesta-->
+            <label for="respuesta">{{ form.respuesta.label }}</label>
+            {{ form.respuesta }}
+         </div>
+      </div>
+   </div>
+   <div class="row g-2">
+      <div class="col-md">
+         <div class="form-group">
+            <!--Evaluacion de la Gestion-->
+         <label class="control-label" for="evaluacion_gestion">{{ form.evaluacion_gestion.label }}</label>
+         {{ form.evaluacion_gestion }}
+         </div>
+      </div>
+      <div class="col-md">
+         <div class="form-group">
+            <!--Resultado de la Gestion-->
+         <label for="resultado_gestion"
+            >{{ form.resultado_gestion.label }}</label>
+         {{ form.resultado_gestion }}
+         </div>
+      </div>
+      <!--Archivos-->
+      <div class="row mt-3">
+         <div class="col-md-12">
+            <div class="form-group">
+               <label for="archivos">{{ form.archivos.label }}</label>
+               {{ form.archivos }}
+               <small class="form-text text-muted">
+                  Puede seleccionar múltiples archivos (PDF, Word, Excel, imágenes)
+               </small>
+            </div>
+         </div>
+      </div>
+   </div> {% endcomment %}
+   <div class="row mt-4">
+      <div class="col-md-12">
+         <p>Respuestas a Clientes</p>
+         <table 
+            class="table table-sm table-bordered"
+            style="width: 100%;  border-radius: 5px; overflow: hidden;"
+            id="tblRespuestasClientes"
+            >
+            <thead class="table-primary">
+               <tr>
+                  <th class="text-light">Acciones</th>
+                  <th class="text-light">Destinatario</th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for cliente in expediente.clientes.all %}
+               <tr>
+                  <td class="text-center">
+                     <div class="text-center">
+                        <a href="#" 
+                           class="btn btn-sm btn-info btn-xs">
+                           <i class="fas fa-plus" style="color: white;"></i>
+                        </a>
+                        <a href="#" 
+                           class="btn btn-sm btn-primary btn-xs">
+                           <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" 
+                           class="btn btn-success btn-sm"> <i class="fas fa-print" style="color: white;"></i>
+                        </a>
+                     </div>
+                  </td>
+                  <td class="text-center">Respuesta a {{ cliente.nombre }} {{ cliente.apellido }}</td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+<!-- Navegación -->
+<div class="navigation-buttons mt-3">
+   <button type="button" class="btn btn-secondary" id="prevBtn">Anterior</button>
+   <button type="button" class="btn btn-primary" id="nextBtn">Siguiente</button>
+</div>
+{% endblock %}
+
+{% comment %} {% block javascript %}
+<div class="modal fade" id="myModalRespuesta" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <form method="post" id="formularioresp">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fs-5" id="exampleModalLabel"><i class="fas fa-search"></i><span></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+                <input name="action" type="hidden" value="add">
+                <input name="id" id="id" type="hidden" value="0">
+                {% for field in form.visible_fields %}
+                    <div class="form-group">
+                        <label for="">{{ field.label }}: </label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </form>
+</div>
+{% endblock %}  {% endcomment %}
+

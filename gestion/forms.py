@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from django.forms import *
 import re
-from .models import EstadoExpediente, Expediente, Cliente, Registro, Archivo
+from .models import EstadoExpediente, Expediente, Cliente, Registro, RespuestaCliente, Archivo
 
 class MultipleFileInput(ClearableFileInput):
     allow_multiple_selected = True
@@ -44,7 +44,7 @@ class ExpedienteForm(ModelForm):
         widget=DateInput(
             format='%d-%m-%Y',
             attrs={
-                'class': 'form-control datetimepicker-input',
+                'class': 'form-control datetimepicker-input form-control-sm',
                 'id': 'fecha_entrega',
                 'data-target': '#fecha_entrega',
                 'data-toggle': 'datetimepicker',
@@ -56,11 +56,14 @@ class ExpedienteForm(ModelForm):
     archivos = MultipleFileField(
         required=False,
         label="Subir archivos",
-        widget=MultipleFileInput(attrs={
-            'class': 'form-control',
+        widget=MultipleFileInput(
+            attrs={
+            'class': 'form-control form-control-sm',
             'accept': '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.png',
-        })
+            }
+        )
     )
+
     class Meta:
         model = Expediente
         fields = '__all__'
@@ -69,7 +72,7 @@ class ExpedienteForm(ModelForm):
         widgets = {
             'title':TextInput(
                 attrs={
-                'class': 'form-control',
+                'class': 'form-control form-control-sm',
                 'placeholder': 'Ingrese nombre del expediente',
                 'autofocus': 'autofocus',  
                 }
@@ -77,51 +80,43 @@ class ExpedienteForm(ModelForm):
             #IMPLEMENTAR MULTIPLES CLIENTES
             'clientes': SelectMultiple(
                 attrs={
-                    'class': 'form-control select2', 
+                    'class': 'form-control select2 form-select-sm', 
                     'style': 'width: 100%;',
                     'placeholder': 'Seleccione uno o mas clientes',
                 }
             ),
             'clasificacion': Select(
                 attrs={
-                    'class': 'form-select',
+                    'class': 'form-control form-select-sm',
                     'style': 'width: 100%;',
                     'placeholder': 'Seleccione una clasificacion',
                 }
             ),
             'procedencia': Select(
                 attrs={
-                    'class': 'form-select',
+                    'class': 'form-control form-select-sm',
                     'style': 'width: 100%;',
                     'placeholder': 'Seleccione una procedencia',
                 }
             ),
             'ueb_obets': Select(
                 attrs={
-                    'class': 'form-select',
+                    'class': 'form-control form-select-sm',
                     'style': 'width: 100%;',
                     'placeholder': 'Seleccione la Unidad Base',
                 }
             ),
             'reclamacion': Select(
                 attrs={
-                    'class': 'form-select',
+                    'class': 'form-control form-select-sm',
                     'style': 'width: 100%;',
                     'placeholder': 'Seleccione el tipo de reclamacion',
                 }
             ),
             'resumen': Textarea(
                 attrs={
-                    'class': 'form-control',
-                    'rows': 3,                    
-                    'style': 'width: 100%;',
-                    'placeholder': 'Breve Resumen del caso',
-                }
-            ),
-            'respuesta': Textarea(
-                attrs={
-                    'class': 'form-control',
-                    'rows': 3,                    
+                    'class': 'form-control form-control-sm',
+                    'rows': 2,                    
                     'style': 'width: 100%;',
                     'placeholder': 'Breve Resumen del caso',
                 }
@@ -160,16 +155,36 @@ class ExpedienteForm(ModelForm):
             return[]
         
         for archivo in archivos:
-            if archivo.size > 5 * 1024 * 1024:  # 5MB
-                raise ValidationError(f"El archivo {archivo.name} excede los 5MB")
-            
-            ext = archivo.name.split('.')[-1].lower()
-            if ext not in ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'png']:
-                raise ValidationError(f"Tipo de archivo no permitido: {ext}")
-        
-        return archivos 
+            if archivo.size > 10 * 1024 * 1024:  # 10MB límite
+                raise ValidationError("El archivo {} excede el tamaño máximo permitido (10MB)".format(archivo.name))
+        return archivos
+    
+class RespuestaClienteForm(ModelForm):
+    class Meta:
+        model = RespuestaCliente
+        fields = ['respuesta', 'evaluacion_gestion', 'resultado_gestion']
+        widgets = {
+            'respuesta': Textarea(attrs={
+                'class': 'form-control form-control-sm',
+                'rows': 3,
+                'placeholder': 'Redacte la respuesta para el cliente'
+            }),
+            'evaluacion_gestion': Select(
+                attrs={
+                    'class': 'form-control form-select-sm',
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione la evaluacion final',
+                }
+            ),
+            'resultado_gestion': Select(
+                attrs={
+                    'class': 'form-control form-select-sm',
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione la evaluacion final',
+                }
+            ),
+        }
 
-#===Muestra los campos del formulario
 class ClienteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

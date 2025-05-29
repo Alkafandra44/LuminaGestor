@@ -21,14 +21,12 @@ Clasificacion =[
     ('denuncia', 'Denuncia'),
     ]
 Evaluacion_gestion = [
-        ('-----', '-----'),
         ('solucionado', 'Solucionado'),
         ('pendiente_a_solucion', 'Pendiente a Solucion'),
         ('sin_solucion', 'Sin Solucion'),
         ('no_procede', 'No Procede'),
     ]
 Resultado_de_la_gestion = [
-        ('-----', '-----'),
         ('con_razon', 'Con Razón'),
         ('razon_en_parte', 'Razón en Parte'),
         ('sin_razon', 'Sin Razón'),

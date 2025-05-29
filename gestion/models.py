@@ -89,6 +89,7 @@ class Cliente(models.Model):
     apellido = models.CharField(max_length=100, verbose_name='Apellidos')
     telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name='Teléfono')
     direccion = models.CharField(max_length=150, verbose_name='Dirección')
+    is_delete = models.BooleanField(default=False, verbose_name='Eliminado')
     municipio = models.ForeignKey(Municipio, 
         on_delete=models.CASCADE, 
         null=True,
@@ -154,7 +155,7 @@ class Archivo(models.Model):
     expediente = models.ForeignKey(
         'Expediente',
         on_delete=models.CASCADE,
-        related_name='expedientes',
+        related_name='archivos',
         verbose_name="Archivos"
     )
     def toJSON(self):
@@ -195,6 +196,7 @@ class EstadoExpediente(models.Model): #no Choice
     
     def __str__(self):
         return self.estado
+
     
 #EXPEDIENTE
 class Expediente(models.Model):
@@ -210,7 +212,6 @@ class Expediente(models.Model):
         verbose_name="Estado",
         default=1 
     )
-    respuesta = models.TextField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     clientes = models.ManyToManyField(
         'Cliente', 
@@ -239,20 +240,6 @@ class Expediente(models.Model):
         default='UEB_Calimete',
         verbose_name="Unidad Empresarial de Base",
     )
-    evaluacion_gestion = models.CharField(
-        max_length=50,
-        choices=Evaluacion_gestion,
-        verbose_name="Evaluación de la Gestión",
-        blank=True, 
-        null=True
-    )
-    resultado_gestion = models.CharField(
-        max_length=50,
-        choices=Resultado_de_la_gestion,
-        verbose_name="Resultado de la Gestión",
-        blank=True, 
-        null=True
-    )
     reclamacion = models.ForeignKey(
     Reclamacion,
     on_delete=models.CASCADE,
@@ -261,28 +248,43 @@ class Expediente(models.Model):
     )
     
     def save(self, *args, **kwargs):
+        # Determinar si es un nuevo expediente
+        is_new = self.pk is None
+        # Obtener los datos antiguos si es una edición
+        if not is_new:
+            old_instance = Expediente.objects.get(pk=self.pk)
+            old_id = old_instance.id_expediente
+            old_title = old_instance.title
+        else:
+            old_id = None
+            old_title = None
+        super().save(*args, **kwargs)
+        
         # Crear o renombrar la carpeta asociada al expediente
         registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
         expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
-
-        if self.pk:  # Si el expediente ya existe (es una edición)
-            old_instance = Expediente.objects.get(pk=self.pk)
-            old_folder = os.path.join(registro_folder, f"{str(old_instance.id_expediente).zfill(3)}_{old_instance.title}")
-            if old_instance.title != self.title and os.path.exists(old_folder):
-                os.rename(old_folder, expediente_folder)  # Renombrar la carpeta si el título cambió
-        else:  # Si es un nuevo expediente
+        
+        if is_new:
+            # Crear la carpeta después de guardar (id_expediente ya existe)
             if not os.path.exists(expediente_folder):
-                os.makedirs(expediente_folder)  # Crear la carpeta
+                os.makedirs(expediente_folder)
+            else:
+                # Verificar si cambió el id_expediente o el título para renombrar
+                new_id = self.id_expediente
+                new_title = self.title
+                old_folder_path = os.path.join(registro_folder, f"{str(old_id).zfill(3)}_{old_title}")
+            
+                if (old_id != new_id) or (old_title != new_title):
+                    if os.path.exists(old_folder_path):
+                        os.rename(old_folder_path, expediente_folder)
 
-        super().save(*args, **kwargs)  # Guardar el objeto en la base de datos
-
-    def delete(self, *args, **kwargs):
-        # Eliminar la carpeta asociada al expediente
-        registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
-        expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
-        if os.path.exists(expediente_folder):
-            os.rmdir(expediente_folder)  # Eliminar la carpeta
-        super().delete(*args, **kwargs)
+    # def delete(self, *args, **kwargs):
+    #     # Eliminar la carpeta asociada al expediente
+    #     registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
+    #     expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
+    #     if os.path.exists(expediente_folder):
+    #         os.rmdir(expediente_folder)  # Eliminar la carpeta
+    #     super().delete(*args, **kwargs)
 
     def toJSON(self):
         item = model_to_dict(self, exclude=['clientes'])
@@ -317,4 +319,39 @@ class Expediente(models.Model):
     def __str__(self):
         numero_expediente = str(self.id_expediente).zfill(3)
         return f"{numero_expediente} {self.title} - by {self.user.username}"
- 
+
+class RespuestaCliente(models.Model):
+    expediente = models.ForeignKey(
+        Expediente, 
+        on_delete=models.CASCADE,
+        related_name='respuesta',
+        verbose_name="Respuestas"
+        )
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    respuesta = models.TextField()
+    fecha_respuesta = models.DateTimeField(auto_now_add=True)
+    evaluacion_gestion = models.CharField(
+        max_length=50,
+        choices=Evaluacion_gestion,
+        verbose_name="Evaluación de la Gestión",
+        blank=True, 
+        null=True
+    )
+    resultado_gestion = models.CharField(
+        max_length=50,
+        choices=Resultado_de_la_gestion,
+        verbose_name="Resultado de la Gestión",
+        blank=True, 
+        null=True
+    )
+    
+    def __str__(self):
+        return f"Respuesta de {self.cliente} para expediente {self.expediente} - {self.fecha_respuesta.strftime('%d/%m/%Y')}"
+        
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['expediente'] = self.expediente.toJSON()
+        item['cliente'] = self.cliente.toJSON()
+        item['fecha_respuesta'] = self.fecha_respuesta.strftime('%d-%m-%Y %H:%M:%S')
+        return item
+    

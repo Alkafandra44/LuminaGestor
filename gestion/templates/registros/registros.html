@@ -4,7 +4,10 @@
 {% load static %} 
 
 {% block head_list %}
-    <script src="{% static 'registro/js/list.js' %}"></script>
+  <script>
+    var userHasDeletePermission = {{ perms.gestion.delete_expediente|yesno:"true,false" }};
+  </script>
+  <script src="{% static 'registro/js/list.js' %}"></script>
 {% endblock %}
 
 

@@ -4,7 +4,8 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required, permission_required
+from django.urls import reverse, reverse_lazy
 from gestion.models import EstadoExpediente, Expediente, Registro, Archivo
 from gestion.forms import ExpedienteForm
 
@@ -14,7 +15,7 @@ class ExpedientesListar(LoginRequiredMixin, ListView):
     model = Expediente
     template_name = 'expedientes/registros_detalles.html'
     context_object_name = 'expedientes'
-    permission_required = 'view_expediente'
+    permission_required = 'gestion.view_expediente'
     
     def get_queryset(self):
         # Obtener el registro específico basado en el ID pasado en la URL
@@ -58,7 +59,7 @@ class ExpedienteCreateView(LoginRequiredMixin, CreateView):
     model = Expediente
     form_class = ExpedienteForm
     template_name = 'expedientes/crear.html'
-    permission_required = 'add_expediente'
+    permission_required = 'gestion.add_expediente'
     
     @method_decorator(csrf_exempt)        
     def dispatch(self, request, *args, **kwargs):
@@ -127,8 +128,10 @@ class ExpedienteCreateView(LoginRequiredMixin, CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        registro_id = self.kwargs['pk']
+        registro = Registro.objects.get(pk=registro_id)
         context['title'] = 'Crear Nuevo Expediente'
-        context['entity'] = 'Expediente'
+        context['entity'] = f"Expedientes: {registro.title}"
         context['list_url'] = self.get_success_url()
         context['action'] = 'add'
         context['registro_id'] = self.kwargs['pk']
@@ -139,8 +142,42 @@ class ExpedienteCreateView(LoginRequiredMixin, CreateView):
 class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     model = Expediente
     form_class = ExpedienteForm
-    # template_name = 
-    # permission_required = 
+    template_name = 'expedientes/edit.html'
+    success_url = reverse_lazy('gestion:registro_detalle')
+    permission_required = 'gestion.change_expediente'
+    
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_object(self, queryset=None):
+        # Obtiene el expediente usando 'ek' de la URL
+        return get_object_or_404(Expediente, pk=self.kwargs['ek'])
+    
+    def get_success_url(self):
+        return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
+    
+    # def post(self, request, *args, **kwargs):
+    #     data = {}
+    #     try:
+    #         action = request.POST['action']
+    #         if action == 'edit':
+    #             form = self.get_form()
+    #             if form.is_valid():
+    #                 expediente = form.save(commit=False)
+    #                 expediente.user = self.request.user
+    #                 expediente.save()
+    #                 form.save_m2m()  # Necesario para relaciones ManyToMany (clientes)
+    #                 data = expediente.toJSON()
+    #             else:
+    #                 data['error'] = form.errors.as_json()
+    #         else:
+    #             data['error'] = 'Acción no válida'
+    #     except Exception as e:
+    #         data['error'] = str(e)
+    #     return JsonResponse(data, safe=False)
+    
     
     # Procesar archivos subidos
     # archivos = self.request.FILES.getlist('archivos')
@@ -151,3 +188,18 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     #         nombre=archivo.name
     #     )
     # return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        registro_id = self.kwargs['pk']
+        registro = Registro.objects.get(pk=registro_id)
+        context['registro_id'] = self.kwargs['pk']
+        context['title'] = 'Investigar Expediente'
+        context['entity'] = f"Expedientes: {registro.title}"
+        context['expediente_id'] = self.kwargs['ek']
+        context['list_url'] = self.get_success_url()
+        context['action'] = 'edit'
+        context['home'] = reverse_lazy('gestion:dashboard')
+        context['name'] = 'Panel de Control'
+        return context
+    

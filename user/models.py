@@ -5,6 +5,8 @@ from django.forms import model_to_dict
 # Create your models here.
 class User(AbstractUser):
     # Puedes agregar campos adicionales aquí si es necesario
+    firma = models.ImageField(upload_to='firmas/', null=True, blank=True)
+    
         
     def toJSON(self):
         item = model_to_dict(self, exclude=['password', 'last_login', 'user_permissions'])

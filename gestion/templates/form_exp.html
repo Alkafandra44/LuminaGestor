@@ -1,0 +1,238 @@
+{% extends "body.html" %} 
+{% load widget_tweaks %}
+
+{% load static %}
+
+{% block head %} 
+<link href="{% static "css/myStyle.css" %}" rel="stylesheet" />
+
+<link href="{% static "lib/select2/css/select2.min.css" %}" rel="stylesheet" />
+<script src="{% static "lib/select2/js/select2.min.js" %}"></script>
+
+<script src="{% static 'lib/moment-2.25.3/moment-with-locales.js' %}"></script>
+<script src="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.js' %}"></script>
+<link href="{% static 'lib/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block contenido %}
+<div class="app-content-header">
+  <div class="app-container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <h2 calss="mb-0">{{ title }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <form
+        method="post"
+        class="form-horizontal"
+        id="formulariocl"
+        enctype="multipart/form-data"
+      >
+        <div class="card card-default">
+          <div class="card-header">
+            <h4 class="card-title">
+              <!--encabezado del card e icono-->
+              {% if action == "add" %}
+              <i class="bi bi-plus"></i>
+              {% else %}
+              <i class="bi bi-pencil"></i>
+              {% endif %} {{ title }}
+            </h4>
+          </div>
+          <di class="card-body">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{{ action }}" />
+            {% comment %} {% for field in form.visible_fields %}
+            <div class="form-group">
+              <label for="">{{ field.label }}: </label>
+              {{ field|add_class:'form-control'|attr:'autocomplete:off' }}
+            </div>
+            {% endfor %} {% endcomment %}
+
+            <!-- Página 1 -->
+            <div class="form-page" id="page1">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                      <!--Title-->
+                    <label for="title">{{ form.title.label }}</label>
+                    {{ form.title }}
+                  </div>
+                </div>
+              </div>
+              <div class="row g-2">
+                <div class="col-md">
+                  <div class="form-group">
+                      <!--Procedencia-->
+                    <label class="control-label" for="procedencia">{{ form.procedencia.label }}</label>
+                    {{ form.procedencia }}
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="form-group">
+                      <!--Fecha complete-->
+                    <label for="fecha_entrega"
+                      >{{ form.fecha_entrega.label }}</label>
+                    {{ form.fecha_entrega }}
+                  </div>
+                </div>
+              </div>
+              <div class="row g-2">
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--Clientes-->
+                      <label class="control-label" for="clientes">{{ form.clientes.label }}</label>
+                      {{ form.clientes|add_class:"select2-multiple" }}
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--Clasificacion-->
+                      <label for="clasificacion"
+                        >{{ form.clasificacion.label }}</label>
+                      {{ form.clasificacion }}
+                    </div>
+                  </div>
+                </div>
+                <div class="row g-2">
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--ueb_obets-->
+                      <label for="ueb_obets">{{ form.ueb_obets.label }}</label>
+                      {{ form.ueb_obets }}
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="form-group">
+                      <!--reclamacion-->
+                      <label for="reclamacion"
+                        >{{ form.reclamacion.label }}</label>
+                      {{ form.reclamacion }}
+                    </div>
+                  </div>
+                  
+                </div>
+              <br />
+            </div>
+            
+              {% block campos_extra %}
+
+              {% endblock %}
+            
+
+            <div class="modal-footer">
+              <button class="btn btn-outline-primary" type="submit">
+                <i class="bi bi-floppy2-fill"></i> Guardar
+              </button>
+              <a href="{{ list_url }}" class="btn btn-outline-danger btn-flat">
+                <i class="bi bi-x-square-fill"></i> Cancelar
+              </a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  {% if form.errors %}
+      var errors = '';
+      {% for field in form %}
+          {% for error in field.errors %}
+              errors += '{{ error }}\n';
+          {% endfor %}
+      {% endfor %}
+      Swal.fire({
+          title: "Error!",
+          text: errors,
+          icon: "error",
+        });
+  {% endif %}
+
+  $('form').on('submit', function(e) {
+      e.preventDefault();
+      var parameters = new FormData(this);
+      submit_with_ajax_exp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
+          location.href = '{{ list_url }}';
+      });
+  });
+  //Configuración de Select2 con checkboxes
+    $(document).ready(function() {
+        $("#id_clientes").select2({
+            placeholder: "Seleccione uno o más clientes",
+            allowClear: true,
+            closeOnSelect: false,
+            templateResult: formatOption, // Formatear las opciones con checkboxes
+            templateSelection: formatSelection // Mostrar los seleccionados
+            
+        });
+        // Función para formatear las opciones con checkboxes
+        function formatOption(option) {
+            if (!option.id) {
+                return option.text;
+            }
+            var checkbox = $('<span style="font-size: 0.8em;"><input type="checkbox" style="margin-right: 8px;" /> ' + option.text + '</span>');
+            return checkbox;
+        }
+
+        // Función para mostrar los seleccionados
+        function formatSelection(option) {
+            return $('<span style="font-size: 0.8em;">' + option.text + '</span>');
+        }
+        
+    });
+  $('#fecha_entrega').datetimepicker({
+    format: 'DD-MM-YYYY',
+    locale: 'es',
+    icons: {
+        time: 'bi bi-clock',
+        date: 'bi bi-calendar',
+        up: 'bi bi-chevron-up',
+        down: 'bi bi-chevron-down',
+        previous: 'bi bi-chevron-left',
+        next: 'bi bi-chevron-right',
+        today: 'bi bi-calendar-check',
+        clear: 'bi bi-trash',
+        close: 'bi bi-x'
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+  let currentPage = 1;
+  const pages = document.querySelectorAll('.form-page');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function showPage(pageNumber) {
+    pages.forEach(page => page.style.display = 'none');
+    document.getElementById(`page${pageNumber}`).style.display = 'block';
+    
+    prevBtn.style.display = pageNumber === 1 ? 'none' : 'inline-block';
+    nextBtn.style.display = pageNumber === pages.length ? 'none' : 'inline-block';
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (currentPage < pages.length) {
+      currentPage++;
+      showPage(currentPage);
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      showPage(currentPage);
+    }
+  });
+
+  showPage(1); // Inicializar
+});
+
+</script>
+
+{% endblock %}

@@ -4,7 +4,12 @@
 {% load static %} 
 
 {% block head_list %}
-    <script src="{% static 'expediente/js/list.js' %}"></script>
+  <script>
+      // Obtener si el usuario tiene el permiso (Django template)
+      var userHasEditPermission = {{ perms.gestion.change_expediente|yesno:"true,false" }};
+  </script>
+  <script src="{% static 'expediente/js/list.js' %}"></script>
+  <script src="{% static 'respuesta/js/resp.js' %}"></script>
 {% endblock %}
 
 {% block column %}
