@@ -18,7 +18,10 @@ urlpatterns = [
     path('registros/detalle/<int:pk>/expediente/add/', ExpedienteCreateView.as_view(), name="expediente_crear"),
     # path('registros/detalle/<int:pk>/expediente/show/<int:ek>', ExpedienteTempalteView.as_view(), name="expediente_show"),
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/', ExpedienteUpdateView.as_view(), name="expediente_editar"),
+<<<<<<< HEAD
     # path('registros/detalle/<int:pk>/expediente/update/<int:ek>/', ExpedienteRespuestaUpdateView.as_view(), name="respuesta_editar"),
+=======
+>>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
     
     #clientes
     path('clientes/', ClienteListar.as_view(), name="clientes"),

@@ -158,6 +158,7 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
     
+<<<<<<< HEAD
     # def post(self, request, *args, **kwargs):
     #     data = {}
     #     try:
@@ -178,6 +179,8 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     #         data['error'] = str(e)
     #     return JsonResponse(data, safe=False)
     
+=======
+>>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
     
     # Procesar archivos subidos
     # archivos = self.request.FILES.getlist('archivos')

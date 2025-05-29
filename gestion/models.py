@@ -321,6 +321,7 @@ class Expediente(models.Model):
         return f"{numero_expediente} {self.title} - by {self.user.username}"
 
 class RespuestaCliente(models.Model):
+<<<<<<< HEAD
     expediente = models.ForeignKey(
         Expediente, 
         on_delete=models.CASCADE,
@@ -355,3 +356,9 @@ class RespuestaCliente(models.Model):
         item['fecha_respuesta'] = self.fecha_respuesta.strftime('%d-%m-%Y %H:%M:%S')
         return item
     
+=======
+    expediente = models.ForeignKey(Expediente, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    respuesta = models.TextField()
+    fecha_respuesta = models.DateTimeField(auto_now_add=True)
+>>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
