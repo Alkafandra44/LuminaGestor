@@ -1,0 +1,147 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 2px;
+        font-size: 12px;
+        background-color: #ffffff;
+      }
+      .invoice-header {
+        margin-bottom: 20px;
+      }
+      .header-top {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+      }
+      .header-info h1 {
+        margin: 0;
+        color: #e86b5a;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-align: center;
+      }
+      .header-info .address {
+        font-style: italic;
+        color: #e86b5a;
+        margin: 0;
+        text-align: center;
+      }
+      .header-top .contact {
+        font-style: italic;
+        color: #e86b5a;
+        margin: 5px 0;
+        text-align: center;
+      }
+      /* Contenedor para el logo, posicionado a la derecha */
+      .logo-container img {
+        width: 140px;
+        height: auto;
+      }
+      .header-image img {
+        width: 100%;
+        z-index: -20;
+        position: absolute;
+        height: auto;
+        padding-top: 10px;
+        margin: 0 auto;
+      }
+      .document-title {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 40px 0;
+            text-transform: uppercase;
+        }
+      .invoice-details {
+        margin-bottom: 20px;
+      }
+      .invoice-details p {
+        margin: 5px 0;
+      }
+      .invoice-items table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .invoice-items th,
+      .invoice-items td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .invoice-items th {
+        background-color: #f2f2f2;
+      }
+      .invoice-total {
+        text-align: right;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      .signature {
+            margin-top: 100px;
+            text-align: left;
+        }
+      .footer-note {
+        text-align: right;
+        font-style: italic;
+        color:rgb(0, 0, 0);
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-header">
+      <!-- Bloque superior: información por la izquierda y logo a la derecha -->
+        <div class="header-top">
+            <div class="header-info">
+                <h1>{{ title }}</h1>
+                <p class="address">Contreras # 70 e/e Ayuntamiento y Santa Teresa Matanzas.</p>
+                <p class="contact">Teléfono: 245033 Extensión: 8645 e-mail: poblacion@elecmtz.une.cu</p>
+            </div>
+        
+        </div>
+        <div class="header-image">
+            <img src="img/header_resp.jpg" alt="Header">
+        </div>
+      <!-- Imagen de encabezado justo debajo del bloque superior -->
+      
+      <!-- Datos de la respuesta-->
+      <p class="footer-note">Matanzas, {{ dia }} de {{ mes }} del {{ anio }}<br>Año (#) de la Revolución.</p>
+    </div>
+
+    <div class="document-title">
+        <!-- Detalles del cliente y expediente -->
+        <div class="invoice-details">
+            <p><strong> A: {{ respuesta.cliente.nombre_completo }} vecino de {{ expediente.cliente.direccion }}</strong></p>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Aquí va el contenido específico del documento -->
+        <p>En respuesta a su solicitud, se informa que:</p>
+        <p>{{ respuesta.respuesta|linebreaks }}</p>
+        <p><strong>Por todo lo antes expuesto, su reclamacion queda {{ respuesta.get_resultado_gestion_display }} y se declara {{ respuesta.get_evaluacion_gestion_display }}</strong></p>
+    </div>
+
+    <div class="signature">
+        <p>Atentamente,</p>
+        <p>_________________________</p>
+        <p>{{ respuesta.user.get_full_name }}</p>
+        <p>{{ respuesta.user.groups }} de la UEB CIAC</p>
+    </div>
+
+    <div class="signature">
+        <p>Apobado por,</p>
+        <p>_________________________</p>
+        <p>[Usuario]</p>
+        <p>Director de la UEB CIAC</p>
+    </div>
+    
+
+    
+  </body>
+</html>

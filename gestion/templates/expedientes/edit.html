@@ -3,7 +3,6 @@
 <!-- Página 2 (campos_extra) -->
 <div class="form-page" id="page2" style="display:none;">
    <div class="row">
-<<<<<<< HEAD
       <div class="col-md-12">
             <div class="form-group">
                <!-- Resumen-->
@@ -12,67 +11,13 @@
             </div>
       </div>
    </div>
-   {% comment %} <div class="row">
+   <!--Archivos-->
       <div class="col-md-12">
          <div class="form-group">
-            <!-- Respuesta-->
-=======
-   <div class="col-md-12">
-         <div class="form-group">
-            <!-- Agrega aquí más campos si lo necesitas -->
-            <label for="resumen">{{ form.resumen.label }}</label>
-            {{ form.resumen }}
-         </div>
-   </div>
-   </div>
-   <div class="row">
-      <div class="col-md-12">
-         <div class="form-group">
-            <!-- Agrega aquí más campos si lo necesitas -->
->>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
-            <label for="respuesta">{{ form.respuesta.label }}</label>
-            {{ form.respuesta }}
+            <label for="archivos">{{ form.archivos.label }}</label>
+            {{ form.archivos }}
          </div>
       </div>
-   </div>
-   <div class="row g-2">
-      <div class="col-md">
-         <div class="form-group">
-<<<<<<< HEAD
-            <!--Evaluacion de la Gestion-->
-=======
-            <!--Procedencia-->
->>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
-         <label class="control-label" for="evaluacion_gestion">{{ form.evaluacion_gestion.label }}</label>
-         {{ form.evaluacion_gestion }}
-         </div>
-      </div>
-      <div class="col-md">
-         <div class="form-group">
-<<<<<<< HEAD
-            <!--Resultado de la Gestion-->
-=======
-            <!--Fecha complete-->
->>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
-         <label for="resultado_gestion"
-            >{{ form.resultado_gestion.label }}</label>
-         {{ form.resultado_gestion }}
-         </div>
-      </div>
-<<<<<<< HEAD
-      <!--Archivos-->
-      <div class="row mt-3">
-         <div class="col-md-12">
-            <div class="form-group">
-               <label for="archivos">{{ form.archivos.label }}</label>
-               {{ form.archivos }}
-               <small class="form-text text-muted">
-                  Puede seleccionar múltiples archivos (PDF, Word, Excel, imágenes)
-               </small>
-            </div>
-         </div>
-      </div>
-   </div> {% endcomment %}
    <div class="row mt-4">
       <div class="col-md-12">
          <p>Respuestas a Clientes</p>
@@ -89,30 +34,49 @@
             </thead>
             <tbody>
                {% for cliente in expediente.clientes.all %}
-               <tr>
-                  <td class="text-center">
-                     <div class="text-center">
-                        <a href="#" 
-                           class="btn btn-sm btn-info btn-xs">
-                           <i class="fas fa-plus" style="color: white;"></i>
-                        </a>
-                        <a href="#" 
-                           class="btn btn-sm btn-primary btn-xs">
-                           <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="#" 
-                           class="btn btn-success btn-sm"> <i class="fas fa-print" style="color: white;"></i>
-                        </a>
-                     </div>
-                  </td>
-                  <td class="text-center">Respuesta a {{ cliente.nombre }} {{ cliente.apellido }}</td>
-               </tr>
+               {% with respuesta=cliente.respuestas.first %}
+                  <tr>
+                     <td class="text-center">
+                        <div class="text-center">
+                           <a href="#" 
+                              class="btn btn-sm btn-info btn-xs btnNuevaRespuesta"
+                                 {% if cliente %}
+                                 data-expediente-id="{{ expediente_id }}"
+                                 data-cliente-id="{{ cliente.id }}"
+                                 {% endif %}
+                              >
+                              <i class="fas fa-plus" style="color: white;"></i>
+                           </a>
+                           <a href="#" 
+                              class="btn btn-sm btn-primary btn-xs"
+                                 {% if respuesta %}
+                                 data-respuesta-id="{{ respuesta.id }}"
+                                 {% endif %}>
+                              <i class="fas fa-edit"></i>
+                           </a>
+                           <a href="#" 
+                              class="btn btn-success btn-sm"
+                                 {% if respuesta %}
+                                 data-respuesta-id="{{ respuesta.id }}"
+                                 {% endif %}> 
+                              <i class="fas fa-print" style="color: white;"></i>
+                           </a>
+                        </div>
+                     </td>
+                     <td class="text-center">
+                        Respuesta a {{ cliente.nombre }} {{ cliente.apellido }}
+                        {% if respuesta %}
+                           <span class="badge bg-success">Existente</span>
+                        {% else %}
+                           <span class="badge bg-warning">Pendiente</span>
+                        {% endif %}
+                     </td>
+                  </tr>
+               {% endwith %}
                {% endfor %}
             </tbody>
          </table>
       </div>
-=======
->>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
    </div>
 </div>
 <!-- Navegación -->
@@ -121,22 +85,26 @@
    <button type="button" class="btn btn-primary" id="nextBtn">Siguiente</button>
 </div>
 {% endblock %}
-<<<<<<< HEAD
 
-{% comment %} {% block javascript %}
+{% block javascript %}
 <div class="modal fade" id="myModalRespuesta" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <form method="post" id="formularioresp">
+      {% csrf_token %}
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fs-5" id="exampleModalLabel"><i class="fas fa-search"></i><span></span></h5>
+            <h5 class="modal-title fs-5" id="modalRespuestaTitle"><i class="fas fa-search"></i><span></span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
             </button>
           </div>
           <div class="modal-body">
             <div class="container-fluid">
                 <input name="action" type="hidden" value="add">
-                <input name="id" id="id" type="hidden" value="0">
+                <input name="id" id="id_respuesta" type="hidden" value="0">
+                <input name="expediente_id" id="expediente_id" type="hidden" value="{{ expediente.id }}">
+                {% if cliente %}
+                    <input name="cliente_id" id="cliente_id" type="hidden" value="{{ cliente.id }}">
+                {% endif %}
                 {% for field in form.visible_fields %}
                     <div class="form-group">
                         <label for="">{{ field.label }}: </label>
@@ -153,7 +121,9 @@
       </div>
     </form>
 </div>
-{% endblock %}  {% endcomment %}
 
-=======
->>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
+<script type="application/javascript">
+    
+
+{% endblock %}  
+

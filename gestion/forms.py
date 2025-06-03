@@ -115,23 +115,10 @@ class ExpedienteForm(ModelForm):
             ),
             'resumen': Textarea(
                 attrs={
-<<<<<<< HEAD
                     'class': 'form-control form-control-sm',
                     'rows': 2,                    
-=======
-                    'class': 'form-control',
-                    'rows': 3,                    
                     'style': 'width: 100%;',
-                    'placeholder': 'Breve Resumen del caso',
-                }
-            ),
-            'respuesta': Textarea(
-                attrs={
-                    'class': 'form-control',
-                    'rows': 4,                    
->>>>>>> ecfc6af31397f7a9ac011b9197ad1562a49f381b
-                    'style': 'width: 100%;',
-                    'placeholder': 'Respuesta del caso',
+                    'placeholder': 'Resumen del caso',
                 }
             ),
             'evaluacion_gestion': Select(

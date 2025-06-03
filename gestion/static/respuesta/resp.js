@@ -1,65 +1,91 @@
-// $(function(){
+// // respuestas.js
+// $(function() {
+//     var modalRespuesta = $('#myModalRespuesta');
+//     var formRespuesta = $('#formularioresp');
+//     var modalTitle = $('#modalRespuestaTitle span');
+//     var modalIcon = $('#modalRespuestaTitle i');
 
-//     modal_title = $('.modal-title');
-
-//     getData();
-
-//     //Add
-//     $('.btnNuevoCliente').on('click', function(){
-//         $('input[name="action"]').val('add')
-//         modal_title.find('span').html(' Crear Nuevo Cliente');
-//         modal_title.find('i').removeClass().addClass('fas fa-plus');
-//         $('form')[0].reset();
-//         $('#myModalCliente').modal('show');
+//     // Botón de agregar respuesta
+//     $('.btn-add-respuesta').on('click', function() {
+//         var expedienteId = $(this).data('expediente-id');
+//         var clienteId = $(this).data('cliente-id');
+        
+//         formRespuesta.find('#expediente_id').val(expedienteId);
+//         formRespuesta.find('#cliente_id').val(clienteId);
+//         formRespuesta.find('input[name="action"]').val('add');
+//         formRespuesta.find('#id_respuesta').val('0');
+//         formRespuesta[0].reset();
+        
+//         modalTitle.text(' Nueva Respuesta');
+//         modalIcon.removeClass().addClass('fas fa-plus');
+//         modalRespuesta.modal('show');
 //     });
 
-    
-//     $('#tblClientes')
-//         //Edit
-//         .on('click', 'a[rel="edit"]', function () {
-//             modal_title.find('span').html(' Editar Cliente');
-//             modal_title.find('i').removeClass().addClass('fas fa-edit');
-//             var tr = tblClientes.cell($(this).parent('td, li')).index();
-//             var data = tblClientes.row(tr.row).data();
-//             $('input[name="action"]').val('edit');
-//             $('input[name="id"]').val(data.id_cliente);
-//             $('input[name="carnet"]').val(data.carnet);
-//             $('input[name="nombre"]').val(data.nombre);
-//             $('input[name="apellido"]').val(data.apellido);
-//             $('input[name="telefono"]').val(data.telefono);
-//             $('textarea[name="direccion"]').val(data.direccion);
-//             $('select[name="municipio"]').val(data.municipio_id);
-//             $('#myModalCliente').modal('show');
-//         })
-//         //Delete
-//         .on('click', 'a[rel="delete"]', function () {
-//             var tr = tblClientes.cell($(this).parent('td, li')).index();
-//             var data = tblClientes.row(tr.row).data();
-//             var parameters = {
-//                 action: 'delete',
-//                 id: data.id_cliente
-//             };
-//             submit_with_ajax(window.location.pathname, 
-//                 'Notificacion', 
-//                 '¿Estas seguro de eliminar el siguiente registro?', 
-//                 parameters, 
-//                 function(){
-//                     tblClientes.ajax.reload();
-//                 }
-//             );
-//         });
-
-//     $('form').on('submit', function(e) {
-//         e.preventDefault();
-
-//         if (!validateForm()) {
-//             return false;
-//         }
+//     // Botón de editar respuesta
+//     $('.btn-edit-respuesta').on('click', function() {
+//         var respuestaId = $(this).data('respuesta-id');
         
-//         var parameters = $(this).serialize();
-//         submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
-//             $('#myModalCliente').modal('hide');
-//             tblClientes.ajax.reload();
+//         $.ajax({
+//             url: '{% url "gestion:get_respuesta" %}',
+//             type: 'GET',
+//             data: {
+//                 'id': respuestaId
+//             },
+//             success: function(data) {
+//                 if(data.respuesta) {
+//                     formRespuesta.find('#id_respuesta').val(data.respuesta.id);
+//                     formRespuesta.find('#expediente_id').val(data.respuesta.expediente_id);
+//                     formRespuesta.find('#cliente_id').val(data.respuesta.cliente_id);
+//                     formRespuesta.find('textarea[name="respuesta"]').val(data.respuesta.respuesta);
+//                     formRespuesta.find('select[name="evaluacion_gestion"]').val(data.respuesta.evaluacion_gestion);
+//                     formRespuesta.find('select[name="resultado_gestion"]').val(data.respuesta.resultado_gestion);
+//                     formRespuesta.find('input[name="action"]').val('edit');
+                    
+//                     modalTitle.text(' Editar Respuesta');
+//                     modalIcon.removeClass().addClass('fas fa-edit');
+//                     modalRespuesta.modal('show');
+//                 }
+//             },
+//             error: function() {
+//                 Swal.fire('Error', 'No se pudo cargar la respuesta', 'error');
+//             }
 //         });
+//     });
+
+//     // Enviar formulario de respuesta
+//     formRespuesta.on('submit', function(e) {
+//         e.preventDefault();
+//         var formData = new FormData(this);
+        
+//         $.ajax({
+//             url: $(this).attr('action'),
+//             type: 'POST',
+//             data: formData,
+//             processData: false,
+//             contentType: false,
+//             success: function(data) {
+//                 if(data.success) {
+//                     modalRespuesta.modal('hide');
+//                     Swal.fire('Éxito', data.message, 'success').then(() => {
+//                         location.reload();
+//                     });
+//                 } else {
+//                     Swal.fire('Error', data.error, 'error');
+//                 }
+//             },
+//             error: function() {
+//                 Swal.fire('Error', 'Error en el servidor', 'error');
+//             }
+//         });
+//     });
+    
+//     // Botón de imprimir
+//     $('.btn-print-respuesta').on('click', function() {
+//         var respuestaId = $(this).data('respuesta-id');
+//         if(respuestaId) {
+//             window.open('{% url "gestion:respuesta_pdf" 0 %}'.replace('0', respuestaId), '_blank');
+//         } else {
+//             Swal.fire('Advertencia', 'Primero debe crear una respuesta', 'warning');
+//         }
 //     });
 // });

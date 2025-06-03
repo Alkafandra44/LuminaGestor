@@ -1,0 +1,110 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 2px;
+        font-size: 12px;
+        background-color: #ffffff;
+      }
+      .invoice-header {
+        margin-bottom: 20px;
+      }
+      .header-top {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+      }
+      .header-info h1 {
+        margin: 0;
+        color: #e86b5a;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-align: center;
+      }
+      /* Contenedor para el logo, posicionado a la derecha */
+      .logo-container img {
+        width: 140px;
+        height: auto;
+      }
+      .header-image img {
+        width: 100%;
+        z-index: -20;
+        position: absolute;
+        height: auto;
+        padding-top: 10px;
+        margin: 0 auto;
+      }
+      .invoice-details {
+        margin-bottom: 20px;
+      }
+      .invoice-details p {
+        margin: 5px 0;
+      }
+      .invoice-items table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .invoice-items th,
+      .invoice-items td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .invoice-items th {
+        background-color: #f2f2f2;
+      }
+      .invoice-total {
+        text-align: right;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      .signature {
+            margin-top: 100px;
+            text-align: left;
+        }
+      .footer-note {
+        text-align: right;
+        font-style: italic;
+        color:rgb(0, 0, 0);
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-header">
+      <!-- Bloque superior: información por la izquierda y logo a la derecha -->
+        <div class="header-top">
+            <div class="header-info">
+                <h1>{{ title }}</h1>
+            </div>
+        
+        </div>
+        <div class="header-image">
+            <img src="img/header_resp.jpg" alt="Header">
+        </div>
+      <!-- Imagen de encabezado justo debajo del bloque superior -->
+      
+      <!-- Datos de la respuesta-->
+      <p class="footer-note">Matanzas, (día) de (mes) del (año) <br>Año (#) de la Revolución.</p>
+    </div>
+
+    <div class="content">
+        <!-- Aquí va el contenido específico del documento -->
+        <p>En la investigacion del caso se pudo comprobar que:</p>
+        <p>[Texto del resumen]</p>
+        <p><strong>Por todo lo antes expuesto, su reclamacion queda [Resultado de la Gestion] y se declara [Evaluacion de la gestion]</strong></p>
+    </div>
+
+    <div class="signature">
+        <p>Atentamente,</p>
+        <p>_________________________</p>
+        <p>[Usuario]</p>
+        <p>[rol] de la UEB CIAC</p>
+    </div>
+
+  </body>
+</html>
