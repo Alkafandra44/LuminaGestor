@@ -174,15 +174,38 @@ class ExpedienteForm(ModelForm):
         return archivos
     
 class RespuestaClienteForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        cliente = kwargs.pop('cliente', None)
+        super().__init__(*args, **kwargs)
+        for formresp in self.visible_fields():
+            formresp.field.widget.attrs.update({'class': 'form-control', 'autocomplete': 'off'})
+        if cliente:
+            self.fields['cliente'].initial = cliente.id
+            self.fields['cliente_nombre'].initial = f"{cliente.nombre} {cliente.apellido}"
+        
+    cliente_nombre = CharField(
+        label = "Cliente",
+        required = False,
+        widget = TextInput(
+            attrs={
+                'class': 'form-control form-control-sm',
+                'placeholder': 'Nombre del cliente',
+                'readonly': 'readonly',  # Hacerlo de solo lectura
+            }
+        )
+    )
     class Meta:
         model = RespuestaCliente
-        fields = ['respuesta', 'evaluacion_gestion', 'resultado_gestion']
+        fields = ['cliente', 'cliente_nombre', 'respuesta', 'evaluacion_gestion', 'resultado_gestion']
         widgets = {
-            'respuesta': Textarea(attrs={
-                'class': 'form-control form-control-sm',
-                'rows': 3,
-                'placeholder': 'Redacte la respuesta para el cliente'
-            }),
+            'cliente': HiddenInput(), 
+            'respuesta': Textarea(
+                attrs={
+                    'class': 'form-control form-control-sm',
+                    'rows': 3,
+                    'placeholder': 'Redacte la respuesta para el cliente'
+                }
+            ),
             'evaluacion_gestion': Select(
                 attrs={
                     'class': 'form-control form-select-sm',

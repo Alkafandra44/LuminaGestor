@@ -344,6 +344,10 @@ class RespuestaCliente(models.Model):
         blank=True, 
         null=True
     )
+    estado = models.BooleanField(
+        '¿Pendiente?', 
+        default=True
+    )
     
     def __str__(self):
         return f"Respuesta de {self.cliente} para expediente {self.expediente} - {self.fecha_respuesta.strftime('%d/%m/%Y')}"
@@ -351,7 +355,10 @@ class RespuestaCliente(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['expediente'] = self.expediente.toJSON()
-        item['cliente'] = self.cliente.toJSON()
+        item['cliente'] = {'nombre': self.cliente.nombre, 'apellido': self.cliente.apellido}
         item['fecha_respuesta'] = self.fecha_respuesta.strftime('%d-%m-%Y %H:%M:%S')
+        item['evaluacion_gestion'] = self.get_evaluacion_gestion_display()
+        item['resultado_gestion'] = self.get_resultado_gestion_display()
+        item['estado'] = self.estado
         return item
     

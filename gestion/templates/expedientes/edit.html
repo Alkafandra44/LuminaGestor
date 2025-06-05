@@ -22,7 +22,7 @@
       <div class="col-md-12">
          <p>Respuestas a Clientes</p>
          <table 
-            class="table table-sm table-bordered"
+            class="table table-sm"
             style="width: 100%;  border-radius: 5px; overflow: hidden;"
             id="tblRespuestasClientes"
             >
@@ -30,6 +30,10 @@
                <tr>
                   <th class="text-light">Acciones</th>
                   <th class="text-light">Destinatario</th>
+                  <th class="text-light">Estado</th>
+                  <th class="text-light">Evaluación de la gestión</th>
+                  <th class="text-light">Resultado de la gestión</th>
+                  <th class="text-light">Fecha de respuesta</th>
                </tr>
             </thead>
             <tbody>
@@ -38,24 +42,25 @@
                   <tr>
                      <td class="text-center">
                         <div class="text-center">
+                           <!-- Botón para crear respuesta -->
                            <a href="#" 
                               class="btn btn-sm btn-info btn-xs btnNuevaRespuesta"
-                                 {% if cliente %}
                                  data-expediente-id="{{ expediente_id }}"
                                  data-cliente-id="{{ cliente.id }}"
-                                 {% endif %}
-                              >
+                                 data-cliente-nombre="{{ cliente.nombre }} {{ cliente.apellido }}">
                               <i class="fas fa-plus" style="color: white;"></i>
                            </a>
+                           <!-- Botón para editar respuesta -->
                            <a href="#" 
-                              class="btn btn-sm btn-primary btn-xs"
+                              class="btn btn-sm btn-primary btn-xs btnEditarRespuesta"
                                  {% if respuesta %}
                                  data-respuesta-id="{{ respuesta.id }}"
                                  {% endif %}>
                               <i class="fas fa-edit"></i>
                            </a>
+                           <!-- Botón para imprimir -->
                            <a href="#" 
-                              class="btn btn-success btn-sm"
+                              class="btn btn-success btn-sm btnImprimirRespuesta"
                                  {% if respuesta %}
                                  data-respuesta-id="{{ respuesta.id }}"
                                  {% endif %}> 
@@ -65,10 +70,33 @@
                      </td>
                      <td class="text-center">
                         Respuesta a {{ cliente.nombre }} {{ cliente.apellido }}
+                     </td>
+                     <td class="text-center">
                         {% if respuesta %}
                            <span class="badge bg-success">Existente</span>
                         {% else %}
                            <span class="badge bg-warning">Pendiente</span>
+                        {% endif %}
+                     </td>
+                     <td class="text-center">
+                        {% if respuesta %}
+                           {{ respuesta.get_evaluacion_gestion_display }}
+                        {% else %}
+                           <span class="text-muted">-</span>
+                        {% endif %}
+                     </td>
+                     <td class="text-center">
+                        {% if respuesta %}
+                           {{ respuesta.get_resultado_gestion_display }}
+                        {% else %}
+                           <span class="text-muted">-</span>
+                        {% endif %}
+                     </td>
+                     <td class="text-center">
+                        {% if respuesta %}
+                           {{ respuesta.fecha_respuesta|date:"d/m/Y" }}
+                        {% else %}
+                           <span class="text-muted">-</span>
                         {% endif %}
                      </td>
                   </tr>
@@ -86,44 +114,63 @@
 </div>
 {% endblock %}
 
+
 {% block javascript %}
-<div class="modal fade" id="myModalRespuesta" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <form method="post" id="formularioresp">
-      {% csrf_token %}
-      <div class="modal-dialog">
+<!-- Modal para Respuestas -->
+<div class="modal fade" id="modalRespuesta" tabindex="-1" aria-hidden="true">
+   <form method="post" id="formularioresp">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title fs-5" id="modalRespuestaTitle"><i class="fas fa-search"></i><span></span></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="container-fluid">
-                <input name="action" type="hidden" value="add">
-                <input name="id" id="id_respuesta" type="hidden" value="0">
-                <input name="expediente_id" id="expediente_id" type="hidden" value="{{ expediente.id }}">
-                {% if cliente %}
-                    <input name="cliente_id" id="cliente_id" type="hidden" value="{{ cliente.id }}">
-                {% endif %}
-                {% for field in form.visible_fields %}
-                    <div class="form-group">
-                        <label for="">{{ field.label }}: </label>
-                        {{ field }}
-                    </div>
-                {% endfor %}
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalRespuestaTitle">Nueva Respuesta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-          </div>
+            <form id="formRespuesta" method="post">
+                <div class="modal-body">
+                  <div class="container-fluid">
+                    {% csrf_token %}
+                    <input name="action" type="hidden" value="add">
+                    <input type="hidden" name="id" id="id_respuesta">
+                    <input type="hidden" name="expediente_id" id="expediente_id">
+                    <input type="hidden" name="cliente_id" id="cliente_id">
+                    {% for field in formresp.visible_fields %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                            {{ field }}
+                        </div>
+                     {% endfor %}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
         </div>
-      </div>
-    </form>
+    </div>
 </div>
 
-<script type="application/javascript">
-    
+<!-- Modal para Imprimir -->
+<div class="modal fade" id="modalImprimir" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Imprimir Respuesta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <a href="#" class="btn btn-success" id="btnImprimirPDF">
+                        <i class="fas fa-file-pdf"></i> Exportar a PDF
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}  
 

@@ -4,6 +4,7 @@ from gestion.views.dashboard.views import *
 from gestion.views.clientes.views import *
 from gestion.views.registros.views import *
 from gestion.views.expedientes.views import *
+from gestion.views.respuestas.view import *
 
 
 app_name = 'gestion'
@@ -21,6 +22,10 @@ urlpatterns = [
     
     #respuestas
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/respuesta/<int:cl>', ExpedienteInvoivePdfView.as_view(), name="respuesta_pdf"),
+    path('respuesta/save/', RespuestaSaveView.as_view(), name='respuesta_save'),
+    path('respuesta/get/<int:respuesta_id>/', RespuestaGetView.as_view(), name='respuesta_get'),
+    path('respuesta/print/<int:respuesta_id>/', RespuestaPrintView.as_view(), name='respuesta_print'),
+
     
     #clientes
     path('clientes/', ClienteListar.as_view(), name="clientes"),

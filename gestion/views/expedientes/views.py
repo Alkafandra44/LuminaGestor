@@ -213,7 +213,21 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
         context['action'] = 'edit'
         context['home'] = reverse_lazy('gestion:dashboard')
         context['name'] = 'Panel de Control'
-        # context['form'] = RespuestaClienteForm()
+        context['formresp'] = RespuestaClienteForm()
+        cliente_id = self.request.GET.get('cliente_id')  # O como lo recibas
+        if cliente_id:
+            cliente = Cliente.objects.filter(id=cliente_id, expediente=self.object).first()
+            formresp = RespuestaClienteForm(initial={'cliente': cliente})
+            formresp.fields['cliente'].queryset = Cliente.objects.filter(id=cliente_id)
+            context['cliente'] = cliente
+            context['formresp'] = formresp
+        
+        
+        # expediente = self.get_object()
+        # context['respuestas'] = RespuestaCliente.objects.filter(
+        #     expediente=expediente
+        # ).select_related('cliente')
+        
         return context
 
 

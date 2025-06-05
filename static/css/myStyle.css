@@ -5,3 +5,7 @@
     font-size: small;
 
 }
+#tblRespuestasClientes th, 
+#tblRespuestasClientes td {
+    border: 1px solid #dee2e6 !important;
+}
