@@ -22,9 +22,9 @@ urlpatterns = [
     
     #respuestas
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/respuesta/<int:cl>', ExpedienteInvoivePdfView.as_view(), name="respuesta_pdf"),
-    path('respuesta/save/', RespuestaSaveView.as_view(), name='respuesta_save'),
-    path('respuesta/get/<int:respuesta_id>/', RespuestaGetView.as_view(), name='respuesta_get'),
-    path('respuesta/print/<int:respuesta_id>/', RespuestaPrintView.as_view(), name='respuesta_print'),
+    # path('respuesta/save/', RespuestaSaveView.as_view(), name='respuesta_save'),
+    # path('respuesta/get/<int:respuesta_id>/', RespuestaGetView.as_view(), name='respuesta_get'),
+    # path('respuesta/print/<int:respuesta_id>/', RespuestaPrintView.as_view(), name='respuesta_print'),
 
     
     #clientes

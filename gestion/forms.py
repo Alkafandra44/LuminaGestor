@@ -25,6 +25,7 @@ class ExpedienteForm(ModelForm):
         super().__init__(*args, **kwargs)
         for form in self.visible_fields():
             form.field.widget.attrs.update({'autocomplete': 'off'})
+            
         # Ordenar los clientes alfabéticamente por nombre completo
         self.fields['clientes'].queryset = Cliente.objects.all().order_by('nombre', 'apellido')
         if not self.instance.pk and not self.fields['estado_expediente'].initial:
@@ -121,20 +122,6 @@ class ExpedienteForm(ModelForm):
                     'placeholder': 'Resumen del caso',
                 }
             ),
-            'evaluacion_gestion': Select(
-                attrs={
-                    'class': 'form-select',
-                    'style': 'width: 100%;',
-                    'placeholder': 'Seleccione la evaluacion final',
-                }
-            ),
-            'resultado_gestion': Select(
-                attrs={
-                    'class': 'form-select',
-                    'style': 'width: 100%;',
-                    'placeholder': 'Seleccione la evaluacion final',
-                }
-            ),
         }
         
     def clean_title(self):
@@ -175,30 +162,31 @@ class ExpedienteForm(ModelForm):
     
 class RespuestaClienteForm(ModelForm):
     def __init__(self, *args, **kwargs):
+        self.expediente = kwargs.pop('expediente', None)
         cliente = kwargs.pop('cliente', None)
         super().__init__(*args, **kwargs)
+        
         for formresp in self.visible_fields():
             formresp.field.widget.attrs.update({'class': 'form-control', 'autocomplete': 'off'})
+            
+        if self.expediente:
+            self.fields['cliente'].initial = cliente.id_cliente
+            
         if cliente:
-            self.fields['cliente'].initial = cliente.id
-            self.fields['cliente_nombre'].initial = f"{cliente.nombre} {cliente.apellido}"
+            self.fields['cliente'].initial = cliente.cliente_id
         
-    cliente_nombre = CharField(
-        label = "Cliente",
-        required = False,
-        widget = TextInput(
-            attrs={
-                'class': 'form-control form-control-sm',
-                'placeholder': 'Nombre del cliente',
-                'readonly': 'readonly',  # Hacerlo de solo lectura
-            }
-        )
-    )
     class Meta:
         model = RespuestaCliente
-        fields = ['cliente', 'cliente_nombre', 'respuesta', 'evaluacion_gestion', 'resultado_gestion']
+        fields = ['cliente', 'respuesta', 'evaluacion_gestion', 'resultado_gestion' ]
+        exclude = ['estado']
         widgets = {
-            'cliente': HiddenInput(), 
+            'cliente': Select(
+                attrs={
+                    'class': 'form-control form-select-sm',
+                    'style': 'width: 100%;',
+                    'placeholder': 'Seleccione un cliente',
+                }
+            ),
             'respuesta': Textarea(
                 attrs={
                     'class': 'form-control form-control-sm',

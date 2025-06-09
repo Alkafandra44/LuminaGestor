@@ -208,19 +208,19 @@ class Expediente(models.Model):
     estado_expediente = models.ForeignKey(
         EstadoExpediente,
         on_delete=models.PROTECT,
-        related_name='expedientes',
+        related_name='expediente',
         verbose_name="Estado",
         default=1 
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     clientes = models.ManyToManyField(
         'Cliente', 
-        related_name='expedientes',
+        related_name='expediente',
     )
     registro = models.ForeignKey(
         'Registro', 
         on_delete=models.PROTECT,
-        related_name='expedientes',
+        related_name='expediente',
         verbose_name="Registro Anual"
     )
     clasificacion = models.CharField(
@@ -231,7 +231,7 @@ class Expediente(models.Model):
     procedencia = models.ForeignKey(
         Procedencia, 
         on_delete=models.CASCADE, 
-        related_name='expedientes', 
+        related_name='expediente', 
         verbose_name="Procedencia"
     )
     ueb_obets = models.CharField(
@@ -243,7 +243,7 @@ class Expediente(models.Model):
     reclamacion = models.ForeignKey(
     Reclamacion,
     on_delete=models.CASCADE,
-    related_name='expedientes',
+    related_name='expediente',
     verbose_name="Reclamación Asociada"
     )
     
@@ -354,8 +354,8 @@ class RespuestaCliente(models.Model):
         
     def toJSON(self):
         item = model_to_dict(self)
-        item['expediente'] = self.expediente.toJSON()
-        item['cliente'] = {'nombre': self.cliente.nombre, 'apellido': self.cliente.apellido}
+        item['expediente'] = self.expediente.id_expediente
+        item['cliente'] = self.cliente.toJSON()
         item['fecha_respuesta'] = self.fecha_respuesta.strftime('%d-%m-%Y %H:%M:%S')
         item['evaluacion_gestion'] = self.get_evaluacion_gestion_display()
         item['resultado_gestion'] = self.get_resultado_gestion_display()

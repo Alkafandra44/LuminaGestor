@@ -46,7 +46,7 @@
                            <a href="#" 
                               class="btn btn-sm btn-info btn-xs btnNuevaRespuesta"
                                  data-expediente-id="{{ expediente_id }}"
-                                 data-cliente-id="{{ cliente.id }}"
+                                 data-cliente-id="{{ cliente.id_cliente }}"
                                  data-cliente-nombre="{{ cliente.nombre }} {{ cliente.apellido }}">
                               <i class="fas fa-plus" style="color: white;"></i>
                            </a>
@@ -118,7 +118,6 @@
 {% block javascript %}
 <!-- Modal para Respuestas -->
 <div class="modal fade" id="modalRespuesta" tabindex="-1" aria-hidden="true">
-   <form method="post" id="formularioresp">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -129,10 +128,8 @@
                 <div class="modal-body">
                   <div class="container-fluid">
                     {% csrf_token %}
-                    <input name="action" type="hidden" value="add">
-                    <input type="hidden" name="id" id="id_respuesta">
-                    <input type="hidden" name="expediente_id" id="expediente_id">
-                    <input type="hidden" name="cliente_id" id="cliente_id">
+                    <input name="action" type="hidden" value="add_resp">
+                    <input type="hidden" name="expediente" id="expediente">
                     {% for field in formresp.visible_fields %}
                         <div class="form-group">
                             <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
@@ -143,7 +140,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="submit" class="btn btn-primary" name="respuesta_submit">Guardar</button>
                 </div>
             </form>
         </div>
@@ -171,6 +168,16 @@
         </div>
     </div>
 </div>
+<script>
+// Enviar formulario de respuesta
+         $('#formRespuesta').on('submit', function(e) {
+            e.preventDefault();
+            var parameters = new FormData(this);
+            submit_with_ajax_exp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
+                location.reload();
+            });
+        });
+      </script>
 
 {% endblock %}  
 

@@ -160,8 +160,9 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     permission_required = 'gestion.change_expediente'
 
     @method_decorator(login_required)
+    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        self.registro = get_object_or_404(Registro, pk=self.kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -171,35 +172,60 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
 
-    # def post(self, request, *args, **kwargs):
-    #     data = {}
-    #     try:
-    #         action = request.POST['action']
-    #         if action == 'edit':
-    #             form = self.get_form()
-    #             if form.is_valid():
-    #                 expediente = form.save(commit=False)
-    #                 expediente.user = self.request.user
-    #                 expediente.save()
-    #                 form.save_m2m()  # Necesario para relaciones ManyToMany (clientes)
-    #                 data = expediente.toJSON()
-    #             else:
-    #                 data['error'] = form.errors.as_json()
-    #         else:
-    #             data['error'] = 'Acción no válida'
-    #     except Exception as e:
-    #         data['error'] = str(e)
-    #     return JsonResponse(data, safe=False)
+    def post(self, request, *args, **kwargs):
+        data = {}
+        try:
+            action = request.POST['action']
+            if action == 'edit':
+                form = self.get_form()
+                if form.is_valid():
+                    expediente = form.save(commit=False)
+                    expediente.user = self.request.user
+                    expediente.save()
+                    form.save_m2m()  # Para relaciones ManyToMany (clientes)
+                    data = expediente.toJSON()
+                else:
+                    data['error'] = form.errors.as_json()   
+            elif action == 'add_resp':
+                return self.handle_respuesta_request(request)
+            else:
+                data['error'] = form.errors.as_json()
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data, safe=False)
+    
+    def handle_respuesta_request(self, request):
+        data = {}
+        try:
+            action = request.POST['action']
+                        
+            if action == 'add_resp':
+                expediente = self.get_object()
+                cliente = Cliente.objects.get(pk=request.POST['cliente'])
+                respuesta = RespuestaCliente(
+                    expediente=expediente,
+                    cliente=cliente,
+                    respuesta=request.POST['respuesta'],
+                    evaluacion_gestion=request.POST['evaluacion_gestion'],
+                    resultado_gestion=request.POST['resultado_gestion'],
+                )
+                respuesta.save()
+                data['success'] = True
+                data['message'] = 'Respuesta creada correctamente'
+                
+            elif action == 'edit_resp':
+                respuesta = RespuestaCliente.objects.get(id=request.POST['id'])
+                respuesta.respuesta = request.POST['respuesta']
+                respuesta.evaluacion_gestion = request.POST['evaluacion_gestion']
+                respuesta.resultado_gestion = request.POST['resultado_gestion']
+                respuesta.save()
+                data['success'] = True
+                data['message'] = 'Respuesta actualizada correctamente'
+                
+        except Exception as e:
+            data['error'] = str(e)
+        return JsonResponse(data)
 
-    # Procesar archivos subidos
-    # archivos = self.request.FILES.getlist('archivos')
-    # for archivo in archivos:
-    #     Archivo.objects.create(
-    #         expediente=self.object,
-    #         archivo=archivo,
-    #         nombre=archivo.name
-    #     )
-    # return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -210,24 +236,31 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
         context['entity'] = f"Expedientes: {registro.title}"
         context['expediente_id'] = self.kwargs['ek']
         context['list_url'] = self.get_success_url()
-        context['action'] = 'edit'
         context['home'] = reverse_lazy('gestion:dashboard')
         context['name'] = 'Panel de Control'
+        
+        expediente = self.get_object()
+        
         context['formresp'] = RespuestaClienteForm()
-        cliente_id = self.request.GET.get('cliente_id')  # O como lo recibas
-        if cliente_id:
-            cliente = Cliente.objects.filter(id=cliente_id, expediente=self.object).first()
-            formresp = RespuestaClienteForm(initial={'cliente': cliente})
-            formresp.fields['cliente'].queryset = Cliente.objects.filter(id=cliente_id)
+        
+        id_cliente = self.request.GET.get('id_cliente') or self.request.POST.get('cliente')  # O como lo recibas
+        if id_cliente:
+            cliente = get_object_or_404(Cliente, id_cliente=id_cliente, expediente=expediente).first()
+            # Si el cliente existe, inicializa el formulario con ese cliente
+            formresp = RespuestaClienteForm(initial={'cliente': cliente}, expediente=expediente)
+            formresp.fields['cliente'].queryset = Cliente.objects.filter(id_cliente=id_cliente)
+            
             context['cliente'] = cliente
             context['formresp'] = formresp
         
-        
-        # expediente = self.get_object()
-        # context['respuestas'] = RespuestaCliente.objects.filter(
-        #     expediente=expediente
-        # ).select_related('cliente')
-        
+            # Obtener respuestas existentes (opcional)
+            context['respuestas'] = RespuestaCliente.objects.filter(
+                expediente=expediente
+            ).select_related('cliente')
+            
+            # Obtener todos los clientes del expediente
+            context['clientes'] = expediente.clientes.all()
+                 
         return context
 
 

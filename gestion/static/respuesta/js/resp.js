@@ -1,114 +1,89 @@
-$(document).ready(function() {
-    $('#tblRespuestasClientes').DataTable({
-        responsive: true,
-        paging: false,
-        searching: false,
-        info: false,
-        ordering: false,
-        language: {
-            emptyTable: "No hay datos disponibles"
-        }
-    });
+$(document).ready(function () {
+  $("#tblRespuestasClientes").DataTable({
+    responsive: true,
+    paging: false,
+    searching: false,
+    info: false,
+    ordering: false,
+    language: {
+      emptyTable: "No hay datos disponibles",
+    },
+  });
 });
 
-   $(document).ready(function() {
-         // Evento para nueva respuesta
-         $('.btnNuevaRespuesta').on('click', function(e) {
-               e.preventDefault();
-               const expedienteId = $(this).data('expediente-id');
-               const clienteId = $(this).data('cliente-id');
-               const clienteNombre = $(this).data('cliente-nombre');
-               
-               // Configurar modal para nueva respuesta
-               $('#modalRespuestaTitle').text('Nueva Respuesta');
-               $('#id_respuesta').val('');
-               $('#expediente_id').val(expedienteId);
-               $('#cliente_id').val(clienteId);
-               $('#id_cliente_nombre').val(clienteNombre);
-               $('#destinatario_nombre').val(clienteNombre);
-               $('#respuesta').val('');
-               $('#evaluacion_gestion').val('');
-               $('#resultado_gestion').val('');
-               $('#fecha_respuesta').val(new Date().toISOString().split('T')[0]);
-               
-               $('#modalRespuesta').modal('show');
-         });
-         
-         // Evento para editar respuesta
-         $('.btnEditarRespuesta').on('click', function(e) {
-               e.preventDefault();
-               const respuestaId = $(this).data('respuesta-id');
-               
-               if (!respuestaId) {
-                  alert('No existe respuesta para editar');
-                  return;
-               }
-               
-               // Obtener datos de la respuesta
-               $.ajax({
-                  url: '/gestion/respuesta/get/' + respuestaId + '/',
-                  type: 'GET',
-                  success: function(response) {
-                     if (response.success) {
-                           // Configurar modal para editar
-                           $('#modalRespuestaTitle').text('Editar Respuesta');
-                           $('#id_respuesta').val(response.data.id);
-                           $('#expediente_id').val(response.data.expediente_id);
-                           $('#cliente_id').val(response.data.cliente_id);
-                           $('#destinatario_nombre').val(response.data.cliente_nombre);
-                           $('#respuesta').val(response.data.respuesta);
-                           $('#evaluacion_gestion').val(response.data.evaluacion_gestion);
-                           $('#resultado_gestion').val(response.data.resultado_gestion);
-                           $('#fecha_respuesta').val(response.data.fecha_respuesta);
-                           
-                           $('#modalRespuesta').modal('show');
-                     } else {
-                           alert('Error al cargar la respuesta: ' + response.error);
-                     }
-                  }
-               });
-         });
-         
-         // Evento para imprimir
-         $('.btnImprimirRespuesta').on('click', function(e) {
-               e.preventDefault();
-               const respuestaId = $(this).data('respuesta-id');
-               
-               if (!respuestaId) {
-                  alert('No existe respuesta para imprimir');
-                  return;
-               }
-               
-               // Configurar botón de impresión
-               $('#btnImprimirPDF').attr('href', '/gestion/respuesta/print/' + respuestaId + '/');
-               $('#modalImprimir').modal('show');
-         });
-         
-         // Enviar formulario de respuesta
-         $('#formRespuesta').on('submit', function(e) {
-               e.preventDefault();
-               const formData = $(this).serialize();
-               
-               $.ajax({
-                  url: '/gestion/respuesta/save/',
-                  type: 'POST',
-                  data: formData,
-                  success: function(response) {
-                     if (response.success) {
-                           $('#modalRespuesta').modal('hide');
-                           location.reload(); // Recargar para ver cambios
-                     } else {
-                           alert('Error: ' + response.error);
-                     }
-                  },
-                  error: function() {
-                     alert('Error al guardar la respuesta');
-                  }
-               });
-         });
-      });
-      
+$(document).ready(function () {
+  // Evento para nueva respuesta
+  $(".btnNuevaRespuesta").on("click", function (e) {
+    e.preventDefault();
+    const expedienteId = $(this).data("expediente-id");
+    const clienteId = $(this).data("cliente-id");
 
+    // Configurar modal para nueva respuesta
+    $("#modalRespuestaTitle").text("Nueva Respuesta");
+    $("#expediente").val(expedienteId);
+    $("#id_cliente").val(clienteId);
+    $("#respuesta").val("");
+    $("#evaluacion_gestion").val("");
+    $("#resultado_gestion").val("");
+    $("#fecha_respuesta").val(new Date().toISOString().split("T")[0]);
+    $('form')[0].reset();
+    $("#modalRespuesta").modal("show");
+  });
+
+  // Evento para editar respuesta
+  $(".btnEditarRespuesta").on("click", function (e) {
+    e.preventDefault();
+    const respuestaId = $(this).data("respuesta-id");
+
+    if (!respuestaId) {
+      alert("No existe respuesta para editar");
+      return;
+    }
+
+    // Obtener datos de la respuesta
+    $.ajax({
+      url: "/gestion/respuesta/get/" + respuestaId + "/",
+      type: "GET",
+      success: function (response) {
+        if (response.success) {
+          // Configurar modal para editar
+          $("#modalRespuestaTitle").text("Editar Respuesta");
+          $("#id_respuesta").val(response.data.id);
+          $("#expediente_id").val(response.data.expediente_id);
+          $("#cliente_id").val(response.data.cliente_id);
+          $("#destinatario_nombre").val(response.data.cliente_nombre);
+          $("#respuesta").val(response.data.respuesta);
+          $("#evaluacion_gestion").val(response.data.evaluacion_gestion);
+          $("#resultado_gestion").val(response.data.resultado_gestion);
+          $("#fecha_respuesta").val(response.data.fecha_respuesta);
+
+          $("#modalRespuesta").modal("show");
+        } else {
+          alert("Error al cargar la respuesta: " + response.error);
+        }
+      },
+    });
+  });
+
+  // Evento para imprimir
+  $(".btnImprimirRespuesta").on("click", function (e) {
+    e.preventDefault();
+    const respuestaId = $(this).data("respuesta-id");
+
+    if (!respuestaId) {
+      alert("No existe respuesta para imprimir");
+      return;
+    }
+
+    // Configurar botón de impresión
+    $("#btnImprimirPDF").attr(
+      "href",
+      "/gestion/respuesta/print/" + respuestaId + "/"
+    );
+    $("#modalImprimir").modal("show");
+  });
+
+});
 
 // var tblRespuestasClientes;
 // var modal_title;
@@ -128,14 +103,14 @@ $(document).ready(function() {
 //             type: 'POST',
 //             data: {
 //                 'action': 'search_respuestas',
-//                 'expediente_id': expedienteId 
+//                 'expediente_id': expedienteId
 //             },
 //             dataSrc: ""
 //         },
 //         columns:[
 //             {"data": "id"},
 //             {
-//                 "data": "cliente", 
+//                 "data": "cliente",
 //                 "render": function(data, type, row) {
 //                     return `${data.nombre} ${data.apellido}`;
 //                 }
@@ -145,8 +120,8 @@ $(document).ready(function() {
 //             {
 //                 "data": "estado",
 //                 "render": function(data, type, row) {
-//                     return data ? 
-//                     '<span class="badge bg-warning">Pendiente</span>' : 
+//                     return data ?
+//                     '<span class="badge bg-warning">Pendiente</span>' :
 //                     '<span class="badge bg-success">Completada</span>';
 //                 }
 //             },
@@ -166,8 +141,8 @@ $(document).ready(function() {
 //             },
 //         ],
 //         initComplete: function(settings, json){
-    
-//         }  
+
+//         }
 //     });
 // }
 
@@ -227,7 +202,7 @@ $(document).ready(function() {
 //         $('form')[0].reset();
 //         $('#myModalCliente').modal('show');
 //     });
-    
+
 //     $('#tblClientes')
 //         //Edit
 //         .on('click', 'a[rel="edit"]', function () {
@@ -253,27 +228,27 @@ $(document).ready(function() {
 //                 action: 'delete',
 //                 id: data.id_cliente
 //             };
-//             submit_with_ajax(window.location.pathname, 
-//                 'Notificacion', 
-//                 '¿Estas seguro de eliminar el siguiente registro?', 
-//                 parameters, 
+//             submit_with_ajax(window.location.pathname,
+//                 'Notificacion',
+//                 '¿Estas seguro de eliminar el siguiente registro?',
+//                 parameters,
 //                 function(){
 //                     tblClientes.ajax.reload();
 //                 }
 //             );
 //         });
 
-    // $('form').on('submit', function(e) {
-    //     e.preventDefault();
+// $('form').on('submit', function(e) {
+//     e.preventDefault();
 
-    //     if (!validateForm()) {
-    //         return false;
-    //     }
-        
-    //     var parameters = $(this).serialize();
-    //     submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
-    //         $('#myModalCliente').modal('hide');
-    //         tblClientes.ajax.reload();
-    //     });
-    // });
+//     if (!validateForm()) {
+//         return false;
+//     }
+
+//     var parameters = $(this).serialize();
+//     submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
+//         $('#myModalCliente').modal('hide');
+//         tblClientes.ajax.reload();
+//     });
+// });
 // });
