@@ -202,6 +202,10 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
             if action == 'add_resp':
                 expediente = self.get_object()
                 cliente = Cliente.objects.get(pk=request.POST['cliente'])
+                #Validacion de Unicidad
+                if RespuestaCliente.objects.filter(expediente=expediente, cliente=cliente).exists():
+                    data['error'] = 'Ya existe una respuesta para este cliente en este expediente.'
+                    return JsonResponse(data)                
                 respuesta = RespuestaCliente(
                     expediente=expediente,
                     cliente=cliente,
@@ -229,6 +233,8 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        expediente = self.get_object()
+        context['expediente'] = expediente
         registro_id = self.kwargs['pk']
         registro = Registro.objects.get(pk=registro_id)
         context['registro_id'] = self.kwargs['pk']
@@ -238,11 +244,15 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
         context['list_url'] = self.get_success_url()
         context['home'] = reverse_lazy('gestion:dashboard')
         context['name'] = 'Panel de Control'
-        
-        expediente = self.get_object()
-        
         context['formresp'] = RespuestaClienteForm()
         
+        # Diccionario: cliente_id -> respuesta (o None)
+        respuestas_por_cliente = {}
+        for cliente in expediente.clientes.all():
+            respuesta = RespuestaCliente.objects.filter(expediente=expediente, cliente=cliente).first()
+            respuestas_por_cliente[cliente.id_cliente] = respuesta
+        context['respuestas_por_cliente'] = respuestas_por_cliente
+                
         id_cliente = self.request.GET.get('id_cliente') or self.request.POST.get('cliente')  # O como lo recibas
         if id_cliente:
             cliente = get_object_or_404(Cliente, id_cliente=id_cliente, expediente=expediente).first()
@@ -255,8 +265,7 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
         
             # Obtener respuestas existentes (opcional)
             context['respuestas'] = RespuestaCliente.objects.filter(
-                expediente=expediente
-            ).select_related('cliente')
+                expediente=expediente, cliente=cliente)
             
             # Obtener todos los clientes del expediente
             context['clientes'] = expediente.clientes.all()

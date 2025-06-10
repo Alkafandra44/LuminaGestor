@@ -1,4 +1,7 @@
 {% extends 'form_exp.html' %} 
+{% load static %}
+{% load custom_tags %}
+
 {% block campos_extra %}
 <!-- Página 2 (campos_extra) -->
 <div class="form-page" id="page2" style="display:none;">
@@ -38,7 +41,7 @@
             </thead>
             <tbody>
                {% for cliente in expediente.clientes.all %}
-               {% with respuesta=cliente.respuestas.first %}
+               {% with respuesta=respuestas_por_cliente|get_item:cliente.id_cliente %}
                   <tr>
                      <td class="text-center">
                         <div class="text-center">
@@ -53,9 +56,9 @@
                            <!-- Botón para editar respuesta -->
                            <a href="#" 
                               class="btn btn-sm btn-primary btn-xs btnEditarRespuesta"
-                                 {% if respuesta %}
+                              {% if respuesta %}
                                  data-respuesta-id="{{ respuesta.id }}"
-                                 {% endif %}>
+                              {% endif %}>
                               <i class="fas fa-edit"></i>
                            </a>
                            <!-- Botón para imprimir -->

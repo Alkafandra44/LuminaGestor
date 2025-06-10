@@ -349,6 +349,9 @@ class RespuestaCliente(models.Model):
         default=True
     )
     
+    class Meta:
+        unique_together = ('expediente', 'cliente')
+    
     def __str__(self):
         return f"Respuesta de {self.cliente} para expediente {self.expediente} - {self.fecha_respuesta.strftime('%d/%m/%Y')}"
         
