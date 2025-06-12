@@ -148,3 +148,8 @@ MEDIA_URL = '/media/'
 
 #Sustitucion del nuevo modelo personalizado
 AUTH_USER_MODEL = 'user.User'
+
+# Configuración de subida de archivos
+# Limitar el tamaño máximo de archivos subidos
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15728640  # 15 * 1024 * 1024 bytes
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15728640

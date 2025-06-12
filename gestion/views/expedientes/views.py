@@ -183,16 +183,48 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                     expediente.user = self.request.user
                     expediente.save()
                     form.save_m2m()  # Para relaciones ManyToMany (clientes)
+                    for f in request.FILES.getlist('archivos'):
+                        Archivo.objects.create(
+                            expediente=expediente,
+                            archivo=f,
+                            nombre=f.name
+                        )
                     data = expediente.toJSON()
                 else:
                     data['error'] = form.errors.as_json()   
-            elif action == 'add_resp':
+                return JsonResponse(data, safe=False)
+            elif action in ['add_resp', 'edit_resp']:
+                # Llama a la función que maneja respuestas y retorna directamente
                 return self.handle_respuesta_request(request)
             else:
-                data['error'] = form.errors.as_json()
+                data['error'] = 'Acción no válida'
         except Exception as e:
             data['error'] = str(e)
         return JsonResponse(data, safe=False)
+    
+    def get(self, request, *args, **kwargs):
+        # AJAX para obtener datos de una respuesta
+        respuesta_id = request.GET.get('respuesta_id')
+        if respuesta_id:
+            try:
+                respuesta = RespuestaCliente.objects.get(id=respuesta_id)
+                data = {
+                    'success': True,
+                    'data': {
+                        'id': respuesta.id,
+                        'expediente_id': respuesta.expediente.id_expediente,
+                        'cliente_id': respuesta.cliente.id_cliente,
+                        'respuesta': respuesta.respuesta,
+                        'evaluacion_gestion': respuesta.evaluacion_gestion,
+                        'resultado_gestion': respuesta.resultado_gestion,
+                        'fecha_respuesta': respuesta.fecha_respuesta.strftime('%Y-%m-%d') if respuesta.fecha_respuesta else '',
+                    }
+                }
+            except Exception as e:
+                data = {'success': False, 'error': str(e)}
+            return JsonResponse(data)
+        # ...si no es AJAX, sigue el flujo normal...
+        return super().get(request, *args, **kwargs)
     
     def handle_respuesta_request(self, request):
         data = {}
@@ -216,12 +248,15 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                 respuesta.save()
                 data['success'] = True
                 data['message'] = 'Respuesta creada correctamente'
-                
             elif action == 'edit_resp':
-                respuesta = RespuestaCliente.objects.get(id=request.POST['id'])
+                respuesta_id = request.POST.get('id')
+                if not respuesta_id:
+                    raise ValueError("ID de respuesta no proporcionado")
+                respuesta = RespuestaCliente.objects.get(id=respuesta_id)
                 respuesta.respuesta = request.POST['respuesta']
                 respuesta.evaluacion_gestion = request.POST['evaluacion_gestion']
                 respuesta.resultado_gestion = request.POST['resultado_gestion']
+                respuesta.fecha_respuesta = request.POST.get('fecha_respuesta')
                 respuesta.save()
                 data['success'] = True
                 data['message'] = 'Respuesta actualizada correctamente'
@@ -272,7 +307,7 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                  
         return context
 
-
+## Para la impresion de Respuestas y Modelos (Mover a otro view)
 class ExpedienteInvoivePdfView(View):
     
     def link_callback(self, uri, rel):
@@ -327,3 +362,15 @@ class ExpedienteInvoivePdfView(View):
 
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class ResumenPDFView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        resumen = request.POST.get('resumen', '')
+        template = get_template('modelos/resumen_pdf.html')
+        html = template.render({'resumen': resumen, 'title': 'Resumen del Expediente'})
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="resumen.pdf"'
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        if pisa_status.err:
+            return HttpResponse('Error al generar PDF', status=500)
+        return response

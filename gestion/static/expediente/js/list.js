@@ -111,6 +111,28 @@ function setupFormValidation() {
             }
         }
     });
+    
+    $(document).on('click', '.btnEliminarArchivo', function() {
+        var archivoId = $(this).data('archivo-id');
+        var $li = $(this).closest('li');
+        if (confirm('¿Seguro que deseas eliminar este archivo?')) {
+            $.ajax({
+                url: '/gestion/archivo/delete/',
+                type: 'POST',
+                data: {
+                    archivo_id: archivoId,
+                    csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $li.remove();
+                    } else {
+                        alert('Error: ' + response.error);
+                    }
+                }
+            });
+        }
+    });
 }
 
 function showError(element, message) {

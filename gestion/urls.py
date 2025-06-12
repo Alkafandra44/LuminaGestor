@@ -1,5 +1,6 @@
 from django.urls import path
 #from gestion.views import *
+from gestion.views.archivos.view import *
 from gestion.views.dashboard.views import *
 from gestion.views.clientes.views import *
 from gestion.views.registros.views import *
@@ -19,6 +20,7 @@ urlpatterns = [
     path('registros/detalle/<int:pk>/expediente/add/', ExpedienteCreateView.as_view(), name="expediente_crear"),
     # path('registros/detalle/<int:pk>/expediente/show/<int:ek>', ExpedienteTempalteView.as_view(), name="expediente_show"),
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/', ExpedienteUpdateView.as_view(), name="expediente_editar"),
+    path('expedientes/resumen/pdf/', ResumenPDFView.as_view(), name='expediente_resumen_pdf'),
     
     #respuestas
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/respuesta/<int:cl>', ExpedienteInvoivePdfView.as_view(), name="respuesta_pdf"),
@@ -26,6 +28,7 @@ urlpatterns = [
     # path('respuesta/get/<int:respuesta_id>/', RespuestaGetView.as_view(), name='respuesta_get'),
     # path('respuesta/print/<int:respuesta_id>/', RespuestaPrintView.as_view(), name='respuesta_print'),
 
+    path('archivo/delete/', ArchivoDeleteView.as_view(), name='archivo_delete'),
     
     #clientes
     path('clientes/', ClienteListar.as_view(), name="clientes"),
