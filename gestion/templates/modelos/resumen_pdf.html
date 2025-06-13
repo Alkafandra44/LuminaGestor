@@ -89,21 +89,20 @@
       <!-- Imagen de encabezado justo debajo del bloque superior -->
       
       <!-- Datos de la respuesta-->
-      <p class="footer-note">Matanzas, (día) de (mes) del (año) <br>Año (#) de la Revolución.</p>
+      <p class="footer-note">Matanzas, {{ dia }} de {{ mes }} del {{ anio }} <br>Año {{ anio_rev }} de la Revolución.</p>
     </div>
 
     <div class="content">
         <!-- Aquí va el contenido específico del documento -->
         <p>En la investigacion del caso se pudo comprobar que:</p>
-        <p>[Texto del resumen]</p>
-        <p><strong>Por todo lo antes expuesto, su reclamacion queda [Resultado de la Gestion] y se declara [Evaluacion de la gestion]</strong></p>
+        <p>{{ resumen }}</p>
     </div>
 
     <div class="signature">
         <p>Atentamente,</p>
         <p>_________________________</p>
-        <p>[Usuario]</p>
-        <p>[rol] de la UEB CIAC</p>
+        <p>{{ user }}</p>
+        <p>{{ rol }} de la UEB CIAC</p>
     </div>
 
   </body>

@@ -23,6 +23,7 @@ function getData(){
             {"data": "estado_expediente"},
             {"data": "fecha_create"},
             {"data": "fecha_entrega"},
+            {"data": "user.username"},
         ],
         columnDefs: [
             {

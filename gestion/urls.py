@@ -3,6 +3,7 @@ from django.urls import path
 from gestion.views.archivos.view import *
 from gestion.views.dashboard.views import *
 from gestion.views.clientes.views import *
+from gestion.views.modelos.views import *
 from gestion.views.registros.views import *
 from gestion.views.expedientes.views import *
 from gestion.views.respuestas.view import *

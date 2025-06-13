@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData();
         formData.append("resumen", resumen);
 
-        fetch("/expedientes/resumen/pdf/", {
+        fetch(resumenPdfUrl, {
             method: "POST",
             body: formData,
             headers: {

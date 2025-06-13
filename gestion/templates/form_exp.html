@@ -174,13 +174,16 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
         });
   {% endif %}
 
+  //ENVIO DE FORMULARIO DE EXPEDIENTE
   $('form').on('submit', function(e) {
       e.preventDefault();
+      $('.form-page').show();
       var parameters = new FormData(this);
       submit_with_ajax_exp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
           location.href = '{{ list_url }}';
       });
   });
+
   //Configuración de Select2 con checkboxes
     $(document).ready(function() {
         $("#id_clientes").select2({
