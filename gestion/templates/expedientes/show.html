@@ -1,0 +1,79 @@
+<!-- filepath: c:\xampp2\htdocs\SystemDjango\gestion\templates\expedientes\show.html -->
+{% extends "form_exp.html" %}
+{% block contenido %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>{{ title }}</h2>
+      <form class="form-horizontal">
+        <div class="card card-default">
+          <div class="card-header">
+            <h4 class="card-title">
+              <i class="bi bi-eye"></i> Vista de Expediente
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Título:</label>
+              <input type="text" class="form-control" value="{{ expediente.title }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Procedencia:</label>
+              <input type="text" class="form-control" value="{{ expediente.procedencia }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Fecha de Entrega:</label>
+              <input type="text" class="form-control" value="{{ expediente.fecha_entrega }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Clientes:</label>
+              <input type="text" class="form-control" value="{% for c in expediente.clientes.all %}{{ c }}{% if not forloop.last %}, {% endif %}{% endfor %}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Clasificación:</label>
+              <input type="text" class="form-control" value="{{ expediente.clasificacion }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>UEB/OBETS:</label>
+              <input type="text" class="form-control" value="{{ expediente.ueb_obets }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Reclamación:</label>
+              <input type="text" class="form-control" value="{{ expediente.reclamacion }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Resumen:</label>
+              <textarea class="form-control" rows="3" disabled>{{ expediente.resumen }}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Archivos:</label>
+              <ul>
+                {% for archivo in archivos %}
+                  <li>
+                    <a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.nombre }}</a>
+                  </li>
+                {% empty %}
+                  <li>No hay archivos adjuntos.</li>
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="form-group">
+              <label>Estado:</label>
+              <input type="text" class="form-control" value="{{ expediente.estado_expediente }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Usuario:</label>
+              <input type="text" class="form-control" value="{{ expediente.user.username }}" disabled>
+            </div>
+            <div class="form-group">
+              <label>Fecha de creación:</label>
+              <input type="text" class="form-control" value="{{ expediente.fecha_create }}" disabled>
+            </div>
+            <a href="{{ list_url }}" class="btn btn-outline-secondary mt-3">Volver</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

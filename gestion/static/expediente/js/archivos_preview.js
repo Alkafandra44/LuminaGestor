@@ -63,3 +63,36 @@ document.addEventListener('DOMContentLoaded', function() {
         inputArchivos.files = dt.files;
     }
 });
+
+$(document).on('click', '.btnEliminarArchivo', function() {
+    var archivoId = $(this).data('archivo-id');
+    var $btn = $(this);
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡Esta acción eliminará el archivo!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: window.location.pathname, // La misma URL de la vista de edición
+                type: 'POST',
+                data: {
+                    action: 'delete_archivo',
+                    archivo_id: archivoId,
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $btn.closest('li').remove();
+                        Swal.fire('Eliminado', 'El archivo ha sido eliminado.', 'success');
+                    } else {
+                        Swal.fire('Error', response.error || 'No se pudo eliminar el archivo.', 'error');
+                    }
+                }
+            });
+        }
+    });
+});

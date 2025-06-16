@@ -31,7 +31,7 @@ function getData(){
                 class:'text-center',
                 orderable: false,
                 render: function(data, type, row){
-                    var button = '<a href="expediente/show/' + row.id_expediente + '/" rel="show" class="btn btn-sm btn-info btn-xs"><i class="fas fa-eye" style="color: white;"></i></a> ';
+                    var button = '<a href="expediente/show/' +  row.id_expediente + '/" rel="show" class="btn btn-sm btn-info btn-xs"><i class="fas fa-eye" style="color: white;"></i></a> ';
                     if (userHasEditPermission) {
                         button += '<a href="expediente/update/' +  row.id_expediente + '/" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-search"></i></a> ';
                     }
@@ -44,13 +44,37 @@ function getData(){
                 orderable: false,
                 render: function (data, type, row) {
                     //Personalizacion del color segun el estado
-                    var badgeClass = 'text-bg-secondary';
-                    if(data === 'Pendiente') badgeClass = 'text-bg-warning';
-                    else if(data === 'Investigación') badgeClass = 'text-bg-info';
-                    else if(data === 'Solucionado') badgeClass = 'text-bg-success';
-                    else if(data === 'Revisión') badgeClass = 'text-bg-danger';
-                    
-                    return '<span class="badge ' + badgeClass + '">' + data + '</span>';
+                    var badges = '';
+                    if (data === 'Pendiente') {
+                        var fechaEntrega = row.fecha_entrega;
+                        console.log('Fecha entrega:', fechaEntrega);
+                        if (fechaEntrega) {
+                            var partes = fechaEntrega.split('-');
+                            var fecha = new Date(partes[2], partes[1] - 1, partes[0]);
+                            var hoy = new Date();
+                            hoy.setHours(0,0,0,0);
+                            if (fecha < hoy) {
+                                // Mostrar ambos badges
+                                badges = '<span class="badge text-bg-warning">Pendiente</span> ' +
+                                        '<span class="badge text-bg-danger">Vencido</span>';
+                            } else {
+                                badges = '<span class="badge text-bg-warning">Pendiente</span>';
+                            }
+                        } else {
+                            badges = '<span class="badge text-bg-warning">Pendiente</span>';
+                        }
+                    } else if (data === 'Investigación') {
+                        badges = '<span class="badge text-bg-info">Investigación</span>';
+                    } else if (data === 'Vencido') {
+                        badges = '<span class="badge text-bg-danger">Vencido</span>';
+                    } else if (data === 'Solucionado') {
+                        badges = '<span class="badge text-bg-success">Solucionado</span>';
+                    } else if (data === 'Revisión') {
+                        badges = '<span class="badge text-bg-primary">Revisión</span>';
+                    } else {
+                        badges = '<span class="badge text-bg-secondary">' + data + '</span>';
+                    }
+                    return badges;
                 }
             },
             {
@@ -79,20 +103,7 @@ function setupFormValidation() {
             clearError($(this));
         }
     });
-    
-    // Validar fecha
-    $('input[name="fecha_entrega"]').on('change', function() {
-        const selectedDate = new Date($(this).val());
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
         
-        if (selectedDate < today) {
-            showError($(this), "La fecha no puede ser en el pasado");
-        } else {
-            clearError($(this));
-        }
-    });
-    
     // Validar archivos
     $('input[name="archivos"]').on('change', function() {
         const file = this.files[0];
@@ -113,27 +124,6 @@ function setupFormValidation() {
         }
     });
     
-    $(document).on('click', '.btnEliminarArchivo', function() {
-        var archivoId = $(this).data('archivo-id');
-        var $li = $(this).closest('li');
-        if (confirm('¿Seguro que deseas eliminar este archivo?')) {
-            $.ajax({
-                url: '/gestion/archivo/delete/',
-                type: 'POST',
-                data: {
-                    archivo_id: archivoId,
-                    csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $li.remove();
-                    } else {
-                        alert('Error: ' + response.error);
-                    }
-                }
-            });
-        }
-    });
 }
 
 function showError(element, message) {
@@ -146,3 +136,22 @@ function clearError(element) {
     element.removeClass('is-invalid');
     element.next('.invalid-feedback').remove();
 }
+
+$(function(){
+    modal_title = $('.modal-title');
+
+    // Configurar validación del formulario
+    setupFormValidation();
+
+    // Evento para el botón de editar expediente
+    $('#tblExpedientes').on('click', 'a[rel="edit"]', function(e) {
+        e.preventDefault();
+        window.location.href = $(this).attr('href');
+    });
+    // Evento para el botón de ver expediente
+    $('#tblExpedientes').on('click', 'a[rel="show"]', function(e) {
+        e.preventDefault();
+        $('.form-page').show();
+        window.location.href = $(this).attr('href');
+    });
+});

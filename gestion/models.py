@@ -204,7 +204,7 @@ class Expediente(models.Model):
     title = models.CharField(max_length=100, default='')
     resumen = models.TextField(blank=True, null=True)
     fecha_create = models.DateTimeField(auto_now_add=True)
-    fecha_entrega = models.DateField(null=True)
+    fecha_entrega = models.DateField(null=True, blank=True)
     estado_expediente = models.ForeignKey(
         EstadoExpediente,
         on_delete=models.PROTECT,

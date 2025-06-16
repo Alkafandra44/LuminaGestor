@@ -67,6 +67,8 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
           <di class="card-body">
             {% csrf_token %}
             <input type="hidden" name="action" value="{{ action }}" />
+            <input type="hidden" name="registro" value="{{ registro_id }}" />
+            <input type="hidden" name="expediente" value="{{ expediente_id }}" />
             {% comment %} {% for field in form.visible_fields %}
             <div class="form-group">
               <label for="">{{ field.label }}: </label>
@@ -146,11 +148,13 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
             
 
             <div class="modal-footer">
-              <button class="btn btn-outline-primary" type="submit"  name="expediente_submit">
-                <i class="bi bi-floppy2-fill"></i> Guardar
-              </button>
-              <a href="{{ list_url }}" class="btn btn-outline-danger btn-flat">
-                <i class="bi bi-x-square-fill"></i> Cancelar
+              {% if not show_mode %}
+                <button class="btn btn-outline-primary" type="submit" name="expediente_submit">
+                  <i class="bi bi-floppy2-fill"></i> Guardar
+                </button>
+                <a href="{{ list_url }}" class="btn btn-outline-danger btn-flat">
+                  <i class="bi bi-x-square-fill"></i> Cancelar
+                {% endif %}
               </a>
             </div>
           </div>
@@ -177,7 +181,6 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
   //ENVIO DE FORMULARIO DE EXPEDIENTE
   $('form').on('submit', function(e) {
       e.preventDefault();
-      $('.form-page').show();
       var parameters = new FormData(this);
       submit_with_ajax_exp(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
           location.href = '{{ list_url }}';
@@ -207,22 +210,31 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
         function formatSelection(option) {
             return $('<span style="font-size: 0.8em;">' + option.text + '</span>');
         }
-        
     });
-  $('#fecha_entrega').datetimepicker({
-    format: 'DD-MM-YYYY',
-    locale: 'es',
-    icons: {
-        time: 'bi bi-clock',
-        date: 'bi bi-calendar',
-        up: 'bi bi-chevron-up',
-        down: 'bi bi-chevron-down',
-        previous: 'bi bi-chevron-left',
-        next: 'bi bi-chevron-right',
-        today: 'bi bi-calendar-check',
-        clear: 'bi bi-trash',
-        close: 'bi bi-x'
-    }
+
+  // Configuración del DateTimePicker para fecha_entrega
+  $(function () {
+      var $fecha = $('#fecha_entrega');
+      var valor = $fecha.val();
+      $fecha.datetimepicker({
+          format: 'DD-MM-YYYY',
+          locale: 'es',
+          icons: {
+              time: 'bi bi-clock',
+              date: 'bi bi-calendar',
+              up: 'bi bi-chevron-up',
+              down: 'bi bi-chevron-down',
+              previous: 'bi bi-chevron-left',
+              next: 'bi bi-chevron-right',
+              today: 'bi bi-calendar-check',
+              clear: 'bi bi-trash',
+              close: 'bi bi-x'
+          }
+      });
+      // Si hay valor, setearlo en el picker
+      if (valor) {
+          $fecha.datetimepicker('date', moment(valor, 'DD-MM-YYYY'));
+      }
   });
 
   document.addEventListener('DOMContentLoaded', function() {

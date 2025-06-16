@@ -23,8 +23,15 @@ class ExpedienteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', None)
         super().__init__(*args, **kwargs)
+        self.fields['estado_expediente'].required = False
+        
         for form in self.visible_fields():
             form.field.widget.attrs.update({'autocomplete': 'off'})
+            
+        # Forzar el valor inicial en el widget para edición
+        if self.instance and self.instance.pk and self.instance.fecha_entrega:
+            fecha_str = self.instance.fecha_entrega.strftime('%d-%m-%Y')
+            self.initial['fecha_entrega'] = fecha_str
             
         # Ordenar los clientes alfabéticamente por nombre completo
         self.fields['clientes'].queryset = Cliente.objects.all().order_by('nombre', 'apellido')
@@ -41,7 +48,7 @@ class ExpedienteForm(ModelForm):
                     self.fields.pop(field_name)
                     
     fecha_entrega = DateField(
-        input_formats=['%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%d'],  # Formatos aceptados
+        input_formats=['%d-%m-%Y'],
         widget=DateInput(
             format='%d-%m-%Y',
             attrs={
@@ -49,7 +56,6 @@ class ExpedienteForm(ModelForm):
                 'id': 'fecha_entrega',
                 'data-target': '#fecha_entrega',
                 'data-toggle': 'datetimepicker',
-                'autocomplete': 'off',
                 'placeholder': 'Seleccione una fecha',
             }
         )
@@ -134,8 +140,6 @@ class ExpedienteForm(ModelForm):
     
     def clean_fecha_entrega(self):
         fecha = self.cleaned_data.get('fecha_entrega')
-        if fecha and fecha < date.today():
-            raise ValidationError("La fecha de entrega no puede ser en el pasado")
         return fecha
 
     def clean_resumen(self):

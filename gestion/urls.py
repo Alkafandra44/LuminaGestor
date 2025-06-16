@@ -19,9 +19,10 @@ urlpatterns = [
     
     #expedientes
     path('registros/detalle/<int:pk>/expediente/add/', ExpedienteCreateView.as_view(), name="expediente_crear"),
-    # path('registros/detalle/<int:pk>/expediente/show/<int:ek>', ExpedienteTempalteView.as_view(), name="expediente_show"),
+    path('registros/detalle/<int:pk>/expediente/show/<int:ek>/', ExpedienteTempalteView.as_view(), name="expediente_show"),
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/', ExpedienteUpdateView.as_view(), name="expediente_editar"),
     path('expedientes/resumen/pdf/', ResumenPDFView.as_view(), name='expediente_resumen_pdf'),
+    
     
     #respuestas
     path('registros/detalle/<int:pk>/expediente/update/<int:ek>/respuesta/<int:cl>', ExpedienteInvoivePdfView.as_view(), name="respuesta_pdf"),

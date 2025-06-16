@@ -162,14 +162,19 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
 
+
     def post(self, request, *args, **kwargs):
         data = {}
         try:
-            action = request.POST['action']
+            action = request.POST.get('action')
             if action == 'edit':
-                form = self.get_form()
+                instance = self.get_object()
+                form = self.get_form_class()(request.POST, request.FILES, instance=instance)
                 if form.is_valid():
                     expediente = form.save(commit=False)
+                    estado_pendiente = EstadoExpediente.objects.get(
+                        estado='Investigación')
+                    expediente.estado_expediente = estado_pendiente
                     expediente.user = self.request.user
                     expediente.save()
                     form.save_m2m()  # Para relaciones ManyToMany (clientes)
@@ -179,10 +184,16 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                             archivo=f,
                             nombre=f.name
                         )
-                    data = expediente.toJSON()
+                    data['success'] = True
                 else:
                     data['error'] = form.errors.as_json()   
                 return JsonResponse(data, safe=False)
+            elif action == 'delete_archivo':
+                archivo_id = request.POST.get('archivo_id')
+                archivo = Archivo.objects.get(id=archivo_id)
+                archivo.delete()
+                data['success'] = True
+                return JsonResponse(data)
             elif action in ['add_resp', 'edit_resp']:
                 # Llama a la función que maneja respuestas y retorna directamente
                 return self.handle_respuesta_request(request)
@@ -270,6 +281,7 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
         context['home'] = reverse_lazy('gestion:dashboard')
         context['name'] = 'Panel de Control'
         context['formresp'] = RespuestaClienteForm()
+        context['action'] = 'edit'
         
         # Diccionario: cliente_id -> respuesta (o None)
         respuestas_por_cliente = {}
@@ -296,4 +308,38 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
             context['clientes'] = expediente.clientes.all()
                  
         return context
+    
+class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
+    model = Expediente
+    template_name = 'expedientes/show.html'
+    context_object_name = 'expediente'
+    
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            Expediente,
+            pk=self.kwargs['ek'],
+            registro_id=self.kwargs['pk']
+        )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = ExpedienteForm(instance=self.object)
+        for field in form.fields.values():
+            field.disabled = True  # Deshabilita todos los campos
+        
+        expediente = self.get_object()
+        registro_id = self.kwargs['pk']
+        registro = Registro.objects.get(pk=registro_id)
+        context['registro_id'] = self.kwargs['pk']
+        context['form'] = form
+        context['expediente'] = expediente
+        context['title'] = f'Vista de Expediente: {expediente.title}'
+        context['entity'] = f"Expedientes: {registro.title}"
+        context['expediente_id'] = self.kwargs['ek']
+        context['list_url'] = reverse_lazy('gestion:registro_detalle', kwargs={'pk': registro.pk})
+        context['home'] = reverse_lazy('gestion:dashboard')
+        context['name'] = 'Panel de Control'
+        context['show_mode'] = True  # Para la plantilla
+        # Si necesitas archivos, respuestas, etc., agrégalos aquí
+        context['archivos'] = Archivo.objects.filter(expediente=expediente)
+        return context
