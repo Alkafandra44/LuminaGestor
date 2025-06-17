@@ -247,6 +247,15 @@ class Expediente(models.Model):
     verbose_name="Reclamación Asociada"
     )
     
+    def cambiar_estado(self, nombre_estado):
+        try:
+            nuevo_estado  = EstadoExpediente.objects.get(estado=nombre_estado)
+            self.estado_expediente = nuevo_estado 
+            self.save()
+            return True, None
+        except EstadoExpediente.DoesNotExist:
+            return False, f"Estado '{nombre_estado}' no existe"
+    
     def save(self, *args, **kwargs):
         # Determinar si es un nuevo expediente
         is_new = self.pk is None

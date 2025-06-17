@@ -69,11 +69,68 @@
               <label>Fecha de creación:</label>
               <input type="text" class="form-control" value="{{ expediente.fecha_create }}" disabled>
             </div>
-            <a href="{{ list_url }}" class="btn btn-outline-secondary mt-3">Volver</a>
+            <div class="form-group d-flex justify-content-between mt-3">
+                <a href="{{ list_url }}" class="btn btn-outline-secondary">Volver</a>
+                <div>
+                  {% if perms.user.view_expediente %}
+                      <button type="button" id="btnSolucionado" class="btn btn-success">Solucionado</button>
+                      <button type="button" id="btnCorregir" class="btn btn-danger">Corregir</button>
+                  {% endif %}
+                </div>
+            </div>
           </div>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    function cambiarEstado(accion) {
+        $.ajax({
+            url: window.location.pathname,
+            type: 'POST',
+            data: {
+                'action': accion,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: 'Estado actualizado correctamente',
+                        icon: 'success'
+                    }).then(() => {
+                        // Recargar manteniendo la misma URL
+                        window.location.href = window.location.href.split('?')[0];
+                    });
+                } else {
+                    Swal.fire('Error', response.error || 'Ocurrió un error', 'error');
+                }
+                
+                if (response.revision) {
+                    // Actualizar visualmente el estado si se cambió a Revisión
+                    $('input[value="' + expediente.estado_expediente + '"]')
+                        .val('Revisión')
+                        .closest('.form-group')
+                        .find('input')
+                        .val('Revisión');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'Error en la conexión con el servidor', 'error');
+            }
+        });
+    }
+
+    $('#btnSolucionado').click(function() {
+        cambiarEstado('solucionado');
+    });
+
+    $('#btnCorregir').click(function() {
+        cambiarEstado('corregir');
+    });
+});
+</script>
 {% endblock %}

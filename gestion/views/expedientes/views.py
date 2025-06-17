@@ -175,6 +175,7 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                     estado_pendiente = EstadoExpediente.objects.get(
                         estado='Investigación')
                     expediente.estado_expediente = estado_pendiente
+                    
                     expediente.user = self.request.user
                     expediente.save()
                     form.save_m2m()  # Para relaciones ManyToMany (clientes)
@@ -188,12 +189,14 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                 else:
                     data['error'] = form.errors.as_json()   
                 return JsonResponse(data, safe=False)
+            
             elif action == 'delete_archivo':
                 archivo_id = request.POST.get('archivo_id')
                 archivo = Archivo.objects.get(id=archivo_id)
                 archivo.delete()
                 data['success'] = True
                 return JsonResponse(data)
+            
             elif action in ['add_resp', 'edit_resp']:
                 # Llama a la función que maneja respuestas y retorna directamente
                 return self.handle_respuesta_request(request)
@@ -313,6 +316,8 @@ class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
     model = Expediente
     template_name = 'expedientes/show.html'
     context_object_name = 'expediente'
+    permission_required = 'gestion.wiev_expediente'
+    
     
     def get_object(self, queryset=None):
         return get_object_or_404(
@@ -320,6 +325,47 @@ class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
             pk=self.kwargs['ek'],
             registro_id=self.kwargs['pk']
         )
+        
+    def get_success_url(self):
+        return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
+
+        
+    @method_decorator(login_required)
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        expediente = self.get_object()
+        action = request.POST.get('action')
+        
+        # Verificar si el expediente tiene resumen
+        if expediente.resumen and expediente.resumen.strip():
+            try:
+                estado_revicion = EstadoExpediente.objects.get(estado='Revisión')
+                expediente.estado_expediente = estado_revicion
+                expediente.save()
+                data['success'] = True
+            except EstadoExpediente.DoesNotExist:
+                data['error'] = 'Estado de revisión no encontrado'      
+                return JsonResponse(data=400)
+        
+        if action == 'solucionado':
+            ok, error = expediente.cambiar_estado('Solucionado')
+            if ok:
+                data['success'] = True
+            else:
+                data['error'] = error
+        elif action == 'corregir':
+            ok, error = expediente.cambiar_estado('Corregir')
+            if ok:
+                data['success'] = True
+            else:
+                data['error'] = error
+        else:
+            data['error'] = 'Acción no válida'
+        return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -342,4 +388,7 @@ class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
         context['show_mode'] = True  # Para la plantilla
         # Si necesitas archivos, respuestas, etc., agrégalos aquí
         context['archivos'] = Archivo.objects.filter(expediente=expediente)
+        context['list_url'] = self.get_success_url()
+        context['home'] = reverse_lazy('gestion:dashboard')
+        context['name'] = 'Panel de Control'
         return context

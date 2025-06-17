@@ -44,37 +44,14 @@ function getData(){
                 orderable: false,
                 render: function (data, type, row) {
                     //Personalizacion del color segun el estado
-                    var badges = '';
-                    if (data === 'Pendiente') {
-                        var fechaEntrega = row.fecha_entrega;
-                        console.log('Fecha entrega:', fechaEntrega);
-                        if (fechaEntrega) {
-                            var partes = fechaEntrega.split('-');
-                            var fecha = new Date(partes[2], partes[1] - 1, partes[0]);
-                            var hoy = new Date();
-                            hoy.setHours(0,0,0,0);
-                            if (fecha < hoy) {
-                                // Mostrar ambos badges
-                                badges = '<span class="badge text-bg-warning">Pendiente</span> ' +
-                                        '<span class="badge text-bg-danger">Vencido</span>';
-                            } else {
-                                badges = '<span class="badge text-bg-warning">Pendiente</span>';
-                            }
-                        } else {
-                            badges = '<span class="badge text-bg-warning">Pendiente</span>';
-                        }
-                    } else if (data === 'Investigación') {
-                        badges = '<span class="badge text-bg-info">Investigación</span>';
-                    } else if (data === 'Vencido') {
-                        badges = '<span class="badge text-bg-danger">Vencido</span>';
-                    } else if (data === 'Solucionado') {
-                        badges = '<span class="badge text-bg-success">Solucionado</span>';
-                    } else if (data === 'Revisión') {
-                        badges = '<span class="badge text-bg-primary">Revisión</span>';
-                    } else {
-                        badges = '<span class="badge text-bg-secondary">' + data + '</span>';
-                    }
-                    return badges;
+                    var badgeClass = 'text-bg-secondary';
+                    if(data === 'Pendiente') badgeClass = 'text-bg-warning';
+                    else if(data === 'Investigación') badgeClass = 'text-bg-info';
+                    else if(data === 'Solucionado') badgeClass = 'text-bg-success';
+                    else if(data === 'Revisión') badgeClass = 'text-bg-danger';
+                    else if(data === 'Corregir') badgeClass = 'text-bg-danger';
+                    
+                    return '<span class="badge ' + badgeClass + '">' + data + '</span>';
                 }
             },
             {
@@ -154,4 +131,6 @@ $(function(){
         $('.form-page').show();
         window.location.href = $(this).attr('href');
     });
+
 });
+
