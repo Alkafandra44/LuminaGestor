@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from gestion.models import RespuestaCliente
 
 # ===========PARA XHTML2PDF
 import os
@@ -44,7 +45,10 @@ class ExpedienteInvoivePdfView(View):
         
         return path
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, respuesta_id, *args, **kwargs):
+        respuesta = RespuestaCliente.objects.select_related('expediente', 'cliente').get(pk=respuesta_id)
+        template = get_template('modelos/invoice_pdf.html')
+        now = datetime.now()
         try:
             template = get_template('modelos/invoice_pdf.html')
             
@@ -71,10 +75,12 @@ class ExpedienteInvoivePdfView(View):
                 'mes': mes,
                 'anio': anio,
                 'anio_rev': anio_rev,
+                'respuesta': respuesta,
+                'expediente': respuesta.expediente, 
             }
             html = template.render(context)
             response = HttpResponse(content_type='application/pdf')
-            # response['Content-Disposition'] = 'attachment; filename="respuesta.pdf"'
+            response['Content-Disposition'] = 'attachment; filename="respuesta.pdf"'
 
             pisa_status = pisa.CreatePDF(
                 html,
@@ -91,6 +97,32 @@ class ExpedienteInvoivePdfView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ResumenPDFView(LoginRequiredMixin, View):
+    
+    def link_callback(self, uri, rel):
+        # Usa el sistema de finders de Django
+        if uri.startswith(('http://', 'https://')):
+            return uri  # Maneja URLs externas si es necesario
+        
+        # Busca en STATICFILES_DIRS y STATIC_ROOT
+        path = finders.find(uri)
+        
+        if not path:
+            # Intenta construir la ruta manualmente
+            if uri.startswith(settings.STATIC_URL):
+                rel_path = uri.replace(settings.STATIC_URL, "", 1)
+                for static_dir in settings.STATICFILES_DIRS:
+                    candidate = os.path.join(static_dir, rel_path)
+                    if os.path.exists(candidate):
+                        path = candidate
+                        break
+        
+        if not path or not os.path.exists(path):
+            # Log de error para depuración
+            print(f"Archivo no encontrado: {uri}")
+            return uri
+        
+        return path
+    
     def post(self, request, *args, **kwargs):
         resumen = request.POST.get('resumen', '')
         template = get_template('modelos/resumen_pdf.html')

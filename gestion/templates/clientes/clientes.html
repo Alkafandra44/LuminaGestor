@@ -4,7 +4,10 @@
 {% load static %} 
 
 {% block head_list %}
-    <script src="{% static 'cliente/js/list.js' %}"></script>
+  <script>
+    var userHasDeletePermission = {{ perms.gestion.delete_cliente|yesno:"true,false" }};
+  </script>
+  <script src="{% static 'cliente/js/list.js' %}"></script>
 {% endblock %}
 
 {% block column %}

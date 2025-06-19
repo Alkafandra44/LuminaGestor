@@ -391,4 +391,29 @@ class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
         context['list_url'] = self.get_success_url()
         context['home'] = reverse_lazy('gestion:dashboard')
         context['name'] = 'Panel de Control'
+        
+        # Diccionario: cliente_id -> respuesta (o None)
+        respuestas_por_cliente = {}
+        for cliente in expediente.clientes.all():
+            respuesta = RespuestaCliente.objects.filter(expediente=expediente, cliente=cliente).first()
+            respuestas_por_cliente[cliente.id_cliente] = respuesta
+        context['respuestas_por_cliente'] = respuestas_por_cliente
+                
+        id_cliente = self.request.GET.get('id_cliente') or self.request.POST.get('cliente')  # O como lo recibas
+        if id_cliente:
+            cliente = get_object_or_404(Cliente, id_cliente=id_cliente, expediente=expediente).first()
+            # Si el cliente existe, inicializa el formulario con ese cliente
+            formresp = RespuestaClienteForm(initial={'cliente': cliente}, expediente=expediente)
+            formresp.fields['cliente'].queryset = Cliente.objects.filter(id_cliente=id_cliente)
+            
+            context['cliente'] = cliente
+            context['formresp'] = formresp
+        
+            # Obtener respuestas existentes (opcional)
+            context['respuestas'] = RespuestaCliente.objects.filter(
+                expediente=expediente, cliente=cliente)
+            
+            # Obtener todos los clientes del expediente
+            context['clientes'] = expediente.clientes.all()
+        
         return context

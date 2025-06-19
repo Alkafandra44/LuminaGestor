@@ -82,9 +82,18 @@
         font-weight: bold;
       }
       .signature {
-            margin-top: 100px;
-            text-align: left;
-        }
+        margin-top: 100px;
+        text-align: left;
+        position: fixed;
+        left: 0;
+        width: 100%;
+        text-align: left;
+        bottom: 100px; /* Ajusta este valor según el espacio que necesites */
+        margin: 0;
+      }
+      .signature.signature-aprobado {
+        bottom: 30px; /* Segunda firma más abajo */
+      }
       .footer-note {
         text-align: right;
         font-style: italic;
@@ -116,7 +125,7 @@
     <div class="document-title">
         <!-- Detalles del cliente y expediente -->
         <div class="invoice-details">
-            <p><strong> A: {{ respuesta.cliente.nombre_completo }} vecino de {{ expediente.cliente.direccion }}</strong></p>
+            <p><strong> A: {{ respuesta.cliente.nombre }} {{ respuesta.cliente.apellido }} vecino de {{ respuesta.cliente.direccion }}, {{ respuesta.cliente.municipio }} </strong></p>
         </div>
     </div>
 
@@ -126,19 +135,23 @@
         <p>{{ respuesta.respuesta|linebreaks }}</p>
         <p><strong>Por todo lo antes expuesto, su reclamacion queda {{ respuesta.get_resultado_gestion_display }} y se declara {{ respuesta.get_evaluacion_gestion_display }}</strong></p>
     </div>
+    <br>
+    <br>
 
     <div class="signature">
-        <p>Atentamente,</p>
+        <p><strong>Atentamente,</strong></p>
         <p>_________________________</p>
-        <p>{{ respuesta.user.get_full_name }}</p>
-        <p>{{ respuesta.user.groups }} de la UEB CIAC</p>
+        <p>{{ expediente.user.username}}</p>
+        <p>UEB CIAC</p>
     </div>
+    <br>
+    <br>
 
     <div class="signature">
-        <p>Aprobado por,</p>
+        <p><strong>Aprobado por,</strong></p>
         <p>_________________________</p>
-        <p>[Usuario]</p>
-        <p>Director de la UEB CIAC</p>
+        <p>Dioelvis Sanchez Benites</p>
+        <p>Director de la Empresa Electrica Provincial Matanzas</p>
     </div>
     
 

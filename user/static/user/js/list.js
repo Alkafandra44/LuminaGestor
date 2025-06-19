@@ -56,7 +56,9 @@ function getData() {
                         return '<span class="badge text-bg-info">ADMIN</span>';
                     }
                     var buttons = '<a href="#" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-edit"></i></a>';
-                    buttons += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs"><i class="fas fa-trash-alt"></i></a> ';
+                    if(userHasDeletePermission){
+                        buttons += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs"><i class="fas fa-trash-alt"></i></a> ';
+                    }
                     return buttons;
                 }
             },

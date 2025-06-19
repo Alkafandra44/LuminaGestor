@@ -39,7 +39,9 @@ function getData(){
                 orderable: false,
                 render: function(data, type, row){
                     var button = '<a href="#" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-edit"></i></a>';
-                    button += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs btnDelete"><i class="fas fa-trash-alt"></i></a>'
+                    if(userHasDeletePermission){
+                        button += '<a href="#" rel="delete" class="btn btn-sm btn-danger btn-xs btnDelete"><i class="fas fa-trash-alt"></i></a>'
+                    }
                     return button;
                 }
             },

@@ -74,21 +74,34 @@ $(document).ready(function () {
   });
 
   // Evento para imprimir
-  $(".btnPrint").on("click", function (e) {
+  $(document).on("click", '.btnPrint', function (e) {
     e.preventDefault();
     const respuestaId = $(this).data("respuesta-id");
-
     if (!respuestaId) {
       alert("No existe respuesta para imprimir");
       return;
     }
-
-    // Configurar botón de impresión
-    $("#btnImprimirPDF").attr(
-      "href",
-      "/gestion/respuesta/print/" + respuestaId + "/"
-    );
-    $("#modalImprimir").modal("show");
+    // Descarga directa del PDF
+    fetch(`/gestion/respuesta/pdf/${respuestaId}/`, {
+      method: "GET",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    })
+      .then(response => {
+        if (!response.ok) throw new Error("Error al generar PDF");
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "respuesta.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(err => alert(err));
   });
-
 });
