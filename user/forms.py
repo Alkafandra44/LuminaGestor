@@ -11,11 +11,16 @@ class UserForm(ModelForm):
     class Meta:
         model = User
         template_name = 'user/list.html'
-        fields = ['first_name','username', 'email', 'password', 'groups']
+        fields = ['first_name','last_name','username', 'email', 'password', 'groups']
         widgets = {
             'first_name': TextInput(
                 attrs={
                     'placeholder': 'Nombre',
+                }
+            ),
+            'last_name': TextInput(
+                attrs={
+                    'placeholder': 'Apellidos',
                 }
             ),
             'username': TextInput(
@@ -25,7 +30,7 @@ class UserForm(ModelForm):
             ),
             'email': EmailInput(
                 attrs={
-                    'placeholder': 'Email',
+                    'placeholder': 'Correo Electrónico',
                 }
             ),
             'password': PasswordInput(render_value=True,
@@ -39,50 +44,7 @@ class UserForm(ModelForm):
                 'placeholder': "Seleccione un rol",
             })
         }
-        exclude = ['user_permissions', 'last_name', 'last_login', 'date_joined', 'is_superuser', 'is_active', 'is_staff']
-
-    # def save(self, commit=True):
-    #     data = {}
-    #     form = super()
-    #     try: 
-    #         if form.is_valid():
-                
-    #             pwd = self.cleaned_data['password']
-    #             u = form.save(commit=False)
-    #             if u.pk is None:
-    #                 u.set_password(pwd)
-    #             else:
-    #                 user = User.objects.get(pk=u.pk)
-    #                 if user.password != pwd:
-    #                     u.set_password(pwd)
-    #             u.save()
-                
-    #             for g in self.cleaned_data['groups']:
-    #                 u.groups.set(self.cleaned_data['groups'])
-                
-    #         else:
-    #             data['error'] = form.errors
-    #     except Exception as e:
-    #         data['error'] = str(e)
-    #     return data
-    #     # try:
-    #     #     if form.is_valid():
-    #     #         pwd = self.cleaned_data['password']
-    #     #         u = form.save(commit=False)
-    #     #         if u.pk is None:
-    #     #             u.set_password(pwd)
-    #     #         else:
-    #     #             user = User.objects.get(pk=u.pk)
-    #     #             if user.password != pwd:
-    #     #                 u.set_password(pwd)
-    #     #         u.save()
-    #     #         u.groups.clear()
-    #     #         for g in self.cleaned_data['groups']:
-    #     #             u.groups.add(g)
-    #     #     else:
-    #     #         data['error'] = form.errors
-    #     # except Exception as e:
-    #     #     data['error'] = str(e)
+        exclude = ['user_permissions', 'last_login', 'date_joined', 'is_superuser', 'is_active', 'is_staff']
         
 def save(self, commit=True):
     u = super().save(commit=False)

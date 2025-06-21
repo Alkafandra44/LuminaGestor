@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from django.forms import *
+from django.core.exceptions import ValidationError
 import re
 from .models import EstadoExpediente, Expediente, Cliente, Registro, RespuestaCliente, Archivo
 
@@ -222,6 +223,7 @@ class ClienteForm(ModelForm):
     class Meta:
         model = Cliente
         fields = '__all__'
+        exclude = ['is_delete']
         widgets = {
             'carnet': TextInput(
                 attrs={
@@ -290,6 +292,12 @@ class RegistroForm(ModelForm):
     class Meta:
         model = Registro
         fields = ['title']
+        error_messages = {
+            'title': {
+                'required': 'Este campo es obligatorio.',
+                'max_length': 'El año debe tener 4 dígitos.',
+            },
+        }
         widgets = {
             'title': TextInput(
                 attrs={
@@ -297,3 +305,9 @@ class RegistroForm(ModelForm):
                 }
             ),
         }
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if not re.match(r'^[0-9]{4}$', title):
+            raise ValidationError("El título debe ser un año de 4 dígitos (ej: 2023)")
+        return title    
+    

@@ -30,6 +30,7 @@ class UsersListView(LoginRequiredMixin, ListView):
                     user_data = {
                         'id': usuario.id,
                         'first_name': usuario.first_name,
+                        'last_name': usuario.last_name,
                         'username': usuario.username,
                         'email': usuario.email,
                         'groups': [group.name for group in usuario.groups.all()],
@@ -41,6 +42,7 @@ class UsersListView(LoginRequiredMixin, ListView):
             elif action == 'add':
                 usuario = User()
                 usuario.first_name = request.POST['first_name']
+                usuario.last_name = request.POST['last_name']
                 usuario.username = request.POST['username']
                 usuario.email = request.POST['email']
                 usuario.set_password (request.POST['password'])
@@ -51,6 +53,7 @@ class UsersListView(LoginRequiredMixin, ListView):
             elif action == 'edit':
                 usuario = User.objects.get(pk=request.POST['id'])
                 usuario.first_name = request.POST['first_name']
+                usuario.last_name = request.POST['last_name']
                 usuario.username = request.POST['username']
                 usuario.email = request.POST['email']
                 usuario.groups.set(request.POST.getlist('groups'))

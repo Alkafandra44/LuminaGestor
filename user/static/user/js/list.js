@@ -17,6 +17,7 @@ function getData() {
         columns: [
             {"data": "id"},
             {"data": "first_name"},
+            {"data": "last_name"},
             {"data": "username"},
             {"data": "email"},
             {"data": "groups"},
@@ -36,7 +37,7 @@ function getData() {
                 }
             },*/
             {
-                targets: [4], // Columna de grupos
+                targets: [5], // Columna de grupos
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
@@ -73,6 +74,91 @@ function getData() {
     });
 };
 
+// Nombre: solo letras, mínimo 2, primera mayúscula
+$(document).on('input', 'input[name="first_name"]', function() {
+    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
+
+// Apellidos: solo letras, mínimo 2, primera mayúscula
+$(document).on('input', 'input[name="last_name"]', function() {
+    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
+
+// Nombre de usuario: letras y números, mínimo 2
+$(document).on('input', 'input[name="username"]', function() {
+    this.value = this.value.replace(/[^A-Za-z0-9]/g, '');
+});
+
+// Contraseña: letras y números, mínimo 8, cambia color del borde
+$(document).on('input', 'input[name="password"]', function() {
+    this.value = this.value.replace(/[^A-Za-z0-9]/g, '');
+    let $input = $(this);
+    if (this.value.length < 8) {
+        $input.css('border', '2px solid red');
+    } else if (this.value.length < 12) {
+        $input.css('border', '2px solid orange');
+    } else {
+        $input.css('border', '2px solid green');
+    }
+});
+
+// Cambiar label de grupo a "Rol"
+$(function() {
+    $('label[for="id_groups"]').text('Rol:');
+});
+
+// Validación al enviar el formulario
+function validateUserFormSwal() {
+    let errors = [];
+    const nombre = $('input[name="first_name"]').val();
+    const apellido = $('input[name="last_name"]').val();
+    const username = $('input[name="username"]').val();
+    const email = $('input[name="email"]').val();
+    const password = $('input[name="password"]').val();
+    const grupo = $('select[name="groups"]').val();
+
+    // Nombre
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/.test(nombre)) {
+        errors.push('El nombre debe tener al menos 2 letras y solo letras.');
+    }
+    // Apellido
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/.test(apellido)) {
+        errors.push('El apellido debe tener al menos 2 letras y solo letras.');
+    }
+    // Usuario
+    if (!/^[A-Za-z0-9]{2,}$/.test(username)) {
+        errors.push('El nombre de usuario debe tener al menos 2 caracteres y solo letras o números.');
+    }
+    // Correo
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        errors.push('Debe ingresar un correo electrónico válido.');
+    }
+    // Contraseña
+    if (!/^[A-Za-z0-9]{8,}$/.test(password)) {
+        errors.push('La contraseña debe tener al menos 8 caracteres y solo letras o números.');
+    }
+    // Grupo
+    if (!grupo) {
+        errors.push('Debe seleccionar un rol.');
+    }
+
+    if (errors.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Errores de validación',
+            html: '<ul style="text-align:left;">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>'
+        });
+        return false;
+    }
+    return true;
+}
+
 var modal_title;
 $(function(){
 
@@ -98,6 +184,7 @@ $(function(){
             $('input[name="action"]').val('edit');
             $('input[name="id"]').val(data.id);
             $('input[name="first_name"]').val(data.first_name);
+            $('input[name="last_name"]').val(data.last_name);
             $('input[name="username"]').val(data.username);
             $('input[name="email"]').val(data.email);
             $('select[name="groups"]').val(data.groups_id);
@@ -120,6 +207,9 @@ $(function(){
 
     $('form').on('submit', function(e) {
         e.preventDefault();
+        if (!validateUserFormSwal()) {
+            return false;
+        }
         var parameters = $(this).serialize();
         submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
             $('#myModalUser').modal('hide');

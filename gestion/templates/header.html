@@ -31,17 +31,36 @@
           <!--begin::End Navbar Links-->
           <ul class="navbar-nav ms-auto">
             <!--begin::Notifications Dropdown Menu-->
+            {% if is_admin or is_director %}
             <li class="nav-item dropdown position-relative">
-              <a class="nav-link" data-bs-toggle="dropdown" href="#" role="button">
+              <a class="nav-link" data-bs-toggle="dropdown" href="#" role="button" title="Expedientes en Investigación">
                 <span class="position-relative d-inline-block">
                   <i class="bi bi-bell"></i>
+                  {% if exp_investigacion > 0 %}
                   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">
-                    3
-                    <span class="visually-hidden">notificaciones no leídas</span>
+                    {{ exp_investigacion }}
+                    <span class="visually-hidden">expedientes en investigación</span>
                   </span>
+                  {% endif %}
                 </span>
               </a>
             </li>
+            {% endif %}
+            {% if is_admin or is_tecnico %}
+            <li class="nav-item dropdown position-relative">
+              <a class="nav-link" data-bs-toggle="dropdown" href="#" role="button" title="Expedientes a Corregir">
+                <span class="position-relative d-inline-block">
+                  <i class="bi bi-bell-fill"></i>
+                  {% if exp_corregir > 0 %}
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning" style="font-size: 0.7rem;">
+                    {{ exp_corregir }}
+                    <span class="visually-hidden">expedientes a corregir</span>
+                  </span>
+                  {% endif %}
+                </span>
+              </a>
+            </li>
+            {% endif %}
             <!--begin::Fullscreen Toggle-->
             <li class="nav-item">
               <a class="nav-link" href="#" data-lte-toggle="fullscreen">

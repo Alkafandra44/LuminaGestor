@@ -17,7 +17,7 @@ from django.conf import settings # Para acceder a MEDIA_ROOT
 class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
     title = models.CharField(
-        max_length=10, 
+        max_length=4, 
         unique=True,
         validators=[
             validators.RegexValidator(
@@ -84,7 +84,7 @@ class Municipio(models.Model): #no choice
 #CLIENTE
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
-    carnet = models.CharField(max_length=20, unique=True, verbose_name='Cédula')
+    carnet = models.CharField(max_length=20, unique=True, verbose_name='Carnet')
     nombre = models.CharField(max_length=50, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellidos')
     telefono = models.CharField(max_length=15, blank=True, null=True, verbose_name='Teléfono')
@@ -147,9 +147,22 @@ class Reclamacion(models.Model):
   
     
 #ARCHIVOS
+
+def archivo_expediente_upload_to(instance, filename):
+    # Obtener datos del expediente relacionado
+    expediente = instance.expediente
+    registro = expediente.registro
+    # Usar el año del registro (si es un número de 4 dígitos)
+    try:
+        anio = int(registro.title)
+    except ValueError:
+        anio = expediente.fecha_create.year
+    expediente_folder = f"{str(expediente.id_expediente).zfill(3)}_{expediente.title}"
+    return f"registros/{anio}/{expediente_folder}/{filename}"
+
 class Archivo(models.Model):
     id_archivo = models.AutoField(primary_key=True)
-    archivo = models.FileField(upload_to='expedientes/archivos/%Y/%m/%d/')
+    archivo = models.FileField(upload_to=archivo_expediente_upload_to)
     nombre = models.CharField(max_length=255, verbose_name = "Nombre del Archivo")
     fecha_create = models.DateTimeField(auto_now_add=True, verbose_name ="Fecha de Creación")
     expediente = models.ForeignKey(

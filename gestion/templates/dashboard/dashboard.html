@@ -8,11 +8,25 @@
 {% endblock %} 
 
 {% block contenido %}
-<h1 class="text-center">Dashboard</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="text-center mb-0">Dashboard</h1>
+  <form method="get" class="ms-3">
+      <div class="input-group">
+          <select name="registro" class="form-select" onchange="this.form.submit()">
+              <option value="">Todos los registros</option>
+              {% for reg in registros %}
+                  <option value="{{ reg.id_registro }}" {% if reg.id_registro|stringformat:"s" == selected_registro|stringformat:"s" %}selected{% endif %}>
+                      {{ reg.title }}
+                  </option>
+              {% endfor %}
+          </select>
+      </div>
+  </form>
+</div>
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col">
             <div class="info-box">
                 <span class="info-box-icon text-bg-primary shadow-sm">
                     <i class="fas fa-inbox"></i>
@@ -27,9 +41,9 @@
                 <!-- /.info-box-content -->
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col">
             <div class="info-box">
-                <span class="info-box-icon text-bg-warning shadow-sm">
+                <span class="info-box-icon text-bg-secondary shadow-sm">
                     <i class="fas fa-clock"></i>
                     <style>
                         .info-box-icon.text-bg-warning i {
@@ -47,7 +61,7 @@
                 <!-- /.info-box-content -->
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col">
             <div class="info-box">
                 <span class="info-box-icon text-bg-danger shadow-sm">
                     <i class="fas fa-search"></i>
@@ -62,7 +76,7 @@
                 <!-- /.info-box-content -->
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col">
             <div class="info-box">
                 <span class="info-box-icon text-bg-success shadow-sm">
                     <i class="fas fa-check-circle"></i>
@@ -77,6 +91,21 @@
                 <!-- /.info-box-content -->
             </div>
         </div>
+        <div class="col">
+        <div class="info-box">
+            <span class="info-box-icon text-bg-warning shadow-sm">
+                <i class="fas fa-tools"></i>
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text">Exp. a Corregir</span>
+                <span class="info-box-number">
+                    {{ counts.corregir|default:0 }}
+                    <small></small>
+                </span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+    </div>
     </div>
     <div class="row">
         <div class="col-md-8">
@@ -95,12 +124,8 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3 class="card-title">Reportes por Municipios</h3>
+                    <h3 class="card-title">Reportes por Afectaciones</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toogle="card-collapse">
-                        </button>
-                        <button type="button" class="btn btn-tool" data-lte-toogle="card-remove">
-                        </button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -112,33 +137,17 @@
                 </div>
                 <div class="card-footer p-0">
                     <ul class="nav nav-pills flex-column">
+                      {% for item in reclamaciones_top3 %}
                         <li class="nav-item"> 
-                            <a href="#" class="nav-link">Matanzas
-                                <span class="float-end text-danger">
-                                    <i class="bi bi-arrow-down fs-7">
-                                    </i>
-                                    30%
+                            <a href="#" class="nav-link">
+                              {{ item.reclamacion__descripcion }}
+                                <span class="float-end text-primary">
+                                    <i class="bi bi-arrow-up fs-7"></i>
+                                    {{ item.total }}
                                 </span>
                             </a>
                         </li>
-                        <li class="nav-item"> 
-                            <a href="#" class="nav-link">Cárdenas
-                                <span class="float-end text-success">
-                                    <i class="bi bi-arrow-up fs-7">
-                                    </i>
-                                    4%
-                                </span>
-                            </a>
-                        </li>
-                        <li class="nav-item"> 
-                            <a href="#" class="nav-link">Limonar
-                                <span class="float-end text-info">
-                                    <i class="bi bi-arrow-left fs-7">
-                                    </i>
-                                    0%
-                                </span>
-                            </a>
-                        </li>
+                      {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -232,24 +241,29 @@
 
 
   // Chart 2 Pie 
+  var pieSeries = {{ reclamaciones_series|safe }};
+  var pieLabels = {{ reclamaciones_labels|safe }};
+
+  // Si no hay datos, muestra "Sin datos"
+  if (pieSeries.length === 0) {
+    pieSeries = [1];
+    pieLabels = ["Sin datos"];
+  }
+
   var options = {
-    series: [44, 55, 13, 33],
+    series: pieSeries,
+    labels: pieLabels,
     chart: {
     width: 250,
     type: 'donut',
   },
-  dataLabels: {
-    enabled: false
-  },
+  colors: pieLabels[0] === "Sin datos" ? ["#e0e0e0"] : undefined,
+  dataLabels: { enabled: false },
   responsive: [{
     breakpoint: 480,
     options: {
-      chart: {
-        width: 200
-      },
-      legend: {
-        show: false
-      }
+      chart: { width: 200 },
+      legend: { show: false }
     }
   }],
   legend: {

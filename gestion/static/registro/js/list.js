@@ -91,9 +91,49 @@ $(function(){
     $('form').on('submit', function(e) {
         e.preventDefault();
         var parameters = $(this).serialize();
-        submit_with_ajax(window.location.pathname, 'Notificacion', '¿Estas seguro de realizar la siguiente acción?', parameters, function(){
-            $('#myModalRegistro').modal('hide');
-            tblRegistros.ajax.reload();
+            $.ajax({
+            url: window.location.pathname,
+            type: "POST",
+            data: parameters,
+            dataType: "json",
+        }).done(function (data) {
+            if (!data.hasOwnProperty("error")) {
+                $('#myModalRegistro').modal('hide');
+                tblRegistros.ajax.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Registro guardado!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                return false;
+            }
+            // Manejo de errores con SweetAlert
+            var html = '';
+            try {
+                var errors = JSON.parse(data.error);
+                html = "<ul>";
+                $.each(errors, function (key, value) {
+                    value.forEach(function(err){
+                        html += "<li><b>" + key + ":</b> " + err.message + "</li>";
+                    });
+                });
+                html += "</ul>";
+            } catch (e) {
+                html = "<p>" + data.error + "</p>";
+            }
+            Swal.fire({
+                title: "Error de validación",
+                html: html,
+                icon: "error",
+            });
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            Swal.fire({
+                title: "Error",
+                text: textStatus + ": " + errorThrown,
+                icon: "error",
+            });
+        tblRegistros.ajax.reload();
         });
     });
 });

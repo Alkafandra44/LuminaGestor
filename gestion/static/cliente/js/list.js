@@ -1,6 +1,60 @@
 var tblClientes;
 var modal_title;
 
+// --- VALIDACIONES EN TIEMPO REAL ---
+$(document).on('input', 'input[name="carnet"]', function() {
+    // Solo números y máximo 11 dígitos
+    this.value = this.value.replace(/\D/g, '').slice(0, 11);
+});
+
+$(document).on('blur', 'input[name="carnet"]', function() {
+    if (this.value.length !== 11) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Carnet inválido',
+            text: 'El carnet debe tener exactamente 11 dígitos.'
+        });
+    } else {
+        // Validar fecha de nacimiento
+        let year = this.value.substring(0, 2); // Puede ser '00'
+        let month = parseInt(this.value.substring(2, 4), 10);
+        let day = parseInt(this.value.substring(4, 6), 10);
+        if (month < 1 || month > 12 || day < 1 || day > 31) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Carnet inválido',
+                text: 'El carnet no tiene una fecha válida.'
+            });
+        }
+    }
+});
+
+$(document).on('input', 'input[name="nombre"]', function() {
+    // Solo letras y espacios, mínimo 2 caracteres
+    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
+
+$(document).on('input', 'input[name="apellido"]', function() {
+    // Solo letras y espacios, mínimo 2 caracteres
+    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
+
+$(document).on('input', 'input[name="telefono"]', function() {
+    // Solo números y máximo 8 dígitos
+    this.value = this.value.replace(/\D/g, '').slice(0, 8);
+});
+
+$(document).on('input', 'textarea[name="direccion"]', function() {
+    // Solo letras, números, espacios y . , / #
+    this.value = this.value.replace(/[^A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]/g, '');
+});
+
 function getData(){
     tblClientes = $('#tblClientes').DataTable({
         responsive: true,
@@ -52,46 +106,62 @@ function getData(){
     });
 }
 
-// Función de validación general
-function validateForm() {
-    let isValid = true;
+// --- VALIDACIÓN AL SUBMIT ---
+function validateFormSwal() {
+    let errors = [];
     const nombre = $('input[name="nombre"]').val();
     const apellido = $('input[name="apellido"]').val();
     const carnet = $('input[name="carnet"]').val();
     const telefono = $('input[name="telefono"]').val();
     const direccion = $('textarea[name="direccion"]').val();
+    const municipio = $('select[name="municipio"]').val();
 
-    // Validar nombre (letras, empezar con mayúscula)
-    if (!/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]*$/.test(nombre)) {
-        alert('El nombre debe comenzar con mayúscula y contener solo letras');
-        isValid = false;
+    // Carnet
+    if (!/^\d{11}$/.test(carnet)) {
+        errors.push('El carnet debe tener exactamente 11 dígitos.');
+    } else {
+        let year = carnet.substring(0, 2); // Puede ser '00'
+        let month = parseInt(carnet.substring(2, 4), 10);
+        let day = parseInt(carnet.substring(4, 6), 10);
+        if (month < 1 || month > 12 || day < 1 || day > 31) {
+            errors.push('El carnet no tiene una fecha válida.');
+        }
     }
 
-    // Validar apellido (letras, empezar con mayúscula)
-    if (!/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ\s]*$/.test(apellido)) {
-        alert('El apellido debe comenzar con mayúscula y contener solo letras');
-        isValid = false;
+    // Nombre
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/.test(nombre)) {
+        errors.push('El nombre debe tener al menos 2 letras y solo letras.');
     }
 
-    // Validar carnet (11 dígitos)
-    if (!/^[0-9]{11}$/.test(carnet)) {
-        alert('El carnet debe tener 11 dígitos numéricos');
-        isValid = false;
+    // Apellido
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/.test(apellido)) {
+        errors.push('El apellido debe tener al menos 2 letras y solo letras.');
     }
 
-    // Validar teléfono (8 dígitos, opcional +53 al inicio)
-    if (!/^(\+53)?[0-9]{8}$/.test(telefono)) {
-        alert('Teléfono inválido. Ejemplo válido: +5351234567 o 51234567');
-        isValid = false;
+    // Teléfono
+    if (!/^\d{8}$/.test(telefono)) {
+        errors.push('El teléfono debe tener exactamente 8 dígitos.');
     }
 
-    // Validar dirección (letras, números y caracteres permitidos)
-    if (!/^[A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]+$/.test(direccion)) {
-        alert('La dirección solo puede contener letras, números y los caracteres ., / #');
-        isValid = false;
+    // Dirección
+    if (!/^[A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]+$/.test(direccion) || direccion.length < 2) {
+        errors.push('La dirección solo puede contener letras, números y los caracteres ., / # (mínimo 2 caracteres).');
     }
 
-    return isValid;
+    // Municipio
+    if (!municipio) {
+        errors.push('Debe seleccionar un municipio.');
+    }
+
+    if (errors.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Errores de validación',
+            html: '<ul style="text-align:left;">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>'
+        });
+        return false;
+    }
+    return true;
 }
 
 $(function(){
@@ -148,7 +218,7 @@ $(function(){
     $('form').on('submit', function(e) {
         e.preventDefault();
 
-        if (!validateForm()) {
+        if (!validateFormSwal()) {
             return false;
         }
         

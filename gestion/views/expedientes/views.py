@@ -162,7 +162,6 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
 
-
     def post(self, request, *args, **kwargs):
         data = {}
         try:
@@ -192,7 +191,7 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
             
             elif action == 'delete_archivo':
                 archivo_id = request.POST.get('archivo_id')
-                archivo = Archivo.objects.get(id=archivo_id)
+                archivo = Archivo.objects.get(id_archivo=archivo_id)
                 archivo.delete()
                 data['success'] = True
                 return JsonResponse(data)

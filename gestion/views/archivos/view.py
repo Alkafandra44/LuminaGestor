@@ -13,7 +13,7 @@ class ArchivoDeleteView(LoginRequiredMixin, View):
         data = {}
         try:
             archivo_id = request.POST.get('archivo_id')
-            archivo = Archivo.objects.get(id=archivo_id)
+            archivo = Archivo.objects.get(id_archivo=archivo_id)
             archivo.archivo.delete()  # Borra el archivo físico
             archivo.delete()
             data['success'] = True

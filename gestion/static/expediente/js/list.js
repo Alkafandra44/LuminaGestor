@@ -32,7 +32,7 @@ function getData(){
                 orderable: false,
                 render: function(data, type, row){
                     var button = '<a href="expediente/show/' +  row.id_expediente + '/" rel="show" class="btn btn-sm btn-info btn-xs"><i class="fas fa-eye" style="color: white;"></i></a> ';
-                    if (userHasEditPermission) {
+                    if (userHasEditPermission && row.estado_expediente !== 'Solucionado') {
                         button += '<a href="expediente/update/' +  row.id_expediente + '/" rel="edit" class="btn btn-sm btn-primary btn-xs btnEdit"><i class="fas fa-search"></i></a> ';
                     }
                     return button;

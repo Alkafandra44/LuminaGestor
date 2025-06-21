@@ -27,12 +27,18 @@ class RegistroListarView(LoginRequiredMixin, TemplateView):
                 for i in registros:
                     data.append(i.toJSON())
             elif action == 'add':
-                registro = Registro()
-                registro.title = request.POST['title']
-                registro.save()
+                form = RegistroForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                else: 
+                    data['error'] = form.errors.as_json()
             elif action =='edit':
                 registro = Registro.objects.get(pk=request.POST['id'])
-                registro.title = request.POST['title']
+                form= RegistroForm(request.POST, instance=registro)
+                if form.is_valid():
+                    registro.save()
+                else:
+                    data['error'] = form.errors.as_json()
                 registro.save()
             elif action =='delete':
                 registro = Registro.objects.get(pk=request.POST['id'])
