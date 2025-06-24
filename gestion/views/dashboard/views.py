@@ -102,7 +102,7 @@ class DashboardView(TemplateView):
         # Permisos de usuario
         user = self.request.user
         context['is_director'] = user.groups.filter(name='Director').exists()
-        context['is_tecnico'] = user.groups.filter(name='Tecnicos').exists()
+        context['is_tecnico'] = user.groups.filter(name='Tecnico').exists()
         context['is_admin'] = user.is_superuser or user.is_staff
         
         return context

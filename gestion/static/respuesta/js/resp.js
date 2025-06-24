@@ -34,6 +34,69 @@ $(document).ready(function () {
     $("#modalRespuesta").modal("show");
   });
 
+
+$(function() {
+    // Deshabilitar el campo cliente
+    $('#id_cliente').attr('readonly', true)
+    .addClass('cliente-readonly')
+    .css('pointer-events', 'none');
+
+    // Mostrar el cursor de "no permitido" y un tooltip
+    $('#id_cliente').on('mouseenter', function() {
+        $(this).css('cursor', 'not-allowed');
+        $(this).attr('title', 'No se puede modificar el cliente');
+    }).on('mouseleave', function() {
+        $(this).css('cursor', 'not-allowed');
+    });
+});
+
+$(document).on('input', 'textarea[name="respuesta"]', function() {
+    this.value = this.value.replace(/[^A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
+
+function validateRespuestaFormSwal() {
+    let errors = [];
+    const respuesta = $('textarea[name="respuesta"]').val();
+    const evaluacion = $('select[name="evaluacion_gestion"]').val();
+    const resultado = $('select[name="resultado_gestion"]').val();
+
+    // Respuesta
+    if (!/^[A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]+$/.test(respuesta) || respuesta.length <= 50) {
+        errors.push('La respuesta debe tener al menos 5 caracteres y solo puede contener letras, números y los caracteres ., / #');
+    }
+    // Evaluacion
+    if (!evaluacion) {
+        errors.push('Debe seleccionar una evaluación de la gestión.');
+    }
+    // Resultado
+    if (!resultado) {
+        errors.push('Debe seleccionar un resultado de la gestión.');
+    }
+
+    if (errors.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Errores de validación',
+            html: '<ul style="text-align:left;">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>'
+        });
+        return false;
+    }
+    return true;
+}
+
+// Validación al submit
+$(function() {
+    $('#formRespuesta').on('submit', function(e) {
+        if (!validateRespuestaFormSwal()) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+
   // Evento para editar respuesta
   $(document).on("click", '.btnEditResp' , function (e) {
     e.preventDefault();

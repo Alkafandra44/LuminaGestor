@@ -153,7 +153,7 @@
             <div class="form-group d-flex justify-content-between mt-3">
                 <a href="{{ list_url }}" class="btn btn-outline-secondary">Volver</a>
                 <div>
-                  {% if perms.user.view_expediente %}
+                  {% if perms.gestion.view_reclamacion %}
                       <button type="button" id="btnSolucionado" class="btn btn-success">Solucionado</button>
                       <button type="button" id="btnCorregir" class="btn btn-danger">Corregir</button>
                   {% endif %}

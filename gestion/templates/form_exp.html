@@ -30,6 +30,7 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
 <script src="{% static 'respuesta/js/resp.js' %}"></script>
 <script src="{% static 'expediente/js/archivos_preview.js' %}"></script>
 <script src="{% static 'expediente/js/resumen_print.js' %}"></script>
+<script src="{% static 'expediente/js/list.js' %}"></script>
 
 
 {% endblock %}
@@ -69,12 +70,6 @@ href="{% static 'lib/datatables-1.10.20/plugins/responsive-2.2.3/css/responsive.
             <input type="hidden" name="action" value="{{ action }}" />
             <input type="hidden" name="registro" value="{{ registro_id }}" />
             <input type="hidden" name="expediente" value="{{ expediente_id }}" />
-            {% comment %} {% for field in form.visible_fields %}
-            <div class="form-group">
-              <label for="">{{ field.label }}: </label>
-              {{ field|add_class:'form-control'|attr:'autocomplete:off' }}
-            </div>
-            {% endfor %} {% endcomment %}
 
             <!-- Página 1 -->
             <div class="form-page" id="page1">

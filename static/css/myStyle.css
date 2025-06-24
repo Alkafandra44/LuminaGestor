@@ -24,3 +24,8 @@
     max-width: 100px;
     white-space: nowrap;
 }
+
+input[readonly].cliente-readonly {
+    cursor: not-allowed !important;
+    background-color: #f5f5f5;
+}

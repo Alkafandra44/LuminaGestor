@@ -23,9 +23,9 @@ from gestion.models import *
 ## ===== USO DE VISTA BASADAS EN CLASES====##
 
 class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
-    permission_required = ('gestion.add_cliente', 'gestion.view_cliente','gestion.change_cliente', 'gestion.delete_cliente')
     model = Cliente
     template_name = 'clientes/clientes.html'
+    permission_required = 'gestion.view_cliente'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -50,6 +50,8 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                         'municipio_id': i.municipio.id_municipio if i.municipio else None,  # Añade esto
                     })
             elif action == 'add':
+                if not request.user.has_perm('gestion.add_cliente'):
+                    return JsonResponse({'error': 'No tienes permiso para agregar clientes.'}, status=403)
                 cliente = Cliente()
                 cliente.carnet = request.POST['carnet']
                 cliente.nombre = request.POST['nombre']
@@ -59,6 +61,8 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                 cliente.municipio_id = request.POST['municipio']
                 cliente.save()
             elif action == 'edit':
+                if not request.user.has_perm('gestion.change_cliente'):
+                    return JsonResponse({'error': 'No tienes permiso para editar clientes.'}, status=403)
                 cliente = Cliente.objects.get(pk=request.POST['id'])
                 cliente.carnet = request.POST['carnet']
                 cliente.nombre = request.POST['nombre']
@@ -68,6 +72,8 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
                 cliente.municipio_id = request.POST['municipio']
                 cliente.save()
             elif action == 'delete':
+                if not request.user.has_perm('gestion.delete_cliente'):
+                    return JsonResponse({'error': 'No tienes permiso para eliminar clientes.'}, status=403)
                 cliente = Cliente.objects.get(pk=request.POST['id'])
                 cliente.is_delete = True
                 cliente.save()
@@ -87,46 +93,3 @@ class ClienteListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListVie
         context['entity'] = 'Clientes'
         context['form'] = ClienteForm()
         return context
-
-class ClienteCreateViews(CreateView):
-    model = Cliente
-    form_class = ClienteForm
-    template_name = 'clientes/crear.html'
-    
-    # @method_decorator(login_required)
-    # def dispatch(self, request, *args, **kwargs):
-    #     return super().dispatch(request, *args, **kwargs)
-    
-    def post(self, request, *args, **kwargs):
-        data = {}
-        try:
-            action = request.POST['action']
-            if action == 'add':
-                form = self.get_form() #De esta forma tambien se obtienen los datos del formulario
-                data = form.save()
-            else:
-                data['error'] = 'No ha ingresado a ninguna opcion'
-        except Exception as e:
-            data['error'] = str(e)
-        return JsonResponse(data)
-    
-    
-    #     print(request.POST)
-    #     form = ClienteForm(request.POST)
-    #     if form.is_valid():
-    #         form.save()
-    #         return HttpResponseRedirect(self.success_url)
-    #     self.object = None
-    #     context = self.get_context_data(**kwargs)
-    #     context['form'] = form
-    #     return render(request,self.template_name, {'form': form})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Crear Cliente'
-        context['list_url'] = reverse_lazy('gestion:clientes')
-        context['entity'] = 'Clientes'
-        context['action'] = 'add'
-        
-        return context
-

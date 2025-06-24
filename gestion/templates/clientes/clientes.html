@@ -6,6 +6,7 @@
 {% block head_list %}
   <script>
     var userHasDeletePermission = {{ perms.gestion.delete_cliente|yesno:"true,false" }};
+    var userHasEditPermission = {{ perms.gestion.change_cliente|yesno:"true,false" }};
   </script>
   <script src="{% static 'cliente/js/list.js' %}"></script>
 {% endblock %}
@@ -26,11 +27,13 @@
 
 {% endblock rows %}
 
+
 {% block buttons_list %}
   <a class="btn btn-outline-primary mb-3 btnNuevoCliente" type="button">
     <i class="fas fa-plus"> </i> Nuevo
   </a>
 {% endblock %}
+
 
 {% block javascript %}
 <div class="modal fade" id="myModalCliente" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

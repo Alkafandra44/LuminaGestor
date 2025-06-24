@@ -76,7 +76,7 @@ class ExpedienteForm(ModelForm):
         model = Expediente
         fields = '__all__'
         exclude = ['user']
-        template_name = 'expedientes/crear.html' #Para que es la propiedad esta
+        template_name = 'expedientes/crear.html' 
         widgets = {
             'title':TextInput(
                 attrs={
@@ -156,13 +156,10 @@ class ExpedienteForm(ModelForm):
         return clientes
     
     def clean_archivos(self):
-        archivos = self.cleaned_data.get('archivos', [])
-        if not archivos:
-            return[]
-        
+        archivos = self.files.getlist('archivos')
         for archivo in archivos:
-            if archivo.size > 10 * 1024 * 1024:  # 10MB límite
-                raise ValidationError("El archivo {} excede el tamaño máximo permitido (10MB)".format(archivo.name))
+            if archivo.size > 5 * 1024 * 1024:
+                raise ValidationError(f'El archivo {archivo.name} excede el tamaño máximo permitido (5MB).')
         return archivos
     
 class RespuestaClienteForm(ModelForm):

@@ -27,17 +27,19 @@
          <div id="preview-archivos" class="mt-2">
             <ul class="list-group">
                {% for archivo in expediente.archivos.all %}
-                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {% if archivo.archivo.url|lower|endswith:".jpg" or archivo.archivo.url|lower|endswith:".png" %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                     {% if archivo.archivo.url|lower|endswith:".jpg" or archivo.archivo.url|lower|endswith:".png" %}
                            <img src="{{ archivo.archivo.url }}" alt="{{ archivo.nombre }}" style="height:40px; margin-right:10px;">
-                        {% else %}
+                     {% else %}
                            <i class="fas fa-file"></i>
-                        {% endif %}
-                        <a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.nombre }}</a>
-                        <button type="button" class="btn btn-danger btn-sm btnEliminarArchivo" data-archivo-id="{{ archivo.id_archivo }}">
-                           <i class="fas fa-trash"></i>
-                        </button>
-                     </li>
+                     {% endif %}
+                     <a href="{{ archivo.archivo.url }}" target="_blank">{{ archivo.nombre }}</a>
+                     {% if not archivo.archivo %}
+                           <button type="button" class="btn btn-danger btn-sm btnEliminarArchivo" data-archivo-id="{{ archivo.id_archivo }}">
+                              <i class="fas fa-trash"></i>
+                           </button>
+                     {% endif %}
+                  </li>
                {% endfor %}
             </ul>
          </div>

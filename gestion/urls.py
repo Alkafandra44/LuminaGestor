@@ -26,15 +26,11 @@ urlpatterns = [
     
     #respuestas
     path('respuesta/pdf/<int:respuesta_id>/', ExpedienteInvoivePdfView.as_view(), name="respuesta_pdf"),
-    # path('respuesta/save/', RespuestaSaveView.as_view(), name='respuesta_save'),
-    # path('respuesta/get/<int:respuesta_id>/', RespuestaGetView.as_view(), name='respuesta_get'),
-    # path('respuesta/print/<int:respuesta_id>/', RespuestaPrintView.as_view(), name='respuesta_print'),
-
+   
     path('archivo/delete/', ArchivoDeleteView.as_view(), name='archivo_delete'),
     
     #clientes
     path('clientes/', ClienteListar.as_view(), name="clientes"),
-    path('clientes/add', ClienteCreateViews.as_view(), name="clientes_crear"),
 
     #Home
     path('dashboard/', DashboardView.as_view(), name="dashboard"),

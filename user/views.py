@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.views.generic import ListView
 
 from user.models import User
@@ -13,7 +13,7 @@ from user.forms import UserForm
 class UsersListView(LoginRequiredMixin, ListView):
     model = User
     template_name = 'user/user.html'
-    #====permission_required = 'user.view_user'
+    #permission_required = 'user.view_user'
     
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -36,10 +36,12 @@ class UsersListView(LoginRequiredMixin, ListView):
                         'groups': [group.name for group in usuario.groups.all()],
                         'groups_id': [group.id for group in usuario.groups.all()],
                         'date_joined': usuario.date_joined.strftime('%Y-%m-%d %H:%M:%S'),
-                        'is_superuser': usuario.is_superuser,  # <-- Agrega esta línea
+                        'is_superuser': usuario.is_superuser,  
                     }
                     data.append(user_data)
             elif action == 'add':
+                if not request.user.has_perm('user.add_user'):
+                    return JsonResponse({'error': 'No tienes permiso para agregar usuarios.'}, status=403)
                 usuario = User()
                 usuario.first_name = request.POST['first_name']
                 usuario.last_name = request.POST['last_name']
@@ -51,6 +53,8 @@ class UsersListView(LoginRequiredMixin, ListView):
                 if grupos:
                     usuario.groups.set(grupos)
             elif action == 'edit':
+                if not request.user.has_perm('user.change_user'):
+                    return JsonResponse({'error': 'No tienes permiso para editar usuarios.'}, status=403)
                 usuario = User.objects.get(pk=request.POST['id'])
                 usuario.first_name = request.POST['first_name']
                 usuario.last_name = request.POST['last_name']
@@ -64,6 +68,8 @@ class UsersListView(LoginRequiredMixin, ListView):
                 
                 usuario.save()
             elif action == 'delete':
+                if not request.user.has_perm('user.delete_user'):
+                    return JsonResponse({'error': 'No tienes permiso para eliminar usuarios.'}, status=403)
                 usuario = User.objects.get(pk=request.POST['id'])
                 usuario.delete()
             else:

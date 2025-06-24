@@ -35,12 +35,14 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
+        {% if perms.gestion.add_registro %}
         {% block buttons_list %}
           <a href="{{ create_url }}" 
             class="btn btn-outline-primary mb-3 btnNuevoRegistro" type="button" id="btnNuevoRegistro">
             <i class="fas fa-plus"> </i> Nuevo
           </a>
         {% endblock %}
+        {% endif %}
         
         <div class="card card-default">
           <div class="card-header">

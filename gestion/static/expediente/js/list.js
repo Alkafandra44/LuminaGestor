@@ -69,38 +69,106 @@ function getData(){
     });
 }
 
+// Validación en tiempo real para el título (letras y números)
+$(document).on('input', 'input[name="title"]', function() {
+    this.value = this.value.replace(/[^A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
 
-function setupFormValidation() {
-    // Validar título
-    $('input[name="title"]').on('input', function() {
-        const value = $(this).val();
-        if (value.length > 0 && !/^[A-ZÁÉÍÓÚÑ]/.test(value)) {
-            showError($(this), "Debe comenzar con mayúscula");
-        } else {
-            clearError($(this));
+// Validación en tiempo real para el resumen (letras, números, espacios y . , / #, primera letra mayúscula)
+$(document).on('input', 'textarea[name="resumen"]', function() {
+    this.value = this.value.replace(/[^A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]/g, '');
+    if (this.value.length > 0) {
+        this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+    }
+});
+
+// Validación de archivos al seleccionar
+$(document).on('change', 'input[name="archivos"]', function() {
+    const files = this.files;
+    const validTypes = [
+        'application/pdf', 'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel', 
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'image/jpeg', 'image/png'
+    ];
+    let errorMsg = '';
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!validTypes.includes(file.type)) {
+            errorMsg = "Tipo de archivo no permitido: " + file.name;
+            break;
+        } else if (file.size > 5 * 1024 * 1024) {
+            errorMsg = "El archivo " + file.name + " es demasiado grande (máx 5MB) y no se guardará";
+            break;
         }
-    });
-        
-    // Validar archivos
-    $('input[name="archivos"]').on('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const validTypes = ['application/pdf', 'application/msword', 
-                              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                              'application/vnd.ms-excel', 
-                              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                              'image/jpeg', 'image/png'];
-            
-            if (!validTypes.includes(file.type)) {
-                showError($(this), "Tipo de archivo no permitido");
-            } else if (file.size > 5 * 1024 * 1024) {
-                showError($(this), "El archivo es demasiado grande (máx 5MB)");
-            } else {
-                clearError($(this));
-            }
+    }
+    if (errorMsg) {
+        showError($(this), errorMsg);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de archivo',
+            text: errorMsg
+        });
+        this.value = ''; // Limpia el input
+    } else {
+        clearError($(this));
+    }
+});
+
+function validateExpedienteFormSwal() {
+    let errors = [];
+    const title = $('input[name="title"]').val();
+    const resumen = $('textarea[name="resumen"]').val();
+    const archivos = $('input[name="archivos"]')[0].files;
+
+    // Título: solo letras y números, más de 5 caracteres, empieza con mayúscula
+    if (!/^[A-ZÁÉÍÓÚÑ]/.test(title)) {
+        errors.push('El título debe comenzar con letra mayúscula.');
+    }
+    if (!/^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s]+$/.test(title) || title.length <= 5) {
+        errors.push('El título debe tener más de 5 caracteres y solo puede contener letras y números.');
+    }
+
+    // Resumen: solo letras, números y . , / #, más de 50 caracteres, empieza con mayúscula
+    if (resumen.length > 0) {
+        if (!/^[A-ZÁÉÍÓÚÑ]/.test(resumen)) {
+            errors.push('El resumen debe comenzar con letra mayúscula.');
         }
-    });
-    
+        if (!/^[A-Za-z0-9áéíóúñÁÉÍÓÚÑ\s.,/#]+$/.test(resumen) || resumen.length <= 50) {
+            errors.push('El resumen debe tener más de 50 caracteres y solo puede contener letras, números y los caracteres ., / #');
+        }
+    }
+    const validTypes = [
+        'application/pdf', 'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel', 
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'image/jpeg', 'image/png'
+    ];
+    for (let i = 0; i < archivos.length; i++) {
+        const file = archivos[i];
+        if (!validTypes.includes(file.type)) {
+            errors.push("Tipo de archivo no permitido: " + file.name);
+            break;
+        } else if (file.size > 5 * 1024 * 1024) {
+            errors.push("El archivo " + file.name + " es demasiado grande (máx 5MB)");
+            break;
+        }
+    }
+
+    if (errors.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Errores de validación',
+            html: '<ul style="text-align:left;">' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>'
+        });
+        return false;
+    }
+    return true;
 }
 
 function showError(element, message) {
@@ -117,8 +185,7 @@ function clearError(element) {
 $(function(){
     modal_title = $('.modal-title');
 
-    // Configurar validación del formulario
-    setupFormValidation();
+    getData();
 
     // Evento para el botón de editar expediente
     $('#tblExpedientes').on('click', 'a[rel="edit"]', function(e) {
@@ -132,5 +199,11 @@ $(function(){
         window.location.href = $(this).attr('href');
     });
 
+    // Validación al submit del formulario
+    $('#formulariocl').on('submit', function(e) {
+        if (!validateExpedienteFormSwal()) {
+            e.preventDefault();
+            return false;
+        }
+    });
 });
-

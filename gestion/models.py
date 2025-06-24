@@ -12,7 +12,6 @@ from basemodel import BaseModel
 import os
 from django.conf import settings # Para acceder a MEDIA_ROOT
 
-
 #REGISTRO
 class Registro(models.Model):
     id_registro = models.AutoField(primary_key=True)
@@ -214,7 +213,7 @@ class EstadoExpediente(models.Model): #no Choice
 #EXPEDIENTE
 class Expediente(models.Model):
     id_expediente = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=100, default='')
+    title = models.CharField(max_length=100, default='', verbose_name = "Título")
     resumen = models.TextField(blank=True, null=True)
     fecha_create = models.DateTimeField(auto_now_add=True)
     fecha_entrega = models.DateField(null=True, blank=True)
@@ -299,14 +298,6 @@ class Expediente(models.Model):
                 if (old_id != new_id) or (old_title != new_title):
                     if os.path.exists(old_folder_path):
                         os.rename(old_folder_path, expediente_folder)
-
-    # def delete(self, *args, **kwargs):
-    #     # Eliminar la carpeta asociada al expediente
-    #     registro_folder = os.path.join(settings.MEDIA_ROOT, 'registros', self.registro.title)
-    #     expediente_folder = os.path.join(registro_folder, f"{str(self.id_expediente).zfill(3)}_{self.title}")
-    #     if os.path.exists(expediente_folder):
-    #         os.rmdir(expediente_folder)  # Eliminar la carpeta
-    #     super().delete(*args, **kwargs)
 
     def toJSON(self):
         item = model_to_dict(self, exclude=['clientes'])

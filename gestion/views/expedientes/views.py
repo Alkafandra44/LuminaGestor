@@ -1,17 +1,17 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic import CreateView, ListView, TemplateView, DetailView, UpdateView, View
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.views.generic import CreateView, ListView, DetailView, UpdateView
+from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required, permission_required
-from django.urls import reverse, reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from gestion.mixin import ValidatePermissionRequiredMixin
 from gestion.models import EstadoExpediente, Expediente, Registro, Archivo, Cliente, RespuestaCliente
 from gestion.forms import ExpedienteForm, RespuestaClienteForm
 
-# ======LISTAR LOS EXPEDIENTES, pasar para otra carpeta llamada expediente con su views.py renombrar el RegistroCreateView por el ListView =======#
 
-class ExpedientesListar(LoginRequiredMixin, ListView):
+class ExpedientesListar(LoginRequiredMixin, ValidatePermissionRequiredMixin, ListView):
     model = Expediente
     template_name = 'expedientes/registros_detalles.html'
     context_object_name = 'expedientes'
@@ -57,7 +57,7 @@ class ExpedientesListar(LoginRequiredMixin, ListView):
         return context
 
 
-class ExpedienteCreateView(LoginRequiredMixin, CreateView):
+class ExpedienteCreateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, CreateView):
     model = Expediente
     form_class = ExpedienteForm
     template_name = 'expedientes/crear.html'
@@ -142,7 +142,7 @@ class ExpedienteCreateView(LoginRequiredMixin, CreateView):
         context['name'] = 'Panel de Control'
         return context
 
-class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
+class ExpedienteUpdateView(LoginRequiredMixin, ValidatePermissionRequiredMixin, UpdateView):
     model = Expediente
     form_class = ExpedienteForm
     template_name = 'expedientes/edit.html'
@@ -235,6 +235,8 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
             action = request.POST['action']
                         
             if action == 'add_resp':
+                if not request.user.has_perm('gestion.add_respuestacliente'):
+                    return JsonResponse({'error': 'No tienes permiso para agregar respuestas.'}, status=403)
                 expediente = self.get_object()
                 cliente = Cliente.objects.get(pk=request.POST['cliente'])
                 #Validacion de Unicidad
@@ -252,6 +254,8 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                 data['success'] = True
                 data['message'] = 'Respuesta creada correctamente'
             elif action == 'edit_resp':
+                if not request.user.has_perm('gestion.change_respuestacliente'):
+                    return JsonResponse({'error': 'No tienes permiso para editar respuestas.'}, status=403)
                 respuesta_id = request.POST.get('id')
                 if not respuesta_id:
                     raise ValueError("ID de respuesta no proporcionado")
@@ -311,12 +315,11 @@ class ExpedienteUpdateView(LoginRequiredMixin, UpdateView):
                  
         return context
     
-class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
+class ExpedienteTempalteView(LoginRequiredMixin, ValidatePermissionRequiredMixin, DetailView):
     model = Expediente
     template_name = 'expedientes/show.html'
     context_object_name = 'expediente'
-    permission_required = 'gestion.wiev_expediente'
-    
+    permission_required = 'gestion.view_expediente'
     
     def get_object(self, queryset=None):
         return get_object_or_404(
@@ -328,7 +331,6 @@ class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
     def get_success_url(self):
         return reverse_lazy('gestion:registro_detalle', kwargs={'pk': self.kwargs['pk']})
 
-        
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -348,7 +350,7 @@ class ExpedienteTempalteView(LoginRequiredMixin, DetailView):
                 data['success'] = True
             except EstadoExpediente.DoesNotExist:
                 data['error'] = 'Estado de revisión no encontrado'      
-                return JsonResponse(data=400)
+                return JsonResponse({'error': 'Estado de revisión no encontrado'}, status=400)
         
         if action == 'solucionado':
             ok, error = expediente.cambiar_estado('Solucionado')

@@ -5,7 +5,8 @@
 
 {% block head_list %}
   <script>
-    var userHasDeletePermission = {{ perms.gestion.delete_expediente|yesno:"true,false" }};
+    var userHasDeletePermission = {{ perms.gestion.delete_registro|yesno:"true,false" }};
+    var userHasEditPermission = {{ perms.gestion.change_registro|yesno:"true,false" }};
   </script>
   <script src="{% static 'registro/js/list.js' %}"></script>
 {% endblock %}
